@@ -1244,25 +1244,25 @@ function LandingPage() {
 
             {/* Right: Text Information */}
             <div>
-              <span className="text-wood font-semibold text-xs uppercase tracking-widest block mb-3">Our Mission</span>
+              <span className="text-wood font-semibold text-xs uppercase tracking-widest block mb-3">OUR MISSION</span>
               <h2 className="font-serif text-3xl sm:text-4xl font-bold text-primary mb-6">
-                Making "the system" work for everyone
+                Making Indian courts accessible to everyone
               </h2>
               <p className="text-sm sm:text-base text-primary/80 leading-relaxed mb-6 font-sans">
-                For generations, administrative tasks and government paperwork have been unnecessarily confusing. Unclear forms, hidden steps, unwritten rules, and private brokers capitalize on citizens who simply do not know "the system."
+                For generations, navigating the Indian court system has been overwhelming. Confusing case numbers, missed hearing dates, complex legal orders, and lack of transparency leave ordinary citizens lost in a system that was meant to serve them.
               </p>
               <p className="text-sm sm:text-base text-primary/80 leading-relaxed mb-8 font-sans">
-                <strong>CaseWatch</strong> was founded to level the playing field. We believe that securing your constitutional rights, drafting agreements, or updating your identity cards should be straightforward and stress-free. By mapping every single process step-by-step, we empower you to handle your paperwork with confidence.
+                <strong>CaseWatch</strong> was built to change that. We believe every citizen deserves to know the status of their case, understand what happened in their last hearing, and never miss an important court date — without needing to hire someone just to explain the basics.
               </p>
 
               <div className="grid grid-cols-2 gap-6 pt-4 border-t border-primary/5">
                 <div>
-                  <span className="block text-3xl font-serif font-bold text-primary">99.4%</span>
-                  <span className="text-xs text-primary/55 font-medium">Agreement Execution Success Rate</span>
+                  <span className="block text-3xl font-serif font-bold text-primary">10,000+</span>
+                  <span className="text-xs text-primary/55 font-medium">Court Cases Tracked</span>
                 </div>
                 <div>
-                  <span className="block text-3xl font-serif font-bold text-primary">120+</span>
-                  <span className="text-xs text-primary/55 font-medium">Curated Legal Blueprints</span>
+                  <span className="block text-3xl font-serif font-bold text-primary">95%</span>
+                  <span className="text-xs text-primary/55 font-medium">Hearing Alert Accuracy</span>
                 </div>
               </div>
             </div>
