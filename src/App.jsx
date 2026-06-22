@@ -492,7 +492,7 @@ function LandingPage() {
         className="fixed inset-0 z-50 bg-[#101B33] flex flex-col items-center justify-center text-cream overflow-hidden"
         style={{
           opacity: overlayOpacity,
-          transition: 'opacity 0.25s ease-out, visibility 0.25s',
+          transition: 'opacity 0.3s ease-out, visibility 0.3s',
           visibility: scrollY < 80 ? 'visible' : 'hidden',
           pointerEvents: scrollY < 80 ? 'auto' : 'none',
         }}
@@ -1074,13 +1074,10 @@ function LandingPage() {
       <section id="how-it-works" className="py-24 bg-cream relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-20">
-            <span className="text-wood font-semibold text-xs uppercase tracking-widest block mb-3">Our Three-Step Method</span>
+            <span className="text-wood font-semibold text-xs uppercase tracking-widest block mb-3">HOW CASEWATCH WORKS</span>
             <h2 className="font-serif text-3xl sm:text-4xl font-bold text-primary">
-              Demystifying the bureaucracy
+              Your court cases, simplified
             </h2>
-            <p className="text-primary/75 mt-3 text-sm sm:text-base">
-              Here is how we turn overwhelming government procedures into manageable tasks.
-            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
@@ -1089,9 +1086,9 @@ function LandingPage() {
               <div className="w-16 h-16 rounded-full bg-cream border-2 border-wood flex items-center justify-center mx-auto mb-6 shadow-md shadow-wood/5 group-hover:scale-105 transition-transform">
                 <span className="font-serif text-xl font-bold text-wood">01</span>
               </div>
-              <h3 className="font-serif text-lg font-bold text-primary mb-3">Search your document</h3>
+              <h3 className="font-serif text-lg font-bold text-primary mb-3">Track Your Case</h3>
               <p className="text-sm text-primary/75 leading-relaxed max-w-xs mx-auto">
-                Type the name of any standard ID, permit, affidavit, or agreement. We'll fetch the matching curated blueprint instantly.
+                Enter your case number and court details. We instantly pull your complete case history, past orders, and current status from official court records.
               </p>
             </div>
 
@@ -1103,9 +1100,9 @@ function LandingPage() {
               <div className="w-16 h-16 rounded-full bg-cream border-2 border-wood flex items-center justify-center mx-auto mb-6 shadow-md shadow-wood/5 group-hover:scale-105 transition-transform">
                 <span className="font-serif text-xl font-bold text-wood">02</span>
               </div>
-              <h3 className="font-serif text-lg font-bold text-primary mb-3">Follow interactive tasklists</h3>
+              <h3 className="font-serif text-lg font-bold text-primary mb-3">Stay Ahead of Hearings</h3>
               <p className="text-sm text-primary/75 leading-relaxed max-w-xs mx-auto">
-                Clear guidelines tell you what forms to fill, which slot to book, fees to pay, and which original IDs are absolutely required.
+                Get automatic alerts for upcoming hearing dates, sudden adjournments, and next steps — so you never miss a critical court date.
               </p>
             </div>
 
@@ -1117,9 +1114,9 @@ function LandingPage() {
               <div className="w-16 h-16 rounded-full bg-cream border-2 border-wood flex items-center justify-center mx-auto mb-6 shadow-md shadow-wood/5 group-hover:scale-105 transition-transform">
                 <span className="font-serif text-xl font-bold text-wood">03</span>
               </div>
-              <h3 className="font-serif text-lg font-bold text-primary mb-3">Get it done with confidence</h3>
+              <h3 className="font-serif text-lg font-bold text-primary mb-3">Understand What Happened</h3>
               <p className="text-sm text-primary/75 leading-relaxed max-w-xs mx-auto">
-                Use built-in tools like document check, notary scheduling, and online applications to execute the roadmap without stress.
+                Our AI reads complex court orders and explains exactly what was decided, what documents you need next, and what action you must take.
               </p>
             </div>
           </div>

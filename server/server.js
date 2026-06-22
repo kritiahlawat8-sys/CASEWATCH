@@ -258,5 +258,5 @@ app.use((err, req, res, next) => {
 // START SERVER
 // ==========================================
 app.listen(PORT, () => {
-  console.log(`Lexora Auth Server running on http://localhost:${PORT}`);
+  console.log(`CaseWatch Auth Server running on http://localhost:${PORT}`);
 });

@@ -1,4 +1,4 @@
--- Schema for Lexora Database
+-- Schema for CaseWatch Database
 -- Creates the users and cases tables
 
 CREATE TABLE IF NOT EXISTS users (

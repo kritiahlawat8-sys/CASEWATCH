@@ -1,7 +1,7 @@
 {
-  "name": "lexora-server",
+  "name": "casewatch-server",
   "version": "1.0.0",
-  "description": "Backend authentication server for Lexora",
+  "description": "Backend authentication server for CaseWatch",
   "main": "server.js",
   "type": "module",
   "scripts": {
