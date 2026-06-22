@@ -67,7 +67,7 @@ const Signup = () => {
             <Scale className="h-8 w-8 text-[#a67c52] stroke-[1.8]" />
           </div>
           <h2 className="font-serif text-3xl font-bold tracking-tight text-[#101B33]">
-            Lexora
+            CaseWatch
           </h2>
           <span className="block text-[10px] tracking-[0.2em] text-[#a67c52] font-semibold uppercase -mt-1">
             Legal Blueprints
@@ -185,7 +185,7 @@ const Signup = () => {
           </form>
 
           <div className="mt-8 pt-6 border-t border-[#101B33]/5 text-center text-xs text-[#101B33]/40">
-            Secure, encrypted authentication. By signing up you agree to Lexora's Terms of Service.
+            Secure, encrypted authentication. By signing up you agree to CaseWatch's Terms of Service.
           </div>
         </div>
       </div>

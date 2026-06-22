@@ -14,7 +14,7 @@ const ProtectedRoute = ({ children, guestOnly = false }) => {
             <Scale className="h-12 w-12 text-[#a67c52] stroke-[1.5]" />
           </div>
           <h2 className="font-serif text-xl font-bold tracking-tight text-[#fdfbf7] mt-2">
-            Loading Lexora...
+            Loading CaseWatch...
           </h2>
           <span className="text-xs text-[#a67c52] tracking-wider uppercase font-semibold">
             Verifying secure credentials

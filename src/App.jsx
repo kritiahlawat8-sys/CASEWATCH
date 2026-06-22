@@ -452,9 +452,8 @@ function LandingPage() {
   };
 
   // Calculate overlay values based on scroll
-  const overlayProgress = Math.min(1, scrollY / 350);
+  const overlayProgress = Math.min(1, scrollY / 80);
   const overlayOpacity = 1 - overlayProgress;
-  const showOverlay = scrollY < 350;
 
   // Reduced motion support
   const isAnimated = !reduceMotion;
@@ -489,30 +488,30 @@ function LandingPage() {
 
   return (
     <>
-      {showOverlay && (
-        <div 
-          className="fixed inset-0 z-50 bg-[#101B33] flex flex-col items-center justify-center text-cream overflow-hidden pointer-events-none"
-          style={{
-            opacity: overlayOpacity,
-            transition: 'opacity 0.1s ease-out',
-          }}
-        >
-          {/* Centered Logo ONLY */}
-          <div className="flex flex-col items-center gap-4 text-center max-w-md px-6 select-none animate-in fade-in zoom-in-95 duration-500">
-            <div className="bg-[#1B2A4A] p-5 rounded-2xl border border-wood/30 shadow-xl flex items-center justify-center">
-              <Scale className="h-12 w-12 text-tan stroke-[1.5]" />
-            </div>
-            <div>
-              <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-cream">
-                Lexora
-              </h1>
-              <span className="block text-[10px] tracking-[0.2em] text-wood font-semibold uppercase mt-0.5">
-                Legal Blueprints
-              </span>
-            </div>
+      <div 
+        className="fixed inset-0 z-50 bg-[#101B33] flex flex-col items-center justify-center text-cream overflow-hidden"
+        style={{
+          opacity: overlayOpacity,
+          transition: 'opacity 0.25s ease-out, visibility 0.25s',
+          visibility: scrollY < 80 ? 'visible' : 'hidden',
+          pointerEvents: scrollY < 80 ? 'auto' : 'none',
+        }}
+      >
+        {/* Centered Logo ONLY */}
+        <div className="flex flex-col items-center gap-4 text-center max-w-md px-6 select-none animate-in fade-in zoom-in-95 duration-500">
+          <div className="bg-[#1B2A4A] p-5 rounded-2xl border border-wood/30 shadow-xl flex items-center justify-center">
+            <Scale className="h-12 w-12 text-tan stroke-[1.5]" />
+          </div>
+          <div>
+            <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-cream">
+              CaseWatch
+            </h1>
+            <span className="block text-[10px] tracking-[0.2em] text-wood font-semibold uppercase mt-0.5">
+              Legal Intelligence
+            </span>
           </div>
         </div>
-      )}
+      </div>
       
       <div className="min-h-screen bg-cream font-sans flex flex-col antialiased selection:bg-tan selection:text-primary-dark">
       <div className="h-2 w-full wood-gradient-line shadow-sm"></div>
@@ -528,10 +527,10 @@ function LandingPage() {
               </div>
               <div>
                 <span className="font-serif text-2xl font-bold tracking-tight text-primary">
-                  Lexora
+                  CaseWatch
                 </span>
                 <span className="block text-[10px] tracking-[0.15em] text-wood font-medium uppercase font-sans -mt-1">
-                  Legal Blueprints
+                  Legal Intelligence
                 </span>
               </div>
             </div>
@@ -706,7 +705,7 @@ function LandingPage() {
             <div style={heroOtherStyle}>
               {/* Subtext */}
               <p className="text-lg text-primary/75 leading-relaxed max-w-2xl mx-auto mb-10 font-sans">
-              Applying for a passport, updating records, or drafting agreements shouldn't feel like a maze. Lexora converts complex bureaucratic paperwork into clear, interactive action checklists.
+              Applying for a passport, updating records, or drafting agreements shouldn't feel like a maze. CaseWatch converts complex bureaucratic paperwork into clear, interactive action checklists.
             </p>
 
             {/* Search and Suggestions */}
@@ -1061,7 +1060,7 @@ function LandingPage() {
                   <div>
                     <h5 className="font-bold text-sm">Task Blueprint Fully Completed!</h5>
                     <p className="text-xs text-emerald-800/85 mt-1 leading-relaxed">
-                      You've navigated all requirements for this guide. On Lexora, we store your uploaded documents securely and autofill local application portals so you can execute this whole sequence in half the time.
+                      You've navigated all requirements for this guide. On CaseWatch, we store your uploaded documents securely and autofill local application portals so you can execute this whole sequence in half the time.
                     </p>
                   </div>
                 </div>
@@ -1215,7 +1214,7 @@ function LandingPage() {
                 <div className="flex items-center justify-between mb-8 border-b border-wood/15 pb-4">
                   <div className="flex items-center gap-2">
                     <Scale className="h-5 w-5 text-wood" />
-                    <span className="font-serif text-sm font-bold text-cream">Lexora Desk v1.0</span>
+                    <span className="font-serif text-sm font-bold text-cream">CaseWatch Desk v1.0</span>
                   </div>
                   <span className="text-[9px] bg-wood/25 text-tan px-2 py-0.5 rounded border border-wood/30 uppercase font-bold font-sans">
                     Legal Core
@@ -1256,7 +1255,7 @@ function LandingPage() {
                 For generations, administrative tasks and government paperwork have been unnecessarily confusing. Unclear forms, hidden steps, unwritten rules, and private brokers capitalize on citizens who simply do not know "the system."
               </p>
               <p className="text-sm sm:text-base text-primary/80 leading-relaxed mb-8 font-sans">
-                <strong>Lexora</strong> was founded to level the playing field. We believe that securing your constitutional rights, drafting agreements, or updating your identity cards should be straightforward and stress-free. By mapping every single process step-by-step, we empower you to handle your paperwork with confidence.
+                <strong>CaseWatch</strong> was founded to level the playing field. We believe that securing your constitutional rights, drafting agreements, or updating your identity cards should be straightforward and stress-free. By mapping every single process step-by-step, we empower you to handle your paperwork with confidence.
               </p>
 
               <div className="grid grid-cols-2 gap-6 pt-4 border-t border-primary/5">
@@ -1286,7 +1285,7 @@ function LandingPage() {
             <div className="relative max-w-2xl mx-auto">
               <span className="text-wood font-semibold text-xs uppercase tracking-widest block mb-4">Join the Waitlist</span>
               <h2 className="font-serif text-3xl sm:text-4xl font-bold text-cream mb-6">
-                Be the first to access Lexora Premium
+                Be the first to access CaseWatch Premium
               </h2>
               <p className="text-sm sm:text-base text-cream/75 leading-relaxed mb-8">
                 Get notified when we launch our auto-filling assistance portal, direct notary appointments, and legal advice hotlines in your region.
@@ -1339,7 +1338,7 @@ function LandingPage() {
                   <Scale className="h-5 w-5 stroke-[2]" />
                 </div>
                 <span className="font-serif text-xl font-bold tracking-tight text-cream">
-                  Lexora
+                  CaseWatch
                 </span>
               </div>
               <p className="text-xs text-cream/55 leading-relaxed font-sans">
@@ -1392,7 +1391,7 @@ function LandingPage() {
             <div>
               <h4 className="font-serif text-sm font-bold text-cream mb-4 tracking-wide">Get in Touch</h4>
               <ul className="space-y-2.5 text-xs text-cream/60 font-sans">
-                <li>Email: <span className="text-cream">advocacy@lexora.org</span></li>
+                <li>Email: <span className="text-cream">advocacy@casewatch.org</span></li>
                 <li>Phone: <span className="text-cream">+91 (11) 4022-8090</span></li>
                 <li>Address: Connaught Place, New Delhi, India</li>
               </ul>
@@ -1403,7 +1402,7 @@ function LandingPage() {
           {/* Sub-footer */}
           <div className="mt-16 pt-8 border-t border-wood/15 flex flex-col sm:flex-row items-center justify-between text-xs text-cream/45 gap-4">
             <div>
-              &copy; {new Date().getFullYear()} Lexora Technologies. All rights reserved.
+              &copy; {new Date().getFullYear()} CaseWatch Technologies. All rights reserved.
             </div>
             <div className="flex gap-6">
               <a href="#about" className="hover:text-wood transition-colors">Privacy Policy</a>
