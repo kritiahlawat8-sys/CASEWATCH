@@ -458,61 +458,20 @@ function LandingPage() {
   // Reduced motion support
   const isAnimated = !reduceMotion;
 
-  // 1. Heading Style (appears first, starting off-screen at translateY(180px))
-  const headingStyle = isAnimated ? {
-    opacity: scrollY < 40 ? 0 : Math.min(1, (scrollY - 40) / 200),
-    transform: `translateY(${scrollY < 40 ? 180 : Math.max(0, 180 - (scrollY - 40) / 200 * 180)}px)`,
-    transition: 'opacity 0.1s ease-out, transform 0.1s ease-out'
-  } : {};
+  // 1. Heading Style (disabled scroll-driven animation)
+  const headingStyle = {};
 
-  // 2. Navbar Style (appears with header bar)
-  const navbarStyle = isAnimated ? {
-    opacity: scrollY < 180 ? 0 : Math.min(1, (scrollY - 180) / 120),
-    transform: `translateY(${scrollY < 180 ? -15 : Math.max(0, -15 + (scrollY - 180) / 120 * 15)}px)`,
-    transition: 'opacity 0.1s ease-out, transform 0.1s ease-out'
-  } : {};
+  // 2. Navbar Style (disabled scroll-driven animation)
+  const navbarStyle = {};
 
-  // 3. Hero Other elements Style (Badge, Subtext, Search, Quick links - rising in sync with heading)
-  const heroOtherStyle = isAnimated ? {
-    opacity: scrollY < 80 ? 0 : Math.min(1, (scrollY - 80) / 220),
-    transform: `translateY(${scrollY < 80 ? 180 : Math.max(0, 180 - (scrollY - 80) / 220 * 180)}px)`,
-    transition: 'opacity 0.1s ease-out, transform 0.1s ease-out'
-  } : {};
+  // 3. Hero Other elements Style (disabled scroll-driven animation)
+  const heroOtherStyle = {};
 
-  // 4. Rest of website Style (all sections below Hero - rising in sync with Hero)
-  const restOfSiteStyle = isAnimated ? {
-    opacity: scrollY < 120 ? 0 : Math.min(1, (scrollY - 120) / 240),
-    transform: `translateY(${scrollY < 120 ? 180 : Math.max(0, 180 - (scrollY - 120) / 240 * 180)}px)`,
-    transition: 'opacity 0.15s ease-out, transform 0.15s ease-out'
-  } : {};
+  // 4. Rest of website Style (disabled scroll-driven animation)
+  const restOfSiteStyle = {};
 
   return (
     <>
-      <div 
-        className="fixed inset-0 z-50 bg-[#101B33] flex flex-col items-center justify-center text-cream overflow-hidden"
-        style={{
-          opacity: overlayOpacity,
-          transition: 'opacity 0.3s ease-out, visibility 0.3s',
-          visibility: scrollY < 80 ? 'visible' : 'hidden',
-          pointerEvents: scrollY < 80 ? 'auto' : 'none',
-        }}
-      >
-        {/* Centered Logo ONLY */}
-        <div className="flex flex-col items-center gap-4 text-center max-w-md px-6 select-none animate-in fade-in zoom-in-95 duration-500">
-          <div className="bg-[#1B2A4A] p-5 rounded-2xl border border-wood/30 shadow-xl flex items-center justify-center">
-            <Scale className="h-12 w-12 text-tan stroke-[1.5]" />
-          </div>
-          <div>
-            <h1 className="font-serif text-3xl sm:text-4xl font-bold tracking-tight text-cream">
-              CaseWatch
-            </h1>
-            <span className="block text-[10px] tracking-[0.2em] text-wood font-semibold uppercase mt-0.5">
-              Legal Intelligence
-            </span>
-          </div>
-        </div>
-      </div>
-      
       <div className="min-h-screen bg-cream font-sans flex flex-col antialiased selection:bg-tan selection:text-primary-dark">
       <div className="h-2 w-full wood-gradient-line shadow-sm"></div>
 
