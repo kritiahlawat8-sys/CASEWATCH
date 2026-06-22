@@ -698,14 +698,14 @@ function LandingPage() {
 
             {/* Main Headline */}
             <h1 style={headingStyle} className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-primary leading-[1.1] mb-6">
-              Cut through document confusion with <span className="text-wood-dark italic font-medium">step-by-step</span> clarity.
+              Never miss a hearing. Never lose track of a case.
             </h1>
 
             {/* Hero Remaining Content Wrapper */}
             <div style={heroOtherStyle}>
               {/* Subtext */}
               <p className="text-lg text-primary/75 leading-relaxed max-w-2xl mx-auto mb-10 font-sans">
-              Applying for a passport, updating records, or drafting agreements shouldn't feel like a maze. CaseWatch converts complex bureaucratic paperwork into clear, interactive action checklists.
+              Navigating Indian courts shouldn't feel impossible. CaseWatch tracks your case status, alerts you before every hearing, and explains complex court orders in plain language — so you always know what's happening and what to do next.
             </p>
 
             {/* Search and Suggestions */}
@@ -729,7 +729,7 @@ function LandingPage() {
                   type="submit"
                   className="bg-primary hover:bg-primary-light text-cream font-medium px-7 py-4 rounded-xl shadow-md border-b-2 border-wood/50 hover:shadow-lg hover:translate-y-[-1px] transition-all flex items-center justify-center gap-2 text-sm whitespace-nowrap"
                 >
-                  Generate Blueprint
+                  Track Your Case
                   <ArrowRight className="h-4 w-4" />
                 </button>
               </form>
