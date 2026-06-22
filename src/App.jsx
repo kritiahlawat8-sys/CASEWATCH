@@ -23,7 +23,9 @@ import {
   X, 
   Send,
   HelpCircle,
-  AlertCircle
+  AlertCircle,
+  Bell,
+  AlertTriangle
 } from 'lucide-react'
 
 // Sample guides data for the interactive widget
@@ -316,11 +318,9 @@ const CATEGORIES = [
 ];
 
 const POPULAR_SEARCHES = [
-  { term: "Fresh Passport Application", id: "passport" },
-  { term: "Aadhaar Address Change", id: "aadhar" },
-  { term: "Rent Agreement 11-Months", id: "rent" },
-  { term: "File an RTI", id: "rti-info" },
-  { term: "Name Change Affidavit", id: "affidavit-info" }
+  { term: "CRL/2024/004521", id: "crl-4521" },
+  { term: "LPA/2023/008912", id: "lpa-8912" },
+  { term: "W.P.(C)/2024/001140", id: "wp-1140" }
 ];
 
 function LandingPage() {
@@ -350,30 +350,13 @@ function LandingPage() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchRef = useRef(null);
 
-  // Demo Widget states
-  const [activeGuideId, setActiveGuideId] = useState('passport');
-  const [checkedSteps, setCheckedSteps] = useState({});
-  const [expandedStepIndex, setExpandedStepIndex] = useState(0);
+  // Demo Widget states (Case Tracker Preview)
+  const [caseSearchNumber, setCaseSearchNumber] = useState('CRL/2024/004521');
+  const [showCaseResult, setShowCaseResult] = useState(false);
 
   // Early Access Email Sign-up state
   const [email, setEmail] = useState('');
   const [signupSubmitted, setSignupSubmitted] = useState(false);
-
-  // Guide search dropdown selections
-  const activeGuide = SAMPLE_GUIDES.find(g => g.id === activeGuideId) || SAMPLE_GUIDES[0];
-
-  // Reset checked steps when switching guides
-  useEffect(() => {
-    // initialize checked steps for active guide to empty if not already set
-    if (!checkedSteps[activeGuide.id]) {
-      setCheckedSteps(prev => ({
-        ...prev,
-        [activeGuide.id]: new Array(activeGuide.steps.length).fill(false)
-      }));
-    }
-    // Expand the first step when guide switches
-    setExpandedStepIndex(0);
-  }, [activeGuideId]);
 
   // Click outside search suggestions handler
   useEffect(() => {
@@ -386,47 +369,19 @@ function LandingPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleStepCheck = (guideId, stepIndex, event) => {
-    event.stopPropagation(); // Avoid expanding/collapsing when checking/unchecking
-    
-    setCheckedSteps(prev => {
-      const currentGuideChecked = [...(prev[guideId] || new Array(SAMPLE_GUIDES.find(g => g.id === guideId).steps.length).fill(false))];
-      currentGuideChecked[stepIndex] = !currentGuideChecked[stepIndex];
-      return {
-        ...prev,
-        [guideId]: currentGuideChecked
-      };
-    });
-  };
-
-  const getGuideProgress = (guideId) => {
-    const checkedList = checkedSteps[guideId];
-    if (!checkedList) return 0;
-    const completedCount = checkedList.filter(Boolean).length;
-    return Math.round((completedCount / checkedList.length) * 100);
-  };
-
-  const currentProgress = getGuideProgress(activeGuide.id);
-
   // Handle hero search click
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    handleSearchSelection(searchQuery);
+    if (searchQuery.trim()) {
+      handleSearchSelection(searchQuery);
+    } else {
+      handleSearchSelection('CRL/2024/004521');
+    }
   };
 
   const handleSearchSelection = (term) => {
-    const normalized = term.toLowerCase();
-    let targetId = 'passport'; // default fallback
-
-    if (normalized.includes('pass') || normalized.includes('visa')) {
-      targetId = 'passport';
-    } else if (normalized.includes('aadhar') || normalized.includes('card') || normalized.includes('address')) {
-      targetId = 'aadhar';
-    } else if (normalized.includes('rent') || normalized.includes('agreement') || normalized.includes('house') || normalized.includes('lease')) {
-      targetId = 'rent';
-    }
-
-    setActiveGuideId(targetId);
+    setCaseSearchNumber(term);
+    setShowCaseResult(true);
     setShowSuggestions(false);
     setSearchQuery('');
     
@@ -755,275 +710,162 @@ function LandingPage() {
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-wood font-semibold text-xs uppercase tracking-widest block mb-3">Live Interactive Sandbox</span>
+            <span className="text-wood font-semibold text-xs uppercase tracking-widest block mb-3">LIVE CASE TRACKER PREVIEW</span>
             <h2 className="font-serif text-3xl sm:text-4xl font-bold text-cream mb-4">
-              Experience the Guided Checklist
+              See how CaseWatch works in real time
             </h2>
             <p className="text-cream/75 max-w-xl mx-auto font-sans text-sm sm:text-base">
-              Test drive our platform below. Select a legal or administrative procedure to see how we compile, sequence, and clarify each mandatory step.
+              Enter your case number below to preview our real-time court tracking, calendar sync, and AI order explanation features.
             </p>
           </div>
 
-          {/* Interactive Widget Main Container */}
-          <div className="max-w-5xl mx-auto bg-primary border border-wood/25 rounded-2xl shadow-2xl overflow-hidden flex flex-col lg:flex-row">
-            
-            {/* Left Sidebar: Guide Selector */}
-            <div className="w-full lg:w-80 border-b lg:border-b-0 lg:border-r border-wood/15 bg-primary-dark/40 flex flex-col justify-between">
-              <div>
-                <div className="p-5 border-b border-wood/15">
-                  <h3 className="font-serif text-lg font-bold text-cream flex items-center gap-2">
-                    <BookOpen className="h-5 w-5 text-wood" />
-                    Select Blueprint
-                  </h3>
-                  <p className="text-[11px] text-cream/50 mt-1">
-                    Choose one of the common admin processes below to preview.
-                  </p>
-                </div>
-                <div className="p-3 space-y-1.5">
-                  {SAMPLE_GUIDES.map((guide) => {
-                    const GuideIcon = guide.icon;
-                    const isActive = activeGuide.id === guide.id;
-                    const progress = getGuideProgress(guide.id);
-                    return (
-                      <button
-                        key={guide.id}
-                        onClick={() => setActiveGuideId(guide.id)}
-                        className={`w-full text-left p-3.5 rounded-xl transition-all duration-200 border flex items-center justify-between ${
-                          isActive 
-                            ? 'bg-cream text-primary border-wood shadow-md shadow-black/10' 
-                            : 'bg-primary/30 text-cream hover:bg-primary/60 border-transparent'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3.5 min-w-0">
-                          <div className={`p-2 rounded-lg transition-all ${
-                            isActive ? 'bg-primary/10 text-primary' : 'bg-primary-dark/70 text-wood'
-                          }`}>
-                            <GuideIcon className="h-4.5 w-4.5" />
-                          </div>
-                          <div className="min-w-0">
-                            <h4 className="text-xs font-semibold truncate leading-snug">{guide.title}</h4>
-                            <span className={`text-[10px] block ${isActive ? 'text-wood-dark' : 'text-cream/45'}`}>
-                              {guide.steps.length} procedural steps
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Completed Checkmark / Progress indicator */}
-                        <div>
-                          {progress === 100 ? (
-                            <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500 fill-emerald-500/10 flex-shrink-0" />
-                          ) : progress > 0 ? (
-                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${isActive ? 'bg-wood/10 text-wood-dark' : 'bg-primary-dark/80 text-wood'}`}>
-                              {progress}%
-                            </span>
-                          ) : (
-                            <ArrowRight className={`h-3.5 w-3.5 opacity-40 group-hover:translate-x-0.5 transition-transform ${isActive ? 'text-primary' : 'text-cream'}`} />
-                          )}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
+          <div className="max-w-4xl mx-auto bg-primary border border-wood/25 rounded-2xl shadow-2xl p-6 sm:p-8">
+            {/* Fake Case Search Bar */}
+            <div className="flex flex-col sm:flex-row gap-3 mb-8">
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-cream/40" />
+                <input 
+                  type="text" 
+                  value={caseSearchNumber}
+                  onChange={(e) => setCaseSearchNumber(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      setShowCaseResult(true);
+                    }
+                  }}
+                  placeholder="Enter case number (e.g., CRL/2024/004521)" 
+                  className="w-full pl-12 pr-4 py-4 rounded-xl border border-wood/20 bg-primary-dark/50 text-cream placeholder-cream/40 focus:outline-none focus:border-wood transition-all font-sans"
+                />
               </div>
-
-              {/* Decorative note in widget sidebar */}
-              <div className="p-5 border-t border-wood/15 bg-primary-dark/20 hidden lg:block">
-                <div className="flex gap-2">
-                  <AlertCircle className="h-4 w-4 text-wood-light flex-shrink-0 mt-0.5" />
-                  <p className="text-[10.5px] text-cream/65 leading-relaxed">
-                    Blueprints are regularly verified by legal practitioners and municipal experts against current regulations.
-                  </p>
-                </div>
-              </div>
+              <button 
+                onClick={() => setShowCaseResult(true)}
+                className="bg-wood hover:bg-wood-light text-primary-dark font-bold px-8 py-4 rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 text-sm whitespace-nowrap"
+              >
+                Track Case
+                <ArrowRight className="h-4 w-4" />
+              </button>
             </div>
 
-            {/* Right Pane: Main Step-by-Step Checklist */}
-            <div className="flex-1 flex flex-col bg-cream text-primary">
-              
-              {/* Checklist Header */}
-              <div className="p-6 sm:p-8 border-b border-primary/5 bg-cream-alt flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                  <h3 className="font-serif text-xl sm:text-2xl font-bold text-primary">
-                    {activeGuide.title}
-                  </h3>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs text-primary/75">
-                    <span className="flex items-center gap-1">
-                      <Clock className="h-3.5 w-3.5 text-wood" /> Timeframe: <strong>{activeGuide.time}</strong>
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <DollarSign className="h-3.5 w-3.5 text-wood" /> Est. Cost: <strong>{activeGuide.cost}</strong>
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <ShieldCheck className="h-3.5 w-3.5 text-wood" /> Level: <strong>{activeGuide.difficulty}</strong>
-                    </span>
-                  </div>
-                </div>
-
-                {/* Reset Buttons */}
-                <button
-                  onClick={() => {
-                    setCheckedSteps(prev => ({
-                      ...prev,
-                      [activeGuide.id]: new Array(activeGuide.steps.length).fill(false)
-                    }));
-                  }}
-                  className="text-xs font-semibold text-wood hover:text-wood-dark border border-wood/20 hover:border-wood/50 px-3 py-1.5 rounded-lg transition-colors self-start sm:self-center"
-                >
-                  Reset Checklist
-                </button>
-              </div>
-
-              {/* Progress Bar Header */}
-              <div className="px-6 sm:px-8 py-4 bg-primary-light border-b border-wood/20 text-cream flex items-center justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex justify-between text-xs font-semibold mb-1 text-tan">
-                    <span>PROGRESS COMPLETED</span>
-                    <span>{currentProgress}%</span>
-                  </div>
-                  <div className="w-full bg-primary-dark rounded-full h-2 overflow-hidden border border-wood/10">
-                    <div 
-                      className="bg-wood h-full rounded-full transition-all duration-300 shadow-[0_0_8px_rgba(166,124,82,0.4)]"
-                      style={{ width: `${currentProgress}%` }}
-                    ></div>
-                  </div>
-                </div>
-                <div className="flex-shrink-0 bg-primary-dark/80 px-3 py-2 rounded-lg border border-wood/15 text-center min-w-16">
-                  <span className="block text-2xl font-serif font-bold text-cream leading-none">
-                    {(checkedSteps[activeGuide.id] || []).filter(Boolean).length}
-                  </span>
-                  <span className="text-[9px] uppercase tracking-wider text-tan font-bold block mt-1">
-                    of {activeGuide.steps.length} Steps
-                  </span>
-                </div>
-              </div>
-
-              {/* Vertical steps items */}
-              <div className="p-6 sm:p-8 space-y-4 max-h-[500px] overflow-y-auto">
-                {activeGuide.steps.map((step, idx) => {
-                  const isChecked = !!(checkedSteps[activeGuide.id] && checkedSteps[activeGuide.id][idx]);
-                  const isExpanded = expandedStepIndex === idx;
-                  
-                  return (
-                    <div 
-                      key={idx}
-                      className={`border rounded-xl transition-all duration-300 overflow-hidden ${
-                        isExpanded 
-                          ? 'border-wood/35 bg-cream-alt shadow-md' 
-                          : 'border-primary/5 bg-cream hover:border-primary/15 hover:shadow-sm'
-                      }`}
-                    >
-                      {/* Step Header Block */}
-                      <div 
-                        onClick={() => setExpandedStepIndex(isExpanded ? null : idx)}
-                        className="p-4 sm:p-5 flex items-start gap-4 cursor-pointer select-none"
-                      >
-                        {/* Checkbox circle */}
-                        <div 
-                          onClick={(e) => handleStepCheck(activeGuide.id, idx, e)}
-                          className={`h-6 w-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all cursor-pointer ${
-                            isChecked 
-                              ? 'bg-wood border-wood text-cream scale-110 shadow-sm' 
-                              : 'border-primary/20 hover:border-wood text-transparent'
-                          }`}
-                        >
-                          <svg className="h-3 w-3 stroke-[3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                          </svg>
-                        </div>
-
-                        {/* Title and Summary */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-                            <h4 className={`text-sm sm:text-base font-semibold transition-colors ${
-                              isChecked ? 'text-primary/50 line-through' : 'text-primary'
-                            }`}>
-                              {step.title}
-                            </h4>
-                            <div className="flex items-center gap-1.5 flex-shrink-0">
-                              <span className="text-[10px] font-bold text-wood px-2 py-0.5 rounded bg-wood/10">
-                                {step.duration}
-                              </span>
-                              <span className="text-[10px] font-bold text-primary/60 px-2 py-0.5 rounded bg-primary/5">
-                                {step.location}
-                              </span>
-                            </div>
-                          </div>
-                          <p className={`text-xs text-primary/70 mt-1 leading-relaxed truncate ${isExpanded ? 'hidden' : ''}`}>
-                            {step.description}
-                          </p>
-                        </div>
-
-                        {/* Accordion toggle */}
-                        <div className="text-primary/45 flex-shrink-0 mt-0.5">
-                          {isExpanded ? <ChevronUp className="h-4.5 w-4.5" /> : <ChevronDown className="h-4.5 w-4.5" />}
-                        </div>
-                      </div>
-
-                      {/* Expandable Step Details */}
-                      {isExpanded && (
-                        <div className="px-5 pb-5 pt-1 border-t border-primary/5 animate-in fade-in slide-in-from-top-2 duration-200">
-                          
-                          {/* Main Description */}
-                          <p className="text-xs sm:text-sm text-primary/80 leading-relaxed mb-4">
-                            {step.description}
-                          </p>
-
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                            {/* Inner Checklist */}
-                            <div className="bg-cream p-4 rounded-lg border border-primary/5">
-                              <span className="block font-bold text-[10px] tracking-wider text-wood uppercase mb-2">
-                                WHAT YOU DO
-                              </span>
-                              <ul className="space-y-1.5 text-primary/85 leading-relaxed">
-                                {step.checklist.map((item, cIdx) => (
-                                  <li key={cIdx} className="flex items-start gap-2">
-                                    <span className="text-wood font-extrabold mt-0.5">•</span>
-                                    <span>{item}</span>
-                                  </li>
-                                ))}
-                              </ul>
-                            </div>
-
-                            {/* Required Docs & Costs */}
-                            <div className="bg-cream p-4 rounded-lg border border-primary/5 flex flex-col justify-between gap-3">
-                              <div>
-                                <span className="block font-bold text-[10px] tracking-wider text-wood uppercase mb-2">
-                                  REQUIRED ORIGINALS
-                                </span>
-                                <ul className="space-y-1.5 text-primary/85 leading-relaxed">
-                                  {step.documents.map((doc, dIdx) => (
-                                    <li key={dIdx} className="flex items-start gap-2">
-                                      <span className="text-amber-700 font-extrabold mt-0.5">✓</span>
-                                      <span>{doc}</span>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                              <div className="pt-2.5 border-t border-primary/5 flex items-center justify-between text-primary/60 font-semibold text-[11px]">
-                                <span>Fee: <strong className="text-primary">{step.cost}</strong></span>
-                                <span>Platform Assist: <strong className="text-emerald-700">Supported</strong></span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
+            {/* Demo Result Card (animated) */}
+            {showCaseResult && (
+              <div className="animate-in fade-in slide-in-from-bottom-6 duration-500 space-y-6 text-left">
+                
+                {/* Case Info Header Card */}
+                <div className="bg-cream text-primary rounded-xl p-6 border border-wood/20 shadow-md">
+                  <div className="flex flex-col md:flex-row justify-between md:items-start gap-4 pb-4 border-b border-primary/10">
+                    <div>
+                      <h3 className="font-serif text-xl sm:text-2xl font-bold text-primary">
+                        Sharma vs. State of Delhi
+                      </h3>
+                      <p className="text-xs text-primary/60 font-semibold tracking-wider uppercase mt-1">
+                        CRL/2024/004521 • Delhi High Court
+                      </p>
                     </div>
-                  );
-                })}
-              </div>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-semibold self-start">
+                      <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
+                      Next Hearing Scheduled
+                    </span>
+                  </div>
 
-              {/* Checklist Footer Notification */}
-              {currentProgress === 100 && (
-                <div className="m-6 sm:m-8 mt-0 p-5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 flex items-start gap-3.5 animate-in zoom-in-95 duration-200">
-                  <CheckCircle2 className="h-6 w-6 text-emerald-600 flex-shrink-0 mt-0.5 fill-emerald-100" />
-                  <div>
-                    <h5 className="font-bold text-sm">Task Blueprint Fully Completed!</h5>
-                    <p className="text-xs text-emerald-800/85 mt-1 leading-relaxed">
-                      You've navigated all requirements for this guide. On CaseWatch, we store your uploaded documents securely and autofill local application portals so you can execute this whole sequence in half the time.
-                    </p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 text-sm">
+                    <div>
+                      <span className="block text-[10px] text-primary/45 uppercase tracking-wider font-bold mb-1">
+                        Last Hearing
+                      </span>
+                      <p className="font-semibold text-primary/95">15 March 2024</p>
+                      <p className="text-xs text-primary/65 mt-0.5">Arguments heard, next date given</p>
+                    </div>
+                    <div>
+                      <span className="block text-[10px] text-primary/45 uppercase tracking-wider font-bold mb-1">
+                        Next Hearing Date
+                      </span>
+                      <p className="font-semibold text-wood-dark font-serif text-base">28 June 2024</p>
+                      <p className="text-xs text-primary/65 mt-0.5">Listed for Final Hearing stage</p>
+                    </div>
+                    <div>
+                      <span className="block text-[10px] text-primary/45 uppercase tracking-wider font-bold mb-1">
+                        Presiding Judge
+                      </span>
+                      <p className="font-semibold text-primary/95">Hon. Justice R.K. Mehta</p>
+                      <p className="text-xs text-primary/65 mt-0.5">Single-Judge Bench</p>
+                    </div>
+                  </div>
+
+                  {/* Past Hearings Timeline Strip */}
+                  <div className="mt-8 pt-6 border-t border-primary/10">
+                    <span className="block text-[10.5px] text-primary/45 uppercase tracking-widest font-bold mb-4">
+                      Past Hearings Timeline
+                    </span>
+                    <div className="grid grid-cols-4 gap-2 relative">
+                      {/* Horizontal connecting line */}
+                      <div className="absolute top-[9px] left-[12%] right-[12%] h-0.5 bg-primary/10"></div>
+                      
+                      {[
+                        { date: '10 Jan 2024', label: 'Adjourned' },
+                        { date: '28 Jan 2024', label: 'Notice Issued' },
+                        { date: '20 Feb 2024', label: 'Reply Filed' },
+                        { date: '15 Mar 2024', label: 'Arguments' },
+                      ].map((item, index) => (
+                        <div key={index} className="text-center relative">
+                          <div className="w-5 h-5 rounded-full bg-cream border-2 border-wood mx-auto flex items-center justify-center relative z-10">
+                            <div className="w-1.5 h-1.5 rounded-full bg-wood"></div>
+                          </div>
+                          <span className="block text-xs font-semibold text-primary mt-2">{item.date}</span>
+                          <span className="block text-[9px] text-primary/55 mt-0.5 font-medium">{item.label}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              )}
+
+                {/* 3 Alert Cards Row */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Yellow: Hearing reminder alert */}
+                  <div className="bg-amber-500/10 border border-amber-500/35 rounded-xl p-5 text-amber-100 flex gap-3">
+                    <div className="bg-amber-500/20 p-2.5 rounded-lg border border-amber-500/30 flex items-center justify-center self-start text-amber-400">
+                      <Bell className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-serif text-sm font-bold text-amber-200">Hearing Reminder</h4>
+                      <p className="text-xs text-amber-100/85 mt-1 leading-relaxed">
+                        Hearing is scheduled in 6 days (28 June 2024). Auto-added to your Calendar.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Blue: Order uploaded alert */}
+                  <div className="bg-blue-500/10 border border-blue-500/35 rounded-xl p-5 text-blue-100 flex gap-3">
+                    <div className="bg-blue-500/20 p-2.5 rounded-lg border border-blue-500/30 flex items-center justify-center self-start text-blue-400">
+                      <FileText className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-serif text-sm font-bold text-blue-200">Order Uploaded</h4>
+                      <p className="text-xs text-blue-100/85 mt-1 leading-relaxed">
+                        AI parsed order from 15 March: Court ordered State to submit response by 20 May.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Red: Document required alert */}
+                  <div className="bg-rose-500/10 border border-rose-500/35 rounded-xl p-5 text-rose-100 flex gap-3">
+                    <div className="bg-rose-500/20 p-2.5 rounded-lg border border-rose-500/30 flex items-center justify-center self-start text-rose-400">
+                      <AlertTriangle className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-serif text-sm font-bold text-rose-200">Action Required</h4>
+                      <p className="text-xs text-rose-100/85 mt-1 leading-relaxed">
+                        A certified copy of the Trial Court record must be uploaded before the next hearing.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            )}
+            
+            {/* Disclaimer / Note */}
+            <div className="text-center mt-6 text-xs text-cream/40 font-medium">
+              Demo data only. Real tracking requires case registration on CaseWatch.
             </div>
           </div>
         </div>
@@ -1129,12 +971,11 @@ function LandingPage() {
                     </span>
                     <button 
                       onClick={() => {
-                        let target = 'passport';
-                        if (cat.title.includes('Aadhar') || cat.title.includes('Identity')) target = 'passport';
-                        if (cat.title.includes('Affidavits')) target = 'aadhar';
-                        if (cat.title.includes('Property')) target = 'rent';
-                        setActiveGuideId(target);
-                        document.getElementById('interactive-demo')?.scrollIntoView({ behavior: 'smooth' });
+                        let target = 'CRL/2024/004521';
+                        if (cat.title.includes('Aadhar') || cat.title.includes('Identity')) target = 'CRL/2024/004521';
+                        if (cat.title.includes('Affidavits')) target = 'LPA/2023/008912';
+                        if (cat.title.includes('Property')) target = 'W.P.(C)/2024/001140';
+                        handleSearchSelection(target);
                       }}
                       className="text-xs font-bold text-wood hover:text-wood-dark flex items-center gap-1 transition-colors"
                     >
@@ -1307,27 +1148,22 @@ function LandingPage() {
 
             {/* Column 2: Browse */}
             <div>
-              <h4 className="font-serif text-sm font-bold text-cream mb-4 tracking-wide">Browse Blueprints</h4>
+              <h4 className="font-serif text-sm font-bold text-cream mb-4 tracking-wide">Sample Cases</h4>
               <ul className="space-y-2.5 text-xs text-cream/60">
                 <li>
-                  <button onClick={() => { setActiveGuideId('passport'); document.getElementById('interactive-demo')?.scrollIntoView({ behavior: 'smooth' }); }} className="hover:text-wood transition-colors">
-                    Passport (Fresh Apply)
+                  <button onClick={() => handleSearchSelection('CRL/2024/004521')} className="hover:text-wood transition-colors">
+                    CRL/2024/004521 (Sharma vs. State)
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => { setActiveGuideId('aadhar'); document.getElementById('interactive-demo')?.scrollIntoView({ behavior: 'smooth' }); }} className="hover:text-wood transition-colors">
-                    Aadhaar Card Updates
+                  <button onClick={() => handleSearchSelection('LPA/2023/008912')} className="hover:text-wood transition-colors">
+                    LPA/2023/008912 (Malhotra vs. MCD)
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => { setActiveGuideId('rent'); document.getElementById('interactive-demo')?.scrollIntoView({ behavior: 'smooth' }); }} className="hover:text-wood transition-colors">
-                    Rent Lease Agreements
+                  <button onClick={() => handleSearchSelection('W.P.(C)/2024/001140')} className="hover:text-wood transition-colors">
+                    W.P.(C)/2024/001140 (Gupta vs. UOI)
                   </button>
-                </li>
-                <li>
-                  <a href="#browse-guides" className="hover:text-wood transition-colors">
-                    Affidavits & Deeds
-                  </a>
                 </li>
               </ul>
             </div>
