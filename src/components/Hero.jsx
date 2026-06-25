@@ -40,7 +40,9 @@ const Hero = () => {
         </div>
         
         <p className="hero-description">
-          50 million pending cases, one platform to track yours.
+          With over 50 million pending cases across India, navigate the legal system effortlessly. <br />
+          CaseWatch is your unified platform to decode complex court documents, <br />
+          and track yours.
         </p>
       </div>
     </section>
