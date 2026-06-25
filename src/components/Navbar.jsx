@@ -29,12 +29,8 @@ const Navbar = () => {
           <span className="hamburger-icon"></span>
         </button>
 
-        <a href="/" className="navbar-logo-link" aria-label="CaseWatch Home">
-          <div className="navbar-logo-mark">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2L2 12L12 22L22 12L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
+        <a href="/" className="navbar-logo">
+          <img src="/logo.png" alt="CaseWatch Logo" className="logo-img" />
           <span className="navbar-wordmark">CASEWATCH</span>
         </a>
       </div>

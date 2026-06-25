@@ -53,10 +53,13 @@
 
 .hero-text-box {
   position: relative;
+  z-index: 2; /* Ensure box stays above images */
   border: 1px solid #2563eb; /* Legal Blue */
   padding: 48px 80px;
   margin-bottom: 48px;
   display: inline-block;
+  opacity: 0;
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .hero-title {
@@ -108,7 +111,9 @@
 .hero-buttons {
   display: flex;
   gap: 16px;
-  margin-bottom: 48px;
+  margin-bottom: 40px;
+  opacity: 0;
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
 }
 
 .btn-dark {
@@ -157,12 +162,14 @@
 }
 
 .hero-description {
-  font-family: var(--nav-font, 'Inter', sans-serif);
-  font-size: 16px;
-  line-height: 1.6;
-  color: #666666;
   max-width: 600px;
+  font-family: var(--nav-font, 'Inter', sans-serif);
+  font-size: 18px;
+  line-height: 1.6;
+  color: #666666; /* Subdued grey */
   margin: 0;
+  opacity: 0;
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
 }
 
 /* Responsiveness */
@@ -181,5 +188,58 @@
   .btn-dark, .btn-outline {
     width: 100%;
     justify-content: center;
+  }
+  .floating-img {
+    display: none; /* Hide on small screens to avoid clutter */
+  }
+}
+
+/* Decorative Images (Static) */
+.floating-img {
+  position: absolute;
+  z-index: 0;
+  mix-blend-mode: multiply; /* Makes white backgrounds transparent against the light grid */
+  transform: rotate(var(--rotation));
+  filter: drop-shadow(0 10px 20px rgba(0,0,0,0.1)); /* Adds 3D depth */
+  pointer-events: none;
+  opacity: 0; /* Starts hidden, animates to 0.65 */
+}
+
+.floating-left {
+  --rotation: 10deg;
+  top: -10%;
+  left: -450px;
+  width: 650px;
+  animation: slideInSides 1s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards;
+}
+
+.floating-right {
+  --rotation: -15deg;
+  top: -10%;
+  right: -450px;
+  width: 650px;
+  animation: slideInSides 1s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInSides {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) rotate(calc(var(--rotation) * 1.5));
+  }
+  100% {
+    opacity: 0.65;
+    transform: scale(1) rotate(var(--rotation));
   }
 }

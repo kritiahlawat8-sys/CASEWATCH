@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import './App.css'
-import CourtMap from './component/CourtMap'
+import CourtMap from './components/CourtMap'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 

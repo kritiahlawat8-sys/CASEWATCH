@@ -66,6 +66,24 @@ body {
   gap: 12px;
 }
 
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.navbar-logo:hover {
+  transform: scale(1.02);
+}
+
+.logo-img {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+
 .navbar-logo-link {
   display: flex;
   align-items: center;

@@ -7,6 +7,10 @@ const Hero = () => {
       <div className="hero-grid-bg"></div>
       
       <div className="hero-content">
+        {/* Floating Decorative Images */}
+        <img src="/contract.png" alt="" className="floating-img floating-left" />
+        <img src="/stamp.png" alt="" className="floating-img floating-right" />
+        
         <div className="hero-text-box">
           <div className="anchor tl"></div>
           <div className="anchor tr"></div>
