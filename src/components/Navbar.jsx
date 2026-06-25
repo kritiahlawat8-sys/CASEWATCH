@@ -35,7 +35,7 @@ const Navbar = () => {
               <path d="M12 2L2 12L12 22L22 12L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </div>
-          <span className="navbar-wordmark">CaseWatch</span>
+          <span className="navbar-wordmark">CASEWATCH</span>
         </a>
       </div>
 

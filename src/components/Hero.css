@@ -51,12 +51,20 @@
   }
 }
 
+.hero-text-box {
+  position: relative;
+  border: 1px solid #2563eb; /* Legal Blue */
+  padding: 48px 80px;
+  margin-bottom: 48px;
+  display: inline-block;
+}
+
 .hero-title {
   font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
   font-size: 64px;
   font-weight: 700;
   color: #1c1c1c;
-  margin: 0 0 8px 0;
+  margin: 0 0 24px 0; /* INCREASED SPACE HERE */
   letter-spacing: -0.02em;
 }
 
@@ -65,8 +73,36 @@
   font-size: 36px;
   font-weight: 600;
   color: #262626;
-  margin: 0 0 40px 0;
+  margin: 0;
   letter-spacing: -0.02em;
+}
+
+/* Figma-style Bounding Box Anchors */
+.anchor {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  background-color: #2563eb;
+}
+.anchor.tl { top: -4px; left: -4px; }
+.anchor.tr { top: -4px; right: -4px; }
+.anchor.bl { bottom: -4px; left: -4px; }
+.anchor.br { bottom: -4px; right: -4px; }
+
+/* Handle icon */
+.handle {
+  position: absolute;
+  top: -20px;
+  left: 20px;
+  width: 28px;
+  height: 28px;
+  background-color: #fafafa;
+  border-radius: 50%;
+  border: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .hero-buttons {

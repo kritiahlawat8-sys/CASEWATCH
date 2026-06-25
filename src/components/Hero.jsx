@@ -7,8 +7,19 @@ const Hero = () => {
       <div className="hero-grid-bg"></div>
       
       <div className="hero-content">
-        <h1 className="hero-title">CASEWATCH</h1>
-        <h2 className="hero-subtitle">India's Legal Navigator</h2>
+        <div className="hero-text-box">
+          <div className="anchor tl"></div>
+          <div className="anchor tr"></div>
+          <div className="anchor bl"></div>
+          <div className="anchor br"></div>
+          <div className="handle">
+             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+               <path d="M4 4L20 12L4 20V4Z" fill="#e0e0e0" stroke="#d0d0d0" strokeWidth="2" strokeLinejoin="round"/>
+             </svg>
+          </div>
+          <h1 className="hero-title">CASEWATCH</h1>
+          <h2 className="hero-subtitle">India's Legal Navigator</h2>
+        </div>
         
         <div className="hero-buttons">
           <button className="btn-dark">
