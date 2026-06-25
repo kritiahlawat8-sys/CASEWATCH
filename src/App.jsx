@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import './App.css'
-import CourtMap from './components/CourtMap'
+import CourtMap from './component/CourtMap'
 import Navbar from './components/Navbar'
+import Hero from './components/Hero'
 
 function App() {
   return (
@@ -9,10 +10,7 @@ function App() {
       <Navbar />
 
       {/* Hero Section */}
-      <section id="hero">
-        <h1>CaseWatch</h1>
-        <p>Placeholder - hero content coming soon</p>
-      </section>
+      <Hero />
 
       {/* Why CaseWatch */}
       <section id="why-casewatch">
