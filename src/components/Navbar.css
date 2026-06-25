@@ -1,11 +1,11 @@
 :root {
-  --bg-navbar: #f8f8f8;
-  --text-primary: #262626;
-  --text-nav-default: #3e3d37;
-  --text-nav-muted: #949494;
-  --btn-primary-bg: #262626;
-  --btn-primary-text: #f8f8f8;
-  --btn-primary-radius: 999px;
+  --bg-navbar: #ffffff; /* OpenDesign clean white background */
+  --text-primary: #1c1c1c; /* Very dark grey, almost black */
+  --text-nav-default: #4f4f4f; /* Medium grey for links */
+  --text-nav-hover: #1c1c1c;
+  --btn-primary-bg: #282828;
+  --btn-primary-text: #ffffff;
+  --btn-primary-radius: 999px; /* full pill */
   --nav-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
@@ -14,97 +14,144 @@ body {
   font-family: var(--nav-font);
 }
 
+@keyframes navbarDropIn {
+  0% {
+    opacity: 0;
+    transform: rotateX(-30deg) translateY(-50px) translateZ(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: rotateX(0) translateY(0) translateZ(0);
+  }
+}
+
 .navbar {
   position: sticky;
   top: 0;
   z-index: 1000;
   background-color: var(--bg-navbar);
   height: 72px;
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  padding: 0 40px; /* Slightly wider padding like OpenDesign */
+  /* Remove heavy box shadow, use a subtle 1px border or super light shadow if any */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06); /* 3D depth shadow */
+  animation: navbarDropIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  transform-style: preserve-3d;
+  perspective: 1000px;
 }
 
 .navbar-left {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 12px;
 }
 
 .navbar-logo-link {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   text-decoration: none;
   color: var(--text-primary);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style: preserve-3d;
+}
+
+.navbar-logo-link:hover {
+  transform: translateZ(20px) rotateY(15deg) rotateX(5deg);
 }
 
 .navbar-logo-mark {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   background-color: var(--text-primary);
   color: var(--bg-navbar);
-  border-radius: 8px;
+  border-radius: 10px; /* OpenDesign's rounded square */
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 18px;
 }
 
 .navbar-wordmark {
   font-weight: 700;
-  font-size: 18px;
-  letter-spacing: -0.01em;
+  font-size: 19px;
+  letter-spacing: -0.02em;
+}
+
+/* Center Container for true absolute centering */
+.navbar-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .navbar-links {
   display: flex;
-  gap: 24px;
+  gap: 32px;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.navbar-links a {
+.navbar-links a.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   text-decoration: none;
   color: var(--text-nav-default);
   font-weight: 500;
-  font-size: 15px;
-  transition: color 0.2s, border-bottom 0.2s;
-  padding-bottom: 2px;
-  border-bottom: 2px solid transparent;
+  font-size: 14.5px;
+  transition: color 0.2s;
 }
 
-.navbar-links a:hover {
-  color: var(--text-primary);
-  border-bottom: 2px solid var(--text-primary);
+.navbar-links a.nav-item:hover {
+  color: var(--text-nav-hover);
+}
+
+/* Dropdown chevron to match screenshot */
+.chevron {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  margin-bottom: 2px;
+  opacity: 0.6;
 }
 
 .navbar-right {
   display: flex;
   align-items: center;
-  margin-left: 32px; /* Generous gap from links */
 }
 
 .btn-get-started {
   background-color: var(--btn-primary-bg);
   color: var(--btn-primary-text);
   border-radius: var(--btn-primary-radius);
-  padding: 10px 20px;
-  font-weight: 600;
-  font-size: 15px;
+  padding: 10px 22px;
+  font-weight: 500;
+  font-size: 14.5px;
   border: none;
   cursor: pointer;
-  transition: transform 0.2s, background-color 0.2s;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, background-color 0.2s;
   font-family: inherit;
+  box-shadow: 0 4px 0 #000, 0 5px 10px rgba(0,0,0,0.15);
 }
 
 .btn-get-started:hover {
-  background-color: #3b3b3b; /* ~10% lighter */
-  transform: scale(1.02);
+  background-color: #1a1a1a;
+  transform: translateY(2px) translateZ(10px) rotateX(5deg);
+  box-shadow: 0 2px 0 #000, 0 3px 6px rgba(0,0,0,0.15);
+}
+
+.btn-get-started:active {
+  transform: translateY(4px) translateZ(0) rotateX(0deg);
+  box-shadow: 0 0 0 #000;
 }
 
 .hamburger {
@@ -143,30 +190,30 @@ body {
 }
 
 /* Mobile Menu */
-@media (max-width: 768px) {
-  .navbar-links {
-    display: none;
-    flex-direction: column;
+@media (max-width: 900px) {
+  .navbar-center {
+    display: none; /* Hide for mobile */
     position: absolute;
     top: 72px;
     left: 0;
+    transform: none;
     width: 100%;
     background-color: var(--bg-navbar);
-    padding: 20px 24px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    gap: 16px;
+    padding: 20px 40px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
   }
 
-  .navbar-links.open {
-    display: flex;
+  .navbar-center.open {
+    display: block;
+  }
+
+  .navbar-links {
+    flex-direction: column;
+    gap: 20px;
   }
 
   .hamburger {
     display: block;
     margin-right: 16px;
-  }
-  
-  .navbar-right {
-    margin-left: 0;
   }
 }
