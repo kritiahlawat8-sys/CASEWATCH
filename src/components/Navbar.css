@@ -43,6 +43,21 @@ body {
   animation: navbarDropIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
   transform-style: preserve-3d;
   perspective: 1000px;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); /* Smooth transition for scroll effect */
+  margin: 0 auto;
+}
+
+.navbar.scrolled {
+  width: calc(100% - 48px);
+  max-width: 1200px;
+  top: 24px;
+  border-radius: 999px;
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  border-bottom: none;
 }
 
 .navbar-left {
