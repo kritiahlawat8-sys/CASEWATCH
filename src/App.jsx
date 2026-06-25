@@ -1,24 +1,16 @@
 import { useState } from 'react'
 import './App.css'
-import CourtMap from './components/CourtMap'
+import CourtMap from './component/CourtMap'
+import Navbar from './components/Navbar'
+import Hero from './components/Hero'
 
 function App() {
   return (
     <>
-      {/* Navbar */}
-      <nav>
-        <ul>
-          <li><a href="#">Home</a></li>
-          <li><a href="#">About</a></li>
-          <li><a href="#">Contact</a></li>
-        </ul>
-      </nav>
+      <Navbar />
 
       {/* Hero Section */}
-      <section id="hero">
-        <h1>CaseWatch</h1>
-        <p>Placeholder - hero content coming soon</p>
-      </section>
+      <Hero />
 
       {/* Why CaseWatch */}
       <section id="why-casewatch">
