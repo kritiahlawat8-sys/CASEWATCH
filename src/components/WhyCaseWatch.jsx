@@ -203,11 +203,18 @@ const WhyCaseWatch = () => {
         <div className="overview-inner">
           
           <header ref={headerRef} className="overview-header js-fade-in-up">
-            <p className="overview-eyebrow">Overview</p>
-            <h2 className="overview-heading">Why Choose<br/>CaseWatch?</h2>
-            <p className="overview-lede">
-              Tracking Indian court cases across multiple platforms is slow, complex, and prone to missed updates. CaseWatch centralizes this process. By leveraging AI and official CNR data, it provides real-time hearing updates, decodes dense legal documents, and automates administrative tasks like affidavit generation—all without requiring a user login.
-            </p>
+            <div className="flex flex-col md:flex-row items-center md:items-stretch justify-between gap-8 md:gap-12 w-full">
+              <div className="w-full md:w-3/5 lg:w-2/3">
+                <p className="overview-eyebrow">Overview</p>
+                <h2 className="overview-heading">Why Choose<br/>CaseWatch?</h2>
+                <p className="overview-lede">
+                  Tracking Indian court cases across multiple platforms is slow, complex, and prone to missed updates. CaseWatch centralizes this process. By leveraging AI and official CNR data, it provides real-time hearing updates, decodes dense legal documents, and automates administrative tasks like affidavit generation—all without requiring a user login.
+                </p>
+              </div>
+              <div className="flex w-full md:w-2/5 lg:w-1/3 justify-center items-center opacity-80 my-8 md:my-0" aria-hidden="true">
+                <img src="/ashoka.png" alt="Ashoka Stambh" className="w-[240px] md:w-[280px] lg:w-[350px] h-auto object-contain mix-blend-multiply scale-[1.35] translate-x-[70px] md:translate-x-[140px] lg:translate-x-[250px]" />
+              </div>
+            </div>
           </header>
 
           <ul className="features-grid" role="list" aria-label="Core features">
