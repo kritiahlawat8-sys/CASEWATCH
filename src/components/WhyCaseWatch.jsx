@@ -129,7 +129,8 @@ const WhyCaseWatch = () => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             entry.target.classList.add('is-visible');
-            obs.unobserve(entry.target);
+          } else {
+            entry.target.classList.remove('is-visible');
           }
         });
       }, { ...observerOptions, threshold: 0.2 });
@@ -143,7 +144,8 @@ const WhyCaseWatch = () => {
           const idx = parseInt(entry.target.getAttribute('data-index'), 10) || 0;
           entry.target.style.transitionDelay = `${idx * 90}ms`;
           entry.target.classList.add('is-visible');
-          obs.unobserve(entry.target);
+        } else {
+          entry.target.classList.remove('is-visible');
         }
       });
     }, observerOptions);

@@ -40,7 +40,7 @@
 }
 
 .why-eyebrow {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--sans);
   font-size: var(--why-t-eyebrow);
   font-weight: 600;
   letter-spacing: 0.14em;
@@ -50,7 +50,7 @@
 }
 
 .why-body {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--heading);
   font-size: clamp(1.5rem, 3vw, 2.5rem);
   font-weight: 800;
   line-height: 1.4;
@@ -119,7 +119,7 @@
 }
 
 .overview-heading {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--heading);
   font-size: var(--why-t-h2);
   font-weight: 800;
   line-height: 1.08;
@@ -192,7 +192,7 @@
 }
 
 .feature-title {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--sans);
   font-size: clamp(0.95rem, 1.3vw, 1.05rem);
   font-weight: 700;
   letter-spacing: -0.01em;

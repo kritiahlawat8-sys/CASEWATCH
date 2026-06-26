@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { ComposableMap, Geographies, Geography, Marker, Line } from "react-simple-maps";
+import Reveal from './Reveal';
 
 const geoUrl = "/india2.json";
 
@@ -58,8 +59,8 @@ export default function CourtMap() {
         .orbital-path {
           stroke: rgba(16, 185, 129, 0.2);
           stroke-width: 1px;
-          stroke-dasharray: 4 4;
           fill: none;
+          stroke-dasharray: 4 4;
         }
         .court-marker {
           transition: all 0.3s ease;
@@ -70,23 +71,39 @@ export default function CourtMap() {
         }
       `}</style>
 
-      <div className="max-w-[1200px] mx-auto px-[24px] md:px-[40px] w-full grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
-        {/* Left Column (45%) */}
-        <div className="lg:col-span-5 text-left space-y-6 -mt-12 lg:-mt-32">
-          <span className="font-mono text-[11px] text-[#6B6B6B] uppercase tracking-wider block">
-            COURT COVERAGE
-          </span>
-          <h2 className="font-heading text-[40px] md:text-[48px] font-black text-[#1A1A1A] leading-[1.1]" style={{color: "#1A1A1A"}}>
-            Every High Court.<br />
-            Every District Bench.<br />
-            All In One Place.
-          </h2>
-          <p className="font-sans text-[16px] text-[#6B6B6B] leading-relaxed max-w-[420px]">
-            CaseWatch maps over 3,000 court complexes across India.
-            Whether your case is in the Supreme Court or a remote District Court,
-            we automatically sync hearings, orders, and statuses directly to your dashboard.
-          </p>
-        </div>
+      <div className="w-full max-w-[1400px] mx-auto px-8 md:px-12 lg:px-20 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+          
+          {/* Left Column (45%) */}
+          <div className="lg:col-span-5 flex flex-col gap-6 md:gap-8 relative z-20">
+            <Reveal delay={0}>
+              <span className="font-mono text-[11px] text-[#6B6B6B] uppercase tracking-wider block">
+                COURT COVERAGE
+              </span>
+            </Reveal>
+            <Reveal delay={100}>
+              <h2 className="font-heading text-[40px] md:text-[48px] font-black text-[#1A1A1A] leading-[1.1]" style={{color: "#1A1A1A"}}>
+                Every High Court.<br />
+                Every District Bench.<br />
+                All In One Place.
+              </h2>
+            </Reveal>
+            <Reveal delay={200}>
+              <p className="font-sans text-[16px] text-[#6B6B6B] leading-relaxed max-w-[420px]">
+                CaseWatch maps over 3,000 court complexes across India. Whether it's the Supreme Court in Delhi, a High Court branch in Lucknow, or a District Court in Kerala, we capture real-time docket updates automatically. 
+              </p>
+            </Reveal>
+            <Reveal delay={300}>
+              <div className="flex gap-4 mt-4">
+                <div className="bg-[#10B981]/10 px-4 py-2 rounded-full border border-[#10B981]/20 backdrop-blur-sm">
+                  <span className="font-mono text-[#10B981] font-medium text-sm">✓ 25 High Courts</span>
+                </div>
+                <div className="bg-[#10B981]/10 px-4 py-2 rounded-full border border-[#10B981]/20 backdrop-blur-sm hidden sm:block">
+                  <span className="font-mono text-[#10B981] font-medium text-sm">✓ 600+ District Courts</span>
+                </div>
+              </div>
+            </Reveal>
+          </div>
 
         {/* Right Column (55%) */}
         <div className="lg:col-span-7 relative h-[600px] flex items-center justify-center -mt-12 lg:-mt-24">
@@ -176,6 +193,7 @@ export default function CourtMap() {
 
           </div>
         </div>
+      </div>
       </div>
     </section>
   );

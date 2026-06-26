@@ -5,9 +5,11 @@ import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import WhyCaseWatch from './components/WhyCaseWatch'
 
+import { ReactLenis } from 'lenis/react'
+
 function App() {
   return (
-    <>
+    <ReactLenis root>
       <Navbar />
 
       {/* Hero Section */}
@@ -29,7 +31,7 @@ function App() {
       <footer>
         <p>© 2024 CaseWatch</p>
       </footer>
-    </>
+    </ReactLenis>
   )
 }
 
