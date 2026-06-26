@@ -57,7 +57,7 @@ const WhyCaseWatch = () => {
     let lastLitCount = -1;
 
     const cacheLayout = () => {
-      const rect = revealEl.getBoundingClientRect();
+      const rect = whySection.getBoundingClientRect();
       const scrollTop = window.scrollY || window.pageYOffset;
       textElementTopOnPage = rect.top + scrollTop;
       windowHeight = window.innerHeight;
@@ -72,10 +72,11 @@ const WhyCaseWatch = () => {
     const updateProgress = () => {
       const scrollTop = window.scrollY || window.pageYOffset;
 
-      // Reveal starts when top of paragraph enters the bottom of the viewport,
-      // and completes when the top of the paragraph reaches the middle (50vh)
-      const startScroll = textElementTopOnPage - windowHeight;
-      const endScroll   = textElementTopOnPage - windowHeight * 0.5;
+      // Reveal starts when the sticky section hits the top of the viewport
+      // and ends when the section is about to scroll out of view.
+      const sectionHeight = whySection.offsetHeight;
+      const startScroll = textElementTopOnPage;
+      const endScroll   = textElementTopOnPage + sectionHeight - windowHeight;
       const scrollRange = endScroll - startScroll;
 
       if (scrollRange <= 0) return;
