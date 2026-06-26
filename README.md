@@ -30,4 +30,29 @@ A curated directory of verified links to official Indian government and court po
 
 ---
 
-*Built for the citizens of India. Access to legal information is a right, not a privilege.*
+## Getting Started
+
+Follow these instructions to get a copy of the project up and running on your local machine for development and testing purposes.
+
+### Prerequisites
+
+Make sure you have Node.js and npm installed on your system.
+
+### Local Installation & Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone [https://github.com/your-username/casewatch.git](https://github.com/your-username/casewatch.git)
+   cd casewatch
+   Install dependencies
+2. Install the required Node packages specified in "package.json":
+
+Bash```
+"npm install"```
+Run the Development Server
+Start the local development environment using Vite:
+
+Bash```
+npm run dev```
+Open the App
+Once the server starts, open your browser and navigate to the local address provided in your terminal
