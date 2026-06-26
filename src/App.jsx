@@ -3,6 +3,7 @@ import './App.css'
 import CourtMap from './components/CourtMap'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
+import WhyCaseWatch from './components/WhyCaseWatch'
 
 function App() {
   return (
@@ -12,11 +13,8 @@ function App() {
       {/* Hero Section */}
       <Hero />
 
-      {/* Why CaseWatch */}
-      <section id="why-casewatch">
-        <h2>Why CaseWatch?</h2>
-        <p>Placeholder - content coming soon</p>
-      </section>
+      {/* Why CaseWatch & Overview */}
+      <WhyCaseWatch />
 
       {/* Map Section */}
       <CourtMap />
