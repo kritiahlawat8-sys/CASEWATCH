@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CaseWatch — Why CaseWatch</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="why-casewatch.css" />
+</head>
+<body>
+
+  <!-- Scroll progress scaffold — gives JS a top anchor -->
+  <div id="page-top" aria-hidden="true"></div>
+
+  <!-- ─────────────────────────────────────────────
+       SECTION 1 · Why CaseWatch (scroll-driven reveal)
+  ───────────────────────────────────────────── -->
+  <section id="why-casewatch" class="why-section" aria-label="Why CaseWatch">
+
+    <div class="why-inner">
+
+      <p class="why-eyebrow" aria-hidden="true">Why CaseWatch?</p>
+
+      <!-- JS splits this into .word spans; the data-text attr is the source of truth -->
+      <p
+        class="why-body js-reveal-text"
+        id="why-reveal-text"
+        aria-label="With over 50 million pending cases across India, navigating the legal system can feel overwhelming. CaseWatch changes this. It is an open-source, AI-powered platform that tracks court cases, decodes complex legal documents, and automates affidavit generation using just a CNR number. No complicated logins, no expensive legal fees—just transparent, automated legal intelligence."
+      >
+        With over 50 million pending cases across India, navigating the legal system can feel overwhelming. <strong>CaseWatch changes this.</strong> It is an open-source, AI-powered platform that tracks court cases, decodes complex legal documents, and automates affidavit generation using just a CNR number. No complicated logins, no expensive legal fees—just transparent, automated legal intelligence.
+      </p>
+
+    </div>
+
+  </section>
+
+  <!-- ─────────────────────────────────────────────
+       SECTION 2 · Overview
+  ───────────────────────────────────────────── -->
+  <section id="overview" class="overview-section" aria-label="CaseWatch Overview">
+
+    <div class="overview-inner">
+
+      <!-- Header block -->
+      <header class="overview-header js-fade-in-up">
+        <p class="overview-eyebrow">Overview</p>
+        <h2 class="overview-heading">Why Choose<br/>CaseWatch?</h2>
+        <p class="overview-lede">
+          Tracking Indian court cases across multiple platforms is slow, complex, and prone to missed updates. CaseWatch centralizes this process. By leveraging AI and official CNR data, it provides real-time hearing updates, decodes dense legal documents, and automates administrative tasks like affidavit generation—all without requiring a user login.
+        </p>
+      </header>
+
+      <!-- Features grid -->
+      <ul class="features-grid" role="list" aria-label="Core features">
+
+        <li class="feature-card js-stagger-card" data-index="0">
+          <div class="feature-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="3" fill="currentColor"/>
+              <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="feature-title">Automated Case Tracking</h3>
+          <p class="feature-desc">Enter a CNR number to receive instant, automated updates on case statuses, upcoming hearings, and historical court orders.</p>
+        </li>
+
+        <li class="feature-card js-stagger-card" data-index="1">
+          <div class="feature-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3 class="feature-title">AI Document Decoding</h3>
+          <p class="feature-desc">Our AI engine analyzes and simplifies complex legal jargon, making dense court documents easy to understand for both citizens and professionals.</p>
+        </li>
+
+        <li class="feature-card js-stagger-card" data-index="2">
+          <div class="feature-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="2"/>
+              <path d="M7 8h10M7 12h6M7 16h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="feature-title">Affidavit Generation</h3>
+          <p class="feature-desc">Automate the creation of standard legal affidavits with integrated templates, saving hours of manual drafting and formatting.</p>
+        </li>
+
+        <li class="feature-card js-stagger-card" data-index="3">
+          <div class="feature-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3 class="feature-title">Frictionless Access</h3>
+          <p class="feature-desc">An entirely open-source platform designed for public utility. Track cases and access legal intelligence without any mandatory logins or paywalls.</p>
+        </li>
+
+      </ul>
+
+    </div>
+
+  </section>
+
+  <script src="why-casewatch.js"></script>
+</body>
+</html>
