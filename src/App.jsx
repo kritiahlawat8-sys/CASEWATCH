@@ -4,6 +4,7 @@ import CourtMap from './components/CourtMap'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import WhyCaseWatch from './components/WhyCaseWatch'
+import Footer from './components/Footer'
 
 import { ReactLenis } from 'lenis/react'
 
@@ -28,9 +29,7 @@ function App() {
       </section>
 
       {/* Footer */}
-      <footer>
-        <p>© 2024 CaseWatch</p>
-      </footer>
+      <Footer />
     </ReactLenis>
   )
 }
