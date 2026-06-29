@@ -14,19 +14,11 @@
   --faq-accent: #2563eb;
   --faq-accent-bg: rgba(37, 99, 235, 0.08);
   --faq-accent-border: rgba(37, 99, 235, 0.3);
+  --text: #6b6375;
+  --text-h: #08060d;
 }
 
-@media (prefers-color-scheme: dark) {
-  .faq-section {
-    /* Adjusted colors for dark mode context (matches WhyCaseWatch dark backgrounds) */
-    --faq-bg: #0b0c0f;
-    --faq-card-bg: #16171d;
-    --faq-border: #2e303a;
-    --faq-accent: #3b82f6;
-    --faq-accent-bg: rgba(59, 130, 246, 0.15);
-    --faq-accent-border: rgba(59, 130, 246, 0.4);
-  }
-}
+
 
 .faq-container {
   max-width: 1000px;
