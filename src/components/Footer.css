@@ -362,3 +362,19 @@
         padding-top: 3rem;
     }
 }
+
+
+
+
+
+/* Disclaimer text */
+.footer-disclaimer {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--footer-border);
+    font-size: 0.75rem;
+    color: var(--footer-text-muted);
+    text-align: center;
+    line-height: 1.5;
+}
+

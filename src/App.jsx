@@ -1,34 +1,22 @@
-import { useState } from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import './App.css'
-import CourtMap from './components/CourtMap'
-import Navbar from './components/Navbar'
-import Hero from './components/Hero'
-import WhyCaseWatch from './components/WhyCaseWatch'
-import FAQ from './components/FAQ'
-import Footer from './components/Footer'
-
-import { ReactLenis } from 'lenis/react'
+import Home from './pages/Home'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import TermsOfUse from './pages/TermsOfUse'
+import Disclaimer from './pages/Disclaimer'
+import Grievance from './pages/Grievance'
 
 function App() {
   return (
-    <ReactLenis root>
-      <Navbar />
-
-      {/* Hero Section */}
-      <Hero />
-
-      {/* Why CaseWatch & Overview */}
-      <WhyCaseWatch />
-
-      {/* Map Section */}
-      <CourtMap />
-
-      {/* FAQ */}
-      <FAQ />
-
-      {/* Footer */}
-      <Footer />
-    </ReactLenis>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms-of-use" element={<TermsOfUse />} />
+        <Route path="/disclaimer" element={<Disclaimer />} />
+        <Route path="/grievance" element={<Grievance />} />
+      </Routes>
+    </Router>
   )
 }
 

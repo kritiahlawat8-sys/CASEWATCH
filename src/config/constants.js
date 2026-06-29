@@ -1,0 +1,13 @@
+export const COMPANY_NAME = "CaseWatch Platform";
+export const RETENTION_PERIOD_PLACEHOLDER = "10 years";
+export const PRIVACY_CONTACT_EMAIL_PLACEHOLDER = "privacy@casewatch.in";
+export const GOVERNING_LAW_JURISDICTION_PLACEHOLDER = "New Delhi, India";
+export const JURISDICTION_PLACEHOLDER = "New Delhi, India";
+export const GRIEVANCE_OFFICER_NAME_PLACEHOLDER = "[Grievance Officer Name]";
+export const DESIGNATION_PLACEHOLDER = "Chief Grievance Officer";
+export const GRIEVANCE_EMAIL_PLACEHOLDER = "grievance@casewatch.in";
+export const REGISTERED_ADDRESS_PLACEHOLDER = "[Registered Address, New Delhi]";
+export const PHONE_PLACEHOLDER = "+91-XXXXXXXXXX";
+export const X_DAYS_ACKNOWLEDGE_PLACEHOLDER = "48 hours";
+export const X_DAYS_RESOLUTION_PLACEHOLDER = "30 days";
+export const LAST_UPDATED_DATE = "July 1, 2026";

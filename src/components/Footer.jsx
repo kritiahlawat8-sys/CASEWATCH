@@ -1,4 +1,6 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import { govPortalsLinks } from '../config/govPortalsLinks';
 import './Footer.css';
 
 export default function Footer() {
@@ -73,11 +75,17 @@ export default function Footer() {
           <div className="footer-column">
             <h3 className="column-title">GOV PORTALS</h3>
             <ul className="footer-links">
-              <li><a href="#ecourts">e-Courts</a></li>
-              <li><a href="#nalsa">NALSA</a></li>
-              <li><a href="#supreme-court">Supreme Court</a></li>
-              <li><a href="#lok-adalat">Lok Adalat</a></li>
-              <li><a href="#ncdr">NCDR</a></li>
+              {govPortalsLinks.map((link) => (
+                <li key={link.label}>
+                  <a 
+                    href={link.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
           
@@ -85,10 +93,10 @@ export default function Footer() {
           <div className="footer-column">
             <h3 className="column-title">LEGAL</h3>
             <ul className="footer-links">
-              <li><a href="#privacy">Privacy Policy</a></li>
-              <li><a href="#terms">Terms of Use</a></li>
-              <li><a href="#disclaimer">Disclaimer</a></li>
-              <li><a href="#grievance">Grievance</a></li>
+              <li><Link to="/privacy-policy">Privacy Policy</Link></li>
+              <li><Link to="/terms-of-use">Terms of Use</Link></li>
+              <li><Link to="/disclaimer">Disclaimer</Link></li>
+              <li><Link to="/grievance">Grievance</Link></li>
             </ul>
           </div>
           
@@ -98,7 +106,7 @@ export default function Footer() {
         <div className="footer-bottom">
           <div className="footer-bottom-flex">
             <p className="copyright">
-              &copy; 2026 CaseWatch - Not a law firm - Free public platform - <a href="#privacy">Privacy Policy</a> - <a href="#terms">Terms</a>
+              &copy; 2026 CaseWatch - Not a law firm - Free public platform - <Link to="/privacy-policy">Privacy Policy</Link> - <Link to="/terms-of-use">Terms</Link>
             </p>
             <div className="govt-affiliation">
               <span className="flag-icon">
@@ -110,6 +118,9 @@ export default function Footer() {
             </div>
           </div>
           
+          <div className="footer-disclaimer">
+            <p>CaseWatch is an independent platform and is not affiliated with, endorsed by, or operated by the Government of India, the Indian Judiciary, or any of the bodies linked above. Links are provided for the convenience of users.</p>
+          </div>
 
         </div>
       </div>
