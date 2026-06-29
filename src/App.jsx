@@ -4,6 +4,7 @@ import CourtMap from './components/CourtMap'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import WhyCaseWatch from './components/WhyCaseWatch'
+import FAQ from './components/FAQ'
 import Footer from './components/Footer'
 
 import { ReactLenis } from 'lenis/react'
@@ -23,10 +24,7 @@ function App() {
       <CourtMap />
 
       {/* FAQ */}
-      <section id="faq">
-        <h2>FAQ</h2>
-        <p>Placeholder - FAQ coming soon</p>
-      </section>
+      <FAQ />
 
       {/* Footer */}
       <Footer />
