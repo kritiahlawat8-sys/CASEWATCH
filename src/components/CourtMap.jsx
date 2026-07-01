@@ -50,13 +50,13 @@ export default function CourtMap() {
   React.useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 480) {
-        setMapScale(480);
+        setMapScale(800);
       } else if (window.innerWidth < 768) {
-        setMapScale(620);
-      } else if (window.innerWidth < 1024) {
-        setMapScale(780);
-      } else {
         setMapScale(900);
+      } else if (window.innerWidth < 1024) {
+        setMapScale(1000);
+      } else {
+        setMapScale(1100);
       }
     };
     handleResize();
