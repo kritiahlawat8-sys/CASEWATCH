@@ -196,16 +196,17 @@
   }
   .floating-img {
     /* Made visible on mobile */
+    opacity: 0.4 !important;
   }
   .floating-left {
-    width: 300px;
-    left: -180px;
-    top: -5%;
+    width: 200px;
+    left: -80px;
+    top: 5%;
   }
   .floating-right {
-    width: 300px;
-    right: -180px;
-    top: -5%;
+    width: 200px;
+    right: -80px;
+    top: 5%;
   }
 }
 
