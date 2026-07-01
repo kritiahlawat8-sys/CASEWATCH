@@ -5,6 +5,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfUse from './pages/TermsOfUse'
 import Disclaimer from './pages/Disclaimer'
 import Grievance from './pages/Grievance'
+import LegalInfoPage from './pages/LegalInfoPage'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/terms-of-use" element={<TermsOfUse />} />
         <Route path="/disclaimer" element={<Disclaimer />} />
         <Route path="/grievance" element={<Grievance />} />
+        <Route path="/legal-info/:slug" element={<LegalInfoPage />} />
       </Routes>
     </Router>
   )

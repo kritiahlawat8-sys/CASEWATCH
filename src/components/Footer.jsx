@@ -62,12 +62,12 @@ export default function Footer() {
           <div className="footer-column">
             <h3 className="column-title">Legal INFO</h3>
             <ul className="footer-links">
-              <li><a href="#property">Property</a></li>
-              <li><a href="#criminal">Criminal</a></li>
-              <li><a href="#family">Family</a></li>
-              <li><a href="#consumer">Consumer</a></li>
-              <li><a href="#civil">Civil</a></li>
-              <li><a href="#labour">Labour</a></li>
+              <li><Link to="/legal-info/property">Property</Link></li>
+              <li><Link to="/legal-info/criminal">Criminal</Link></li>
+              <li><Link to="/legal-info/family">Family</Link></li>
+              <li><Link to="/legal-info/consumer">Consumer</Link></li>
+              <li><Link to="/legal-info/civil">Civil</Link></li>
+              <li><Link to="/legal-info/labour">Labour</Link></li>
             </ul>
           </div>
           

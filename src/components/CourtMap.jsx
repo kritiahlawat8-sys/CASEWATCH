@@ -65,7 +65,7 @@ export default function CourtMap() {
   }, []);
 
   return (
-    <section className="relative w-full min-h-screen bg-[#F2F2F0] flex items-center py-[120px] overflow-hidden border-b border-[#E2E2E2]">
+    <section className="relative w-full min-h-[60vh] lg:min-h-screen bg-[#F2F2F0] flex items-center pt-[60px] pb-[20px] lg:py-[120px] overflow-hidden border-b border-[#E2E2E2]">
       <style>{`
         @keyframes pulse-ring {
           0% { r: 4px; opacity: 0.8; }

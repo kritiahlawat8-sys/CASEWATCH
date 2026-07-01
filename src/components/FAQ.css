@@ -1,7 +1,7 @@
 .faq-section {
   position: relative;
   width: 100%;
-  padding: 80px 40px;
+  padding: 40px 40px 80px 40px;
   box-sizing: border-box;
   background-color: var(--faq-bg);
   border-top: 1px solid var(--faq-border);
@@ -38,7 +38,7 @@
 
 @media (max-width: 768px) {
   .faq-section {
-    padding: 60px 20px;
+    padding: 20px 20px 60px 20px;
   }
   .faq-header {
     flex-direction: column;
