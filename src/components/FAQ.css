@@ -37,6 +37,9 @@
 }
 
 @media (max-width: 768px) {
+  .faq-section {
+    padding: 60px 20px;
+  }
   .faq-header {
     flex-direction: column;
     align-items: stretch;

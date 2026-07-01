@@ -45,6 +45,24 @@ const ORBIT_PATHS = [
 
 export default function CourtMap() {
   const [hoveredCourt, setHoveredCourt] = useState(undefined);
+  const [mapScale, setMapScale] = useState(900);
+
+  React.useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 480) {
+        setMapScale(480);
+      } else if (window.innerWidth < 768) {
+        setMapScale(620);
+      } else if (window.innerWidth < 1024) {
+        setMapScale(780);
+      } else {
+        setMapScale(900);
+      }
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   return (
     <section className="relative w-full min-h-screen bg-[#F2F2F0] flex items-center py-[120px] overflow-hidden border-b border-[#E2E2E2]">
@@ -94,11 +112,11 @@ export default function CourtMap() {
               </p>
             </Reveal>
             <Reveal delay={300}>
-              <div className="flex gap-4 mt-4">
+              <div className="flex flex-wrap gap-4 mt-4">
                 <div className="bg-[#10B981]/10 px-4 py-2 rounded-full border border-[#10B981]/20 backdrop-blur-sm">
                   <span className="font-mono text-[#10B981] font-medium text-sm">✓ 25 High Courts</span>
                 </div>
-                <div className="bg-[#10B981]/10 px-4 py-2 rounded-full border border-[#10B981]/20 backdrop-blur-sm hidden sm:block">
+                <div className="bg-[#10B981]/10 px-4 py-2 rounded-full border border-[#10B981]/20 backdrop-blur-sm">
                   <span className="font-mono text-[#10B981] font-medium text-sm">✓ 600+ District Courts</span>
                 </div>
               </div>
@@ -106,12 +124,12 @@ export default function CourtMap() {
           </div>
 
         {/* Right Column (55%) */}
-        <div className="lg:col-span-7 relative h-[600px] flex items-center justify-center -mt-12 lg:-mt-24">
+        <div className="lg:col-span-7 relative h-[380px] sm:h-[500px] lg:h-[600px] flex items-center justify-center -mt-6 sm:-mt-12 lg:-mt-24">
           <div className="map-orbit-wrapper w-full h-full relative flex items-center justify-center">
             <ComposableMap
               projection="geoMercator"
               projectionConfig={{
-                scale: 900,
+                scale: mapScale,
                 center: [82.8, 22.5]
               }}
               style={{ width: "100%", height: "100%", position: "relative", zIndex: 2 }}

@@ -20,15 +20,6 @@ const Navbar = () => {
   return (
     <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`} aria-label="Main Navigation">
       <div className="navbar-left">
-        <button 
-          className="hamburger" 
-          aria-label="Toggle navigation menu" 
-          aria-expanded={isMenuOpen} 
-          onClick={toggleMenu}
-        >
-          <span className="hamburger-icon"></span>
-        </button>
-
         <a href="/" className="navbar-logo">
           <img src="/logo.png" alt="CaseWatch Logo" className="logo-img" />
           <span className="navbar-wordmark">CASEWATCH</span>
@@ -42,11 +33,22 @@ const Navbar = () => {
           <li><a href="#documents" className="nav-item">Documents <span className="chevron"></span></a></li>
           <li><a href="#government-links" className="nav-item">Government Links <span className="chevron"></span></a></li>
           <li><a href="#about" className="nav-item">About <span className="chevron"></span></a></li>
+          <li className="mobile-only-btn">
+            <button className="btn-get-started mobile-btn">Get Started</button>
+          </li>
         </ul>
       </div>
 
       <div className="navbar-right">
         <button className="btn-get-started">Get Started</button>
+        <button 
+          className="hamburger" 
+          aria-label="Toggle navigation menu" 
+          aria-expanded={isMenuOpen} 
+          onClick={toggleMenu}
+        >
+          <span className="hamburger-icon"></span>
+        </button>
       </div>
     </nav>
   );

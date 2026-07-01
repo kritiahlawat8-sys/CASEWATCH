@@ -236,3 +236,9 @@
     color: var(--why-text-dark) !important;
   }
 }
+
+@media (max-width: 768px) {
+  .why-section {
+    height: 180vh;
+  }
+}
