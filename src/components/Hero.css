@@ -195,7 +195,17 @@
     justify-content: center;
   }
   .floating-img {
-    display: none; /* Hide on small screens to avoid clutter */
+    /* Made visible on mobile */
+  }
+  .floating-left {
+    width: 300px;
+    left: -180px;
+    top: -5%;
+  }
+  .floating-right {
+    width: 300px;
+    right: -180px;
+    top: -5%;
   }
 }
 
