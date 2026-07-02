@@ -6,6 +6,7 @@ import TermsOfUse from './pages/TermsOfUse'
 import Disclaimer from './pages/Disclaimer'
 import Grievance from './pages/Grievance'
 import LegalInfoPage from './pages/LegalInfoPage'
+import TrackCasePage from './pages/TrackCasePage'
 
 function App() {
   return (
@@ -17,6 +18,8 @@ function App() {
         <Route path="/disclaimer" element={<Disclaimer />} />
         <Route path="/grievance" element={<Grievance />} />
         <Route path="/legal-info/:slug" element={<LegalInfoPage />} />
+        <Route path="/track-case" element={<TrackCasePage />} />
+        <Route path="/track-case.html" element={<TrackCasePage />} />
       </Routes>
     </Router>
   )
