@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
+import ReCAPTCHA from 'react-google-recaptcha';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { INDIAN_COURTS, COURT_CATEGORIES, CourtCategory } from '../data/indianCourts';
@@ -17,14 +18,11 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
   const [isVerified, setIsVerified] = useState(false);
   const [crnNumber, setCrnNumber] = useState('');
   const [partyName, setPartyName] = useState('');
-  const [captchaInput, setCaptchaInput] = useState('');
-  const [captchaValue, setCaptchaValue] = useState('');
-  const [validationState, setValidationState] = useState('idle');
-  const [isCooldown, setIsCooldown] = useState(false);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [courtSearch, setCourtSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<CourtCategory | 'All'>('All');
 
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const cardRef = useRef<HTMLElement>(null);
 
   // Scroll to the interactive card section
@@ -32,120 +30,11 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
     cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  // Generate a random 6-character captcha string
-  const generateNewCaptcha = () => {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    let result = '';
-    for (let i = 0; i < 6; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    setCaptchaValue(result);
-    setCaptchaInput('');
-    setValidationState('idle');
-  };
 
-  // Generate captcha on mount
-  useEffect(() => {
-    generateNewCaptcha();
-  }, []);
-
-  // Canvas drawing lifecycle
-  useEffect(() => {
-    if (!captchaValue || !canvasRef.current) return;
-
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    const width = 500;
-    const height = 78;
-
-    ctx.fillStyle = '#ede8df';
-    ctx.fillRect(0, 0, width, height);
-
-    ctx.fillStyle = 'rgba(100, 90, 60, 0.07)';
-    for (let i = 0; i < 200; i++) {
-      const rx = Math.random() * width;
-      const ry = Math.random() * height;
-      ctx.beginPath();
-      ctx.arc(rx, ry, 1 + Math.random() * 1.5, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    const earthTones = [
-      'rgba(74, 53, 37, 0.35)',
-      'rgba(53, 53, 31, 0.35)',
-      'rgba(82, 61, 41, 0.35)',
-      'rgba(61, 41, 31, 0.35)',
-      'rgba(92, 77, 56, 0.35)',
-      'rgba(46, 56, 36, 0.35)'
-    ];
-    for (let i = 0; i < 6; i++) {
-      ctx.strokeStyle = earthTones[Math.floor(Math.random() * earthTones.length)];
-      ctx.lineWidth = 1 + Math.random() * 1.5;
-      ctx.beginPath();
-      ctx.moveTo(Math.random() * width, Math.random() * height);
-      ctx.lineTo(Math.random() * width, Math.random() * height);
-      ctx.stroke();
-    }
-
-    const chars = captchaValue.split('');
-    const charSpacing = width / (chars.length + 1);
-    ctx.shadowBlur = 2;
-
-    chars.forEach((char, idx) => {
-      const hue = Math.floor(Math.random() * 360);
-      const saturation = 25 + Math.floor(Math.random() * 25);
-      const lightness = 10 + Math.floor(Math.random() * 21);
-      ctx.fillStyle = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-      ctx.shadowColor = `rgba(0, 0, 0, 0.35)`;
-
-      const fontSize = 28 + Math.floor(Math.random() * 9);
-      ctx.font = `900 ${fontSize}px var(--tc-font-mono), 'Courier New', monospace`;
-
-      const x = charSpacing * (idx + 1) + (Math.random() - 0.5) * 14;
-      const y = 44 + (Math.random() - 0.5) * 10;
-      const angle = (Math.random() - 0.5) * 0.55;
-
-      ctx.save();
-      ctx.translate(x, y);
-      ctx.rotate(angle);
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(char, 0, 0);
-      ctx.restore();
-    });
-  }, [captchaValue]);
-
-  // Real-time Match Evaluation
-  useEffect(() => {
-    if (captchaInput.length === 6) {
-      if (captchaInput === captchaValue) {
-        setValidationState('valid');
-      } else {
-        setValidationState('error');
-        setIsCooldown(true);
-        const cooldownTimer = setTimeout(() => {
-          setIsCooldown(false);
-          generateNewCaptcha();
-        }, 900);
-        return () => clearTimeout(cooldownTimer);
-      }
-    }
-  }, [captchaInput, captchaValue]);
 
   const handleCrnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.toUpperCase();
     if (val.length <= 20) setCrnNumber(val);
-  };
-
-  const handleCaptchaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (isCooldown) return;
-    const val = e.target.value.toUpperCase();
-    if (val.length <= 6) {
-      setCaptchaInput(val);
-      if (val.length < 6) setValidationState('idle');
-    }
   };
 
   const handlePartyNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -165,7 +54,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
 
   const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (validationState === 'valid' && crnNumber.trim()) {
+    if (recaptchaToken && crnNumber.trim()) {
       setIsVerified(true);
       setCurrentStep(3);
     }
@@ -364,7 +253,6 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
                           value={crnNumber}
                           onChange={handleCrnChange}
                           maxLength={20}
-                          disabled={isCooldown}
                           required
                         />
                       </div>
@@ -381,7 +269,6 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
                         placeholder="Petitioner or Respondent matching"
                         value={partyName}
                         onChange={handlePartyNameChange}
-                        disabled={isCooldown}
                       />
                     </div>
                   </div>
@@ -389,67 +276,17 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
                   {/* Middle Column Divider */}
                   <div className="middle-divider-col" aria-hidden="true" />
 
-                  {/* Right Captcha Column */}
+                  {/* Right reCAPTCHA Column */}
                   <div className="right-captcha-col">
                     <div className="field-group">
-                      <div className="captcha-header-row">
-                        <label htmlFor="pg-captcha-input" className="field-label">
-                          Security Verification
-                        </label>
-                        <button
-                          type="button"
-                          className="pg-refresh-btn"
-                          onClick={generateNewCaptcha}
-                          disabled={isCooldown}
-                          title="Generate new image"
-                        >
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
-                          </svg>
-                          New Image
-                        </button>
-                      </div>
-
-                      <canvas
-                        ref={canvasRef}
-                        width={500}
-                        height={78}
-                        className="canvas-captcha-box"
-                        aria-label="CAPTCHA verification drawing"
+                      <label className="field-label">Security Verification</label>
+                      <ReCAPTCHA
+                        ref={recaptchaRef}
+                        sitekey="6LdK90AtAAAAAlUtdb3TwH_iWdJSO1U5FxvPovbO"
+                        onChange={(token) => setRecaptchaToken(token)}
+                        onExpired={() => setRecaptchaToken(null)}
+                        theme="light"
                       />
-
-                      <div className="captcha-solution-input-wrapper">
-                        <input
-                          id="pg-captcha-input"
-                          type="text"
-                          className={`pg-input mono ${validationState === 'valid' ? 'is-valid' : ''} ${validationState === 'error' ? 'has-error' : ''}`}
-                          placeholder="ENTER CODE"
-                          value={captchaInput}
-                          onChange={handleCaptchaChange}
-                          maxLength={6}
-                          disabled={isCooldown}
-                          autoComplete="off"
-                          data-captcha={captchaValue}
-                          required
-                        />
-                        <span className={`pg-verified-pill ${validationState === 'valid' ? 'show' : ''}`}>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="20 6 9 17 4 12" />
-                          </svg>
-                          Verified
-                        </span>
-                      </div>
-
-                      {validationState === 'error' && (
-                        <div className="pg-field-error">
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="12" cy="12" r="10" />
-                            <line x1="12" y1="8" x2="12" y2="12" />
-                            <line x1="12" y1="16" x2="12.01" y2="16" />
-                          </svg>
-                          Verification failed. Generating new code in 900ms...
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -468,7 +305,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
                   <button
                     type="submit"
                     className="pg-submit-btn"
-                    disabled={validationState !== 'valid' || !crnNumber.trim()}
+                    disabled={!recaptchaToken || !crnNumber.trim()}
                   >
                     Track My Case
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
