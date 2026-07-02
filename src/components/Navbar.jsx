@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import './Navbar.css';
 
 const Navbar = () => {
@@ -34,13 +35,13 @@ const Navbar = () => {
           <li><a href="#government-links" className="nav-item">Government Links <span className="chevron"></span></a></li>
           <li><a href="#about" className="nav-item">About <span className="chevron"></span></a></li>
           <li className="mobile-only-btn">
-            <button className="btn-get-started mobile-btn">Get Started</button>
+            <Link to="/track-case.html" className="btn-get-started mobile-btn">Get Started</Link>
           </li>
         </ul>
       </div>
 
       <div className="navbar-right">
-        <button className="btn-get-started">Get Started</button>
+        <Link to="/track-case.html" className="btn-get-started">Get Started</Link>
         <button 
           className="hamburger" 
           aria-label="Toggle navigation menu" 
