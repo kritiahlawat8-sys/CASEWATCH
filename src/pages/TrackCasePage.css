@@ -21,7 +21,7 @@
 .track-page-wrapper {
   background-color: var(--page-bg);
   min-height: 100vh;
-  padding-bottom: 5rem;
+  padding-bottom: 0;
   font-family: var(--font-sans);
   color: var(--text-accent);
   box-sizing: border-box;
@@ -102,7 +102,7 @@
 
 /* Main Content Area spacing (due to fixed navbar) */
 .track-page-content {
-  padding-top: 112px; /* 72px navbar + 40px margin */
+  padding-top: 60px; /* Adjusted padding to remove extra space */
   max-width: 1000px;
   margin: 0 auto;
   padding-left: 1.5rem;

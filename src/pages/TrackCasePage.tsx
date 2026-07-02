@@ -1,8 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import PropTypes from 'prop-types';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import './TrackCasePage.css';
 
-const TrackCasePage = ({ onProceed }) => {
+interface TrackCasePageProps {
+  onProceed?: (crn: string) => void;
+}
+
+const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
   const [isVerified, setIsVerified] = useState(false);
   const [crnNumber, setCrnNumber] = useState('');
   const [partyName, setPartyName] = useState('');
@@ -11,7 +16,7 @@ const TrackCasePage = ({ onProceed }) => {
   const [validationState, setValidationState] = useState('idle'); // 'idle' | 'valid' | 'error'
   const [isCooldown, setIsCooldown] = useState(false);
 
-  const canvasRef = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Generate a random 6-character captcha string
   const generateNewCaptcha = () => {
@@ -125,7 +130,7 @@ const TrackCasePage = ({ onProceed }) => {
   }, [captchaInput, captchaValue]);
 
   // Handle CRN input changes
-  const handleCrnChange = (e) => {
+  const handleCrnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.toUpperCase();
     if (val.length <= 20) {
       setCrnNumber(val);
@@ -133,7 +138,7 @@ const TrackCasePage = ({ onProceed }) => {
   };
 
   // Handle Captcha input changes
-  const handleCaptchaChange = (e) => {
+  const handleCaptchaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (isCooldown) return;
     const val = e.target.value.toUpperCase();
     if (val.length <= 6) {
@@ -145,12 +150,12 @@ const TrackCasePage = ({ onProceed }) => {
   };
 
   // Handle party name input changes
-  const handlePartyNameChange = (e) => {
+  const handlePartyNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPartyName(e.target.value);
   };
 
   // Handle Form Submission
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validationState === 'valid' && crnNumber.trim()) {
       setIsVerified(true);
@@ -166,32 +171,11 @@ const TrackCasePage = ({ onProceed }) => {
 
   return (
     <div className="track-page-wrapper">
-      {/* 1. Fixed Navigation Bar */}
-      <nav className="track-navbar" aria-label="Main Page Navigation">
-        <a href="#" className="track-nav-brand">
-          <img src="/logo.png" alt="CaseWatch Logo" className="track-nav-logo" />
-          <span>CASEWATCH</span>
-        </a>
-        <ul className="track-nav-links">
-          <li><a href="#dashboard" className="track-nav-link">Dashboard</a></li>
-          <li><a href="#tracking" className="track-nav-link active">Case Tracking</a></li>
-          <li><a href="#about" className="track-nav-link">About Registry</a></li>
-        </ul>
-        <button className="track-nav-cta" onClick={() => window.location.reload()}>
-          Reset Portal
-        </button>
-      </nav>
+      {/* 1. Original Animated Navigation Bar */}
+      <Navbar />
 
       {/* Main Page Area */}
       <main className="track-page-content">
-        {/* 2. Breadcrumb Tracker */}
-        <nav className="breadcrumb-tracker" aria-label="Breadcrumb navigation">
-          <a href="#" className="breadcrumb-item">Home</a>
-          <span className="breadcrumb-separator">›</span>
-          <a href="#tracking" className="breadcrumb-item">Track My Case</a>
-          <span className="breadcrumb-separator">›</span>
-          <span className="breadcrumb-current">Enter CRN</span>
-        </nav>
 
         {/* 3. Page Heading Block */}
         <header className="page-heading-block">
@@ -397,57 +381,12 @@ const TrackCasePage = ({ onProceed }) => {
             </div>
           )}
         </section>
-
-        {/* 6. Footer Informational Strip */}
-        <footer className="info-strip-grid" aria-label="Help and privacy resources">
-          <div className="info-card-block">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="info-card-icon" aria-hidden="true">
-              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-              <polyline points="14 2 14 8 20 8" />
-              <line x1="16" y1="13" x2="8" y2="13" />
-              <line x1="16" y1="17" x2="8" y2="17" />
-              <polyline points="10 9 9 9 8 9" />
-            </svg>
-            <h3 className="info-card-title">Where is my CRN?</h3>
-            <p className="info-card-desc">
-              Your Case Receipt Number is printed on your court filing receipt issued at the registry window. It typically consists of 'CRN-' followed by the filing year and a 5-digit index sequence.
-            </p>
-          </div>
-
-          <div className="info-card-block">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="info-card-icon" aria-hidden="true">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-              <line x1="12" y1="17" x2="12.01" y2="17" />
-            </svg>
-            <h3 className="info-card-title">Need help?</h3>
-            <p className="info-card-desc">
-              If your CNR record fails validation, double check the spelling of your CRN or use the government portal links to cross-verify. You can also contact support at registry@casewatch.gov.in.
-            </p>
-          </div>
-
-          <div className="info-card-block">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="info-card-icon" aria-hidden="true">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              <polyline points="9 11 11 13 15 9" />
-            </svg>
-            <h3 className="info-card-title">Privacy assured</h3>
-            <p className="info-card-desc">
-              CaseWatch queries connect directly to public API endpoints using end-to-end TLS tunnels. We never persist reference history, document logs, or personal metadata details.
-            </p>
-          </div>
-        </footer>
       </main>
+
+      {/* Global Animated Footer */}
+      <Footer />
     </div>
   );
-};
-
-TrackCasePage.propTypes = {
-  onProceed: PropTypes.func
-};
-
-TrackCasePage.defaultProps = {
-  onProceed: () => {}
 };
 
 export default TrackCasePage;
