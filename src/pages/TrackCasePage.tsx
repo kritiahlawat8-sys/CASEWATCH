@@ -282,7 +282,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
                       <label className="field-label">Security Verification</label>
                       <ReCAPTCHA
                         ref={recaptchaRef}
-                        sitekey="6LdK90AtAAAAAlUtdb3TwH_iWdJSO1U5FxvPovbO"
+                        sitekey="6LdK90AtAAAAAIUtdb3TwH_iWdJSO1U5FxvPovbO"
                         onChange={(token) => setRecaptchaToken(token)}
                         onExpired={() => setRecaptchaToken(null)}
                         theme="light"
