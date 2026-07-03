@@ -25,7 +25,7 @@
   font-family: var(--font-sans);
   color: var(--text-accent);
   box-sizing: border-box;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* 1. Fixed Navigation Bar */
@@ -181,7 +181,7 @@
 /* 4. Progress Flow Steps */
 .progress-flow-container {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   max-width: 800px;
   margin: 0 auto 3.5rem;

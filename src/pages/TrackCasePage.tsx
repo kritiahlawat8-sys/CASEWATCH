@@ -105,19 +105,19 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
         <div className="progress-flow-container" aria-label="Tracking step progression">
           <div className={`progress-step-item ${stepClass(1)}`}>
             <div className="progress-step-node">{currentStep > 1 ? '✓' : '1'}</div>
-            <div className="progress-step-label">1. Select Court</div>
+            <div className="progress-step-label">Select Court</div>
           </div>
           <div className={`progress-step-item ${stepClass(2)}`}>
             <div className="progress-step-node">{currentStep > 2 ? '✓' : '2'}</div>
-            <div className="progress-step-label">2. Enter CRN</div>
+            <div className="progress-step-label">Enter CRN</div>
           </div>
           <div className={`progress-step-item ${stepClass(3)}`}>
             <div className="progress-step-node">{currentStep > 3 ? '✓' : '3'}</div>
-            <div className="progress-step-label">3. Verify</div>
+            <div className="progress-step-label">Verify</div>
           </div>
           <div className={`progress-step-item ${stepClass(4)}`}>
             <div className="progress-step-node">4</div>
-            <div className="progress-step-label">4. Case Details</div>
+            <div className="progress-step-label">Case Details</div>
           </div>
         </div>
 
