@@ -20,13 +20,41 @@ function getTodaysCommits(repoPath) {
 
 async function generateReport(commits) {
   const prompt = `
-You are helping a software intern write a short, professional daily work report.
-Here are today's git commit messages from the project:
+You are writing a daily internship progress report for a software intern named Kriti Ahlawat, submitted to Mr. Sourav Singh (Project Head), dated ${new Date().toDateString()}.
 
+This project uses the following technology stack — use ONLY these exact facts, do not assume or add any other language or tool:
+- Language: JavaScript (Node.js)
+- AI engine: Ollama, running the deepseek-r1:8b model locally
+- Communicates with Ollama via its local REST API (localhost:11434)
+- Version control: Git
+
+Here are today's git commit messages:
 ${commits || '(no commits found today)'}
 
-Write a 4-6 line daily report in first person, summarizing what was worked on today.
-Keep it simple and professional, no fluff, no headings.
+Write the report in EXACTLY this markdown structure, nothing extra, no <think> tags, no preamble:
+
+# CASEWATCH Project Report Week 2 day 3
+
+**Prepared by:** Kriti Ahlawat, Nancy Sihag, Nihal Kumar, Sourav Singh (Junior Developer Intern)
+**Presented to:** Mr. Sourav Singh, Project Head
+**Date:** ${new Date().toDateString()}
+
+## Completed Work
+For each item: a numbered bold sub-heading on its own line, followed by 2-3 sentences describing it on the next line. Follow this exact pattern:
+
+1. **Short Heading Here** :
+Two to three sentences describing what was done, based on the commits above.
+
+2. **Another Short Heading** :
+Two to three sentences describing this point.
+
+(Generate 2-3 such points based on the actual commits given above — do not use the example text itself.)
+
+## Learning Outcome
+(2-3 short numbered points on what was learned)
+
+## Technology Used
+(a numbered list of relevant technologies, e.g. Ollama, deepseek-r1:8b, Node.js, Git)
 `;
 
   const response = await fetch(OLLAMA_URL, {
@@ -40,7 +68,8 @@ Keep it simple and professional, no fluff, no headings.
   });
 
   const data = await response.json();
-  return data.response;
+  // deepseek-r1 sometimes adds <think>...</think> reasoning before the real answer — strip it out
+  return data.response.replace(/<think>[\s\S]*?<\/think>/g, '').trim();
 }
 
 async function main() {
@@ -48,14 +77,24 @@ async function main() {
   const commits = getTodaysCommits(REPO_PATH);
   console.log('\nCommits found:\n', commits || '(none)');
 
-  console.log('\nAsking local AI model to draft the report... (this may take a few seconds)');
+  console.log('\nAsking local AI model to draft the formatted report...');
   const report = await generateReport(commits);
 
   const today = new Date().toISOString().split('T')[0];
-  const filename = `daily-report-${today}.md`;
-  fs.writeFileSync(filename, `# Daily Report - ${today}\n\n${report}`);
+  const mdFile = `daily-report-${today}.md`;
+  const docxFile = `daily-report-${today}.docx`;
 
-  console.log(`\nSaved to ${filename}`);
+  fs.writeFileSync(mdFile, report);
+  console.log(`\nMarkdown saved to ${mdFile}`);
+
+  console.log('Converting to .docx using pandoc...');
+  try {
+    execSync(`pandoc "${mdFile}" -o "${docxFile}"`);
+    console.log(`Word document saved to ${docxFile}`);
+  } catch (err) {
+    console.error('Pandoc conversion failed — make sure pandoc is installed (brew install pandoc)');
+  }
+
   console.log('\n--- REPORT ---\n');
   console.log(report);
 }
