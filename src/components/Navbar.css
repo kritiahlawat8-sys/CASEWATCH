@@ -228,6 +228,15 @@ body {
 
 /* Mobile Menu */
 @media (max-width: 900px) {
+  .navbar {
+    padding: 0 20px;
+  }
+
+  .navbar.scrolled {
+    width: calc(100% - 24px);
+    top: 12px;
+  }
+
   .navbar-center {
     display: none; /* Hide for mobile */
     position: absolute;

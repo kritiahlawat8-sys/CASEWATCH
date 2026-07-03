@@ -25,6 +25,7 @@
   font-family: var(--font-sans);
   color: var(--text-accent);
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* 1. Fixed Navigation Bar */
@@ -230,7 +231,9 @@
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  white-space: nowrap;
+  white-space: normal;
+  text-align: center;
+  max-width: 120px;
 }
 
 /* Completed Step Modifier */
@@ -860,56 +863,179 @@
 }
 
 /* Responsiveness (max-width: 640px) */
+/* Responsiveness */
 @media (max-width: 900px) {
+  .track-page-content {
+    padding-top: 84px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
   .form-split-grid {
     grid-template-columns: 1fr;
   }
+
   .middle-divider-col {
     height: 1px;
     width: auto;
     background-color: var(--border-color);
-    margin: 0 3.5rem;
+    margin: 1.5rem 2rem;
   }
+
   .info-strip-grid {
     grid-template-columns: 1fr;
     gap: 2.5rem;
   }
+
+  .court-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .court-select-header {
+    padding: 2rem 2rem 1.25rem;
+  }
+
+  .court-category-tabs {
+    padding: 1rem 2rem;
+  }
+
+  .court-list-container {
+    padding: 1.5rem 2rem;
+  }
+
+  .left-input-col,
+  .right-captcha-col {
+    padding: 2rem 2rem;
+  }
+
+  .card-footer-bar {
+    padding: 1.5rem 2rem;
+  }
+
+  .success-panel {
+    padding: 3.5rem 2rem;
+  }
+
+  .step-back-bar {
+    padding: 0.85rem 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .progress-flow-container {
+    margin-bottom: 2rem;
+  }
+  .progress-step-item {
+    padding: 0 0.5rem;
+  }
+  .progress-step-label {
+    font-size: 0.65rem;
+    max-width: 80px;
+  }
 }
 
 @media (max-width: 640px) {
-  .track-navbar {
-    padding: 0 1rem;
-  }
-  .track-nav-links {
-    display: none; /* Hide nav links on mobile for simplicity */
-  }
   .track-page-content {
-    padding-top: 96px;
+    padding-top: 84px;
   }
+
+  .court-select-header {
+    padding: 1.5rem 1rem 1rem;
+  }
+
+  .court-category-tabs {
+    padding: 0.75rem 1rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  
+  .court-category-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .court-cat-tab {
+    flex-shrink: 0;
+  }
+
+  .court-list-container {
+    padding: 1rem 1rem;
+    max-height: 320px;
+  }
+
+  .court-grid {
+    grid-template-columns: 1fr;
+  }
+
   .left-input-col, 
   .right-captcha-col {
-    padding: 2rem 1.5rem;
+    padding: 1.5rem 1rem;
   }
+
   .middle-divider-col {
-    margin: 0 1.5rem;
+    margin: 1rem 1rem;
   }
+
   .card-footer-bar {
-    padding: 1.5rem;
+    padding: 1.25rem 1rem;
     flex-direction: column;
     align-items: stretch;
-    gap: 1.5rem;
+    gap: 1.25rem;
   }
+
   .pg-submit-btn {
     width: 100%;
     justify-content: center;
   }
+
   .success-panel {
-    padding: 3rem 1.5rem;
+    padding: 2.5rem 1rem;
   }
-  .progress-flow-container {
-    margin-bottom: 2.5rem;
+
+  .right-captcha-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
   }
+
+  .pg-input {
+    font-size: 16px; /* Prevents auto-zoom on mobile inputs */
+  }
+
+  .step-back-bar {
+    padding: 0.85rem 1rem;
+  }
+
+  .step-back-court-tag {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
+}
+
+@media (max-width: 480px) {
   .progress-step-label {
-    font-size: 0.65rem;
+    font-size: 0.6rem;
+    max-width: 65px;
+  }
+  .progress-step-node {
+    width: 24px;
+    height: 24px;
+    font-size: 0.7rem;
+    margin-bottom: 0.25rem;
+  }
+  .progress-flow-container::before {
+    top: 11px;
+  }
+  .step-back-court-tag {
+    max-width: 130px;
+  }
+  /* Scale down ReCAPTCHA for very small screens to prevent overflow */
+  .right-captcha-col > div {
+    transform: scale(0.9);
+    transform-origin: center;
   }
 }
