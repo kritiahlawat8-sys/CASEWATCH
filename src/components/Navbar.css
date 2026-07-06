@@ -131,7 +131,7 @@ body {
   padding: 0;
 }
 
-.navbar-links a.nav-item {
+.navbar-links .nav-item {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -142,7 +142,7 @@ body {
   transition: color 0.2s;
 }
 
-.navbar-links a.nav-item:hover {
+.navbar-links .nav-item:hover {
   color: var(--text-nav-hover);
 }
 
@@ -286,4 +286,72 @@ body {
     display: block;
     margin-left: 12px;
   }
+}
+
+/* Government Links Dropdown */
+.nav-dropdown-container {
+  position: relative;
+}
+
+.nav-dropdown-btn {
+  background: none;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+.nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 20px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  background-color: var(--bg-navbar);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  border-radius: 16px;
+  padding: 8px 0;
+  margin: 0;
+  list-style: none;
+  min-width: 240px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1001;
+}
+
+.navbar.scrolled .nav-dropdown-menu {
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.nav-dropdown-menu.open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.nav-dropdown-item {
+  display: block;
+  padding: 10px 24px;
+  color: var(--text-nav-default);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.nav-dropdown-item:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  color: var(--text-nav-hover);
+}
+
+.chevron {
+  transition: transform 0.3s ease;
+}
+
+.chevron.open {
+  transform: rotate(225deg);
+  margin-bottom: -2px;
 }

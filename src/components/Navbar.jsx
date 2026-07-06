@@ -1,10 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import './Navbar.css';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isGovDropdownOpen, setIsGovDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsGovDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,8 +44,23 @@ const Navbar = () => {
           <li><a href="#features" className="nav-item">Features <span className="chevron"></span></a></li>
           <li><a href="#how-it-works" className="nav-item">How It Works <span className="chevron"></span></a></li>
           <li><a href="#documents" className="nav-item">Documents <span className="chevron"></span></a></li>
-          <li><a href="#government-links" className="nav-item">Government Links <span className="chevron"></span></a></li>
-          <li><a href="#about" className="nav-item">About <span className="chevron"></span></a></li>
+          <li className="nav-dropdown-container" ref={dropdownRef}>
+            <button 
+              className="nav-item nav-dropdown-btn" 
+              onClick={(e) => { e.preventDefault(); setIsGovDropdownOpen(!isGovDropdownOpen); }}
+              aria-expanded={isGovDropdownOpen}
+            >
+              Government Links <span className={`chevron ${isGovDropdownOpen ? 'open' : ''}`}></span>
+            </button>
+            <ul className={`nav-dropdown-menu ${isGovDropdownOpen ? 'open' : ''}`}>
+              <li><a href="https://ecourts.gov.in" target="_blank" rel="noopener noreferrer" className="nav-dropdown-item">e-Courts</a></li>
+              <li><a href="https://nalsa.gov.in" target="_blank" rel="noopener noreferrer" className="nav-dropdown-item">NALSA</a></li>
+              <li><a href="https://main.sci.gov.in" target="_blank" rel="noopener noreferrer" className="nav-dropdown-item">Supreme Court</a></li>
+              <li><a href="https://nalsa.gov.in/lsams" target="_blank" rel="noopener noreferrer" className="nav-dropdown-item">Lok Adalat</a></li>
+              <li><a href="https://ncdrc.nic.in" target="_blank" rel="noopener noreferrer" className="nav-dropdown-item">Consumer Disputes (NCDRC)</a></li>
+            </ul>
+          </li>
+          <li><Link to="/about" className="nav-item">About <span className="chevron"></span></Link></li>
           <li className="mobile-only-btn">
             <Link to="/track-case.html" className="btn-get-started mobile-btn">Get Started</Link>
           </li>

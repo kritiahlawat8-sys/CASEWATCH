@@ -7,6 +7,7 @@ import Disclaimer from './pages/Disclaimer'
 import Grievance from './pages/Grievance'
 import LegalInfoPage from './pages/LegalInfoPage'
 import TrackCasePage from './pages/TrackCasePage'
+import About from './pages/About'
 
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -23,7 +24,7 @@ function App() {
         <Route path="/legal-info/:slug" element={<LegalInfoPage />} />
         <Route path="/track-case" element={<TrackCasePage />} />
         <Route path="/track-case.html" element={<TrackCasePage />} />
-        
+        <Route path="/about" element={<About />} />
       </Routes>
     </Router>
   )
