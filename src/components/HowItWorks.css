@@ -1,0 +1,436 @@
+/* How It Works Timeline Styles - Editorial/Minimalist Redesign */
+
+.how-it-works-section {
+  /* GDS / Apple / Notion Inspired Design Tokens matched with TrackCase Theme */
+  --how-bg: #ffffff;                 /* Solid white background */
+  --how-card-bg: #ffffff;            /* Solid white cards */
+  --how-border: #d8d8d4;             /* Thin warm-gray borders */
+  --how-accent: #1e7e4a;             /* CaseWatch Success Emerald Green */
+  --how-accent-bg: #edfaf4;          /* Light sage green for icon backgrounds */     
+  --how-text-primary: #1a1a1a;       /* Rich dark charcoal text */
+  --how-text-secondary: #888884;     /* Muted neutral gray text */
+  --how-charcoal: #d8d8d4;           /* Charcoal gray for background timeline */
+
+  background-color: var(--how-bg);
+  padding: 100px 24px;
+  width: 100%;
+  position: relative;
+  scroll-margin-top: 80px;           /* Accounts for fixed header */
+  transition: background-color 0.4s ease, border-color 0.4s ease;
+}
+
+/* Section Header styling */
+.how-header {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 80px; /* Increased whitespace */
+}
+
+.how-eyebrow {
+  display: inline-block;
+  font-family: var(--tc-font-sans, system-ui, -apple-system, sans-serif);
+  padding: 4px 12px;
+  background-color: var(--how-accent-bg);
+  border: 1px solid var(--how-border);
+  color: var(--how-accent);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  border-radius: 4px;                /* Clean minimalist look */
+  margin-bottom: 24px;
+}
+
+.how-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+  font-weight: 700;
+  color: var(--how-text-primary);
+  margin: 0 0 20px 0;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.how-subtitle {
+  font-family: var(--tc-font-sans, system-ui, -apple-system, sans-serif);
+  font-size: clamp(1rem, 1.6vw, 1.15rem);
+  line-height: 1.7;
+  color: var(--how-text-secondary);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Timeline Container */
+.timeline-steps-container {
+  position: relative;
+  max-width: 1150px;
+  margin: 0 auto;
+  padding: 40px 0;
+}
+
+/* Central SVG drawing line */
+.timeline-svg-wrapper {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px; /* Thinner elegant line */
+  z-index: 1;
+}
+
+@media (max-width: 767px) {
+  .timeline-svg-wrapper {
+    left: 20px;
+    transform: translateX(-50%);
+  }
+}
+
+@media (min-width: 768px) {
+  .timeline-svg-wrapper {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+.timeline-svg {
+  width: 2px;
+  height: 100%;
+  overflow: visible;
+}
+
+.timeline-path-active {
+  stroke: var(--how-accent);
+  stroke-width: 2;
+  stroke-linecap: round;
+  transition: stroke 0.4s ease;
+}
+
+.timeline-dot {
+  fill: var(--how-accent);
+  /* No glow/drop-shadow effects for the minimalistic aesthetic */
+  transition: cy 0.05s ease-out, fill 0.4s ease;
+}
+
+/* Steps List */
+.steps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 100px; /* Generous whitespace */
+}
+
+/* Step Container */
+.step-container {
+  display: flex;
+  position: relative;
+  width: 100%;
+}
+
+@media (max-width: 767px) {
+  .step-container {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    grid-template-rows: auto auto;
+    gap: 20px 16px;
+    width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
+  .step-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+  }
+}
+
+/* Column Rules */
+.step-card-col {
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 767px) {
+  .step-card-col {
+    grid-column: 2;
+    grid-row: 1;
+    width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
+  .step-card-col {
+    flex: 1;
+  }
+  
+  .step-odd .step-card-col {
+    padding-right: 30px;
+    text-align: right;
+    order: 1;
+  }
+  
+  .step-even .step-card-col {
+    padding-left: 30px;
+    text-align: left;
+    order: 3;
+  }
+}
+
+.step-node-col {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 767px) {
+  .step-node-col {
+    width: 40px;
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    margin-top: 8px;
+    align-self: stretch;
+  }
+}
+
+@media (min-width: 768px) {
+  .step-node-col {
+    width: 120px;
+    order: 2;
+  }
+}
+
+/* Image Column */
+.step-image-col {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+@media (max-width: 767px) {
+  .step-image-col {
+    grid-column: 2;
+    grid-row: 2;
+  }
+}
+
+@media (min-width: 768px) {
+  .step-image-col {
+    flex: 1;
+  }
+  
+  .step-odd .step-image-col {
+    padding-left: 30px;
+    order: 3;
+  }
+  
+  .step-even .step-image-col {
+    padding-right: 30px;
+    order: 1;
+  }
+}
+
+/* Screenshot Card Wrapper */
+.step-image-card {
+  background-color: var(--how-card-bg);
+  border: 1px solid var(--how-border);
+  padding: 12px;
+  border-radius: 24px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+  opacity: 1;
+  width: 100%;
+  max-width: 440px;
+  overflow: hidden;
+  
+  transition: 
+    background-color 0.4s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .step-odd .step-image-card {
+    margin-right: auto;
+    margin-left: 0;
+  }
+  
+  .step-even .step-image-card {
+    margin-left: auto;
+    margin-right: 0;
+  }
+}
+
+.step-image-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  border-color: var(--how-accent);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+.step-screenshot {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  display: block;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.step-image-card:hover .step-screenshot {
+  transform: scale(1.02);
+}
+
+/* Clean Editorial Step Cards */
+.glass-card {
+  background-color: var(--how-card-bg);
+  border: 1px solid var(--how-border);
+  padding: clamp(1.25rem, 2.5vw, 1.75rem); /* Tighter padding for a slightly smaller box */
+  border-radius: 24px;                  /* 24px radius as requested */
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15); /* Very soft shadow */
+  opacity: 1;
+  max-width: 440px;
+  width: 100%;
+  
+  transition: 
+    background-color 0.4s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
+}
+
+@media (min-width: 768px) {
+  .step-odd .glass-card {
+    margin-left: auto;
+    margin-right: 0;
+  }
+  
+  .step-even .glass-card {
+    margin-right: auto;
+    margin-left: 0;
+  }
+}
+
+.glass-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  border-color: var(--how-accent);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+}
+
+
+
+/* Icon Containers */
+.step-card-icon-wrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background-color: var(--how-accent-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+  transition: transform 0.3s ease, background-color 0.4s ease;
+}
+
+.glass-card:hover .step-card-icon-wrapper {
+  transform: scale(1.06) rotate(1deg);
+}
+
+@media (min-width: 768px) {
+  .step-odd .step-card-icon-wrapper {
+    margin-left: auto;
+  }
+}
+
+.icon-main {
+  font-size: 22px;
+  color: var(--how-accent);
+  transition: color 0.4s ease;
+}
+
+.step-card-title {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--how-text-primary);
+  margin: 0 0 12px 0;
+  letter-spacing: -0.01em;
+}
+
+.step-card-desc {
+  font-family: var(--tc-font-sans, system-ui, -apple-system, sans-serif);
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--how-text-secondary);
+  margin: 0;
+}
+
+.step-circle {
+  width: 40px; /* Slightly smaller and more elegant */
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--how-card-bg);
+  border: 1px solid var(--how-border); /* Thin light-gray border */
+  color: var(--how-text-secondary);   /* Gray number */
+  font-family: var(--tc-font-sans, system-ui, -apple-system, sans-serif);
+  font-weight: 500;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.01);
+  transition: 
+    background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+    border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+    color 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, background-color, border-color;
+  z-index: 10;
+}
+
+/* Bottom Badge */
+.how-bottom-badge {
+  display: flex;
+  justify-content: center;
+  margin-top: 80px;
+}
+
+.badge-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  background-color: var(--how-accent-bg);
+  border: 1px solid var(--how-border);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.005);
+  transition: background-color 0.4s ease, border-color 0.4s ease;
+}
+
+.badge-icon {
+  font-size: 16px;
+  color: var(--how-accent);
+}
+
+.badge-text {
+  font-family: var(--tc-font-sans, system-ui, -apple-system, sans-serif);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--how-text-primary);
+}
+
+/* Empty Image Column hides on mobile to collapse grid row */
+@media (max-width: 767px) {
+  .empty-image-col {
+    display: none !important;
+  }
+}

@@ -30,7 +30,7 @@ const Navbar = () => {
       <div className={`navbar-center ${isMenuOpen ? 'open' : ''}`}>
         <ul className="navbar-links">
           <li><a href="#features" className="nav-item">Features <span className="chevron"></span></a></li>
-          <li><a href="#how-it-works" className="nav-item">How It Works <span className="chevron"></span></a></li>
+          <li><Link to="/how-it-works" className="nav-item">How It Works <span className="chevron"></span></Link></li>
           <li><a href="#documents" className="nav-item">Documents <span className="chevron"></span></a></li>
           <li><a href="#government-links" className="nav-item">Government Links <span className="chevron"></span></a></li>
           <li><a href="#about" className="nav-item">About <span className="chevron"></span></a></li>
