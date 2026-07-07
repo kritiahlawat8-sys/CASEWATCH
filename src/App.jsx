@@ -7,7 +7,11 @@ import Disclaimer from './pages/Disclaimer'
 import Grievance from './pages/Grievance'
 import LegalInfoPage from './pages/LegalInfoPage'
 import TrackCasePage from './pages/TrackCasePage'
+
 import HowItWorksPage from './pages/HowItWorksPage'
+
+import About from './pages/About'
+
 
 import ScrollToTop from "./components/ScrollToTop";
 

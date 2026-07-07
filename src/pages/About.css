@@ -1,0 +1,220 @@
+.about-page {
+  font-family: var(--nav-font, 'Inter', sans-serif);
+  color: var(--text-primary, #1c1c1c);
+  background-color: #ffffff;
+  animation: fadeIn 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.about-hero {
+  padding: 140px 20px 80px;
+  text-align: center;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.about-hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.about-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+  letter-spacing: -0.03em;
+  color: #1a1a1a;
+}
+
+.about-tagline {
+  font-size: 1.5rem;
+  color: #4a4a4a;
+  font-weight: 500;
+}
+
+.about-section {
+  padding: 100px 20px;
+}
+
+.about-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.bg-light {
+  background-color: #f8f9fa;
+}
+
+.bg-dark {
+  background-color: #1a1a1a;
+}
+
+.text-white {
+  color: #ffffff;
+}
+
+.text-white .section-title {
+  color: #ffffff;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 30px;
+  color: #1a1a1a;
+}
+
+.section-text {
+  font-size: 1.25rem;
+  line-height: 1.8;
+  color: #4a4a4a;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.text-white .section-text {
+  color: #e0e0e0;
+}
+
+.mission-statement {
+  font-size: 1.5rem;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.about-features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 30px;
+  margin-top: 50px;
+}
+
+.about-feature-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.about-feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+.about-feature-icon {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+.about-feature-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #1a1a1a;
+}
+
+.about-feature-desc {
+  font-size: 1rem;
+  color: #4a4a4a;
+  line-height: 1.5;
+}
+
+.actions-grid {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.action-box {
+  background: #ffffff;
+  padding: 50px 40px;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  flex: 1;
+  min-width: 250px;
+  max-width: 400px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.action-title {
+  font-size: 1.5rem;
+  margin-bottom: 25px;
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
+.btn-primary {
+  display: inline-block;
+  background-color: var(--btn-primary-bg, #282828);
+  color: var(--btn-primary-text, #ffffff);
+  border-radius: var(--btn-primary-radius, 999px);
+  padding: 12px 28px;
+  font-weight: 500;
+  font-size: 16px;
+  text-decoration: none;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease, background-color 0.2s;
+  box-shadow: 0 4px 0 #000, 0 5px 10px rgba(0,0,0,0.15);
+}
+
+.btn-primary:hover {
+  background-color: #1a1a1a;
+  transform: translateY(2px) translateZ(10px) rotateX(5deg);
+  box-shadow: 0 2px 0 #000, 0 3px 6px rgba(0,0,0,0.15);
+}
+
+.btn-primary:active {
+  transform: translateY(4px) translateZ(0) rotateX(0deg);
+  box-shadow: 0 0 0 #000;
+}
+
+.btn-secondary {
+  display: inline-block;
+  background-color: transparent;
+  color: #1a1a1a;
+  border: 2px solid #1a1a1a;
+  border-radius: var(--btn-primary-radius, 999px);
+  padding: 10px 26px;
+  font-weight: 500;
+  font-size: 16px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .about-title {
+    font-size: 2.5rem;
+  }
+  .about-tagline {
+    font-size: 1.2rem;
+  }
+  .section-title {
+    font-size: 2rem;
+  }
+  .section-text {
+    font-size: 1.1rem;
+  }
+  .about-hero {
+    padding: 120px 20px 60px;
+  }
+  .about-section {
+    padding: 60px 20px;
+  }
+}
