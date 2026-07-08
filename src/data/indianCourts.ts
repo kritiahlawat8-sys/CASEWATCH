@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 export interface Court {
   id: string;
   label: string;
@@ -6,194 +8,86 @@ export interface Court {
   state?: string;
 }
 
-export const INDIAN_COURTS: Court[] = [
-  // ── Supreme Court ─────────────────────────────────
-  { id: 'supreme-court', label: 'Supreme Court of India', category: 'Supreme Court', icon: '🏛️', state: 'New Delhi' },
+export interface CourtsSearchResult {
+  count: number;
+  courts: Court[];
+}
 
-  // ── High Courts ───────────────────────────────────
-  { id: 'hc-allahabad',        label: 'Allahabad High Court',                       category: 'High Court', icon: '⚖️', state: 'Uttar Pradesh' },
-  { id: 'hc-allahabad-lucknow',label: 'Allahabad High Court – Lucknow Bench',       category: 'High Court', icon: '⚖️', state: 'Uttar Pradesh' },
-  { id: 'hc-andhra',           label: 'Andhra Pradesh High Court',                  category: 'High Court', icon: '⚖️', state: 'Andhra Pradesh' },
-  { id: 'hc-bombay',           label: 'Bombay High Court',                          category: 'High Court', icon: '⚖️', state: 'Maharashtra' },
-  { id: 'hc-bombay-nagpur',    label: 'Bombay High Court – Nagpur Bench',           category: 'High Court', icon: '⚖️', state: 'Maharashtra' },
-  { id: 'hc-bombay-aurangabad',label: 'Bombay High Court – Aurangabad Bench',       category: 'High Court', icon: '⚖️', state: 'Maharashtra' },
-  { id: 'hc-bombay-panaji',    label: 'Bombay High Court – Panaji Bench (Goa)',     category: 'High Court', icon: '⚖️', state: 'Goa' },
-  { id: 'hc-calcutta',         label: 'Calcutta High Court',                        category: 'High Court', icon: '⚖️', state: 'West Bengal' },
-  { id: 'hc-calcutta-port-blair','label': 'Calcutta High Court – Port Blair Circuit Bench', category: 'High Court', icon: '⚖️', state: 'Andaman & Nicobar' },
-  { id: 'hc-chhattisgarh',     label: 'Chhattisgarh High Court',                   category: 'High Court', icon: '⚖️', state: 'Chhattisgarh' },
-  { id: 'hc-delhi',            label: 'Delhi High Court',                           category: 'High Court', icon: '⚖️', state: 'Delhi' },
-  { id: 'hc-gauhati',          label: 'Gauhati High Court',                         category: 'High Court', icon: '⚖️', state: 'Assam' },
-  { id: 'hc-gauhati-kohima',   label: 'Gauhati High Court – Kohima Bench',          category: 'High Court', icon: '⚖️', state: 'Nagaland' },
-  { id: 'hc-gauhati-aizawl',   label: 'Gauhati High Court – Aizawl Bench',         category: 'High Court', icon: '⚖️', state: 'Mizoram' },
-  { id: 'hc-gauhati-agartala', label: 'Gauhati High Court – Agartala Bench',       category: 'High Court', icon: '⚖️', state: 'Tripura' },
-  { id: 'hc-gauhati-itanagar', label: 'Gauhati High Court – Itanagar Bench',       category: 'High Court', icon: '⚖️', state: 'Arunachal Pradesh' },
-  { id: 'hc-gauhati-imphal',   label: 'Gauhati High Court – Imphal Bench',         category: 'High Court', icon: '⚖️', state: 'Manipur' },
-  { id: 'hc-gauhati-shillong', label: 'Gauhati High Court – Shillong Bench',       category: 'High Court', icon: '⚖️', state: 'Meghalaya' },
-  { id: 'hc-gujarat',          label: 'Gujarat High Court',                         category: 'High Court', icon: '⚖️', state: 'Gujarat' },
-  { id: 'hc-himachal',         label: 'Himachal Pradesh High Court',               category: 'High Court', icon: '⚖️', state: 'Himachal Pradesh' },
-  { id: 'hc-jharkhand',        label: 'Jharkhand High Court',                       category: 'High Court', icon: '⚖️', state: 'Jharkhand' },
-  { id: 'hc-karnataka',        label: 'Karnataka High Court',                       category: 'High Court', icon: '⚖️', state: 'Karnataka' },
-  { id: 'hc-karnataka-dharwad',label: 'Karnataka High Court – Dharwad Bench',      category: 'High Court', icon: '⚖️', state: 'Karnataka' },
-  { id: 'hc-karnataka-kalaburagi','label': 'Karnataka High Court – Kalaburagi Bench', category: 'High Court', icon: '⚖️', state: 'Karnataka' },
-  { id: 'hc-kerala',           label: 'Kerala High Court',                          category: 'High Court', icon: '⚖️', state: 'Kerala' },
-  { id: 'hc-madhya-pradesh',   label: 'Madhya Pradesh High Court',                 category: 'High Court', icon: '⚖️', state: 'Madhya Pradesh' },
-  { id: 'hc-mp-gwalior',       label: 'Madhya Pradesh High Court – Gwalior Bench', category: 'High Court', icon: '⚖️', state: 'Madhya Pradesh' },
-  { id: 'hc-mp-indore',        label: 'Madhya Pradesh High Court – Indore Bench',  category: 'High Court', icon: '⚖️', state: 'Madhya Pradesh' },
-  { id: 'hc-madras',           label: 'Madras High Court',                          category: 'High Court', icon: '⚖️', state: 'Tamil Nadu' },
-  { id: 'hc-madras-madurai',   label: 'Madras High Court – Madurai Bench',         category: 'High Court', icon: '⚖️', state: 'Tamil Nadu' },
-  { id: 'hc-manipur',          label: 'Manipur High Court',                         category: 'High Court', icon: '⚖️', state: 'Manipur' },
-  { id: 'hc-meghalaya',        label: 'Meghalaya High Court',                       category: 'High Court', icon: '⚖️', state: 'Meghalaya' },
-  { id: 'hc-orissa',           label: 'Orissa High Court',                          category: 'High Court', icon: '⚖️', state: 'Odisha' },
-  { id: 'hc-patna',            label: 'Patna High Court',                           category: 'High Court', icon: '⚖️', state: 'Bihar' },
-  { id: 'hc-punjab-haryana',   label: 'Punjab & Haryana High Court',               category: 'High Court', icon: '⚖️', state: 'Punjab / Haryana' },
-  { id: 'hc-rajasthan',        label: 'Rajasthan High Court',                       category: 'High Court', icon: '⚖️', state: 'Rajasthan' },
-  { id: 'hc-rajasthan-jaipur', label: 'Rajasthan High Court – Jaipur Bench',       category: 'High Court', icon: '⚖️', state: 'Rajasthan' },
-  { id: 'hc-sikkim',           label: 'Sikkim High Court',                          category: 'High Court', icon: '⚖️', state: 'Sikkim' },
-  { id: 'hc-telangana',        label: 'Telangana High Court',                       category: 'High Court', icon: '⚖️', state: 'Telangana' },
-  { id: 'hc-tripura',          label: 'Tripura High Court',                         category: 'High Court', icon: '⚖️', state: 'Tripura' },
-  { id: 'hc-uttarakhand',      label: 'Uttarakhand High Court',                     category: 'High Court', icon: '⚖️', state: 'Uttarakhand' },
+// ── Change this to your Render URL when deployed ──────────────
+const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
-  // ── District & Sessions Courts ─────────────────────
-  { id: 'dc-agra',             label: 'District Court Agra',                        category: 'District Court', icon: '🏢', state: 'Uttar Pradesh' },
-  { id: 'dc-ahmedabad',        label: 'District Court Ahmedabad',                   category: 'District Court', icon: '🏢', state: 'Gujarat' },
-  { id: 'dc-ajmer',            label: 'District Court Ajmer',                       category: 'District Court', icon: '🏢', state: 'Rajasthan' },
-  { id: 'dc-aligarh',          label: 'District Court Aligarh',                     category: 'District Court', icon: '🏢', state: 'Uttar Pradesh' },
-  { id: 'dc-allahabad',        label: 'District Court Allahabad (Prayagraj)',       category: 'District Court', icon: '🏢', state: 'Uttar Pradesh' },
-  { id: 'dc-amritsar',         label: 'District Court Amritsar',                    category: 'District Court', icon: '🏢', state: 'Punjab' },
-  { id: 'dc-aurangabad',       label: 'District Court Aurangabad',                  category: 'District Court', icon: '🏢', state: 'Maharashtra' },
-  { id: 'dc-bangalore',        label: 'District Court Bengaluru',                   category: 'District Court', icon: '🏢', state: 'Karnataka' },
-  { id: 'dc-bhopal',           label: 'District Court Bhopal',                      category: 'District Court', icon: '🏢', state: 'Madhya Pradesh' },
-  { id: 'dc-bhubaneswar',      label: 'District Court Bhubaneswar',                 category: 'District Court', icon: '🏢', state: 'Odisha' },
-  { id: 'dc-chandigarh',       label: 'District Court Chandigarh',                  category: 'District Court', icon: '🏢', state: 'Chandigarh' },
-  { id: 'dc-chennai',          label: 'District Court Chennai',                     category: 'District Court', icon: '🏢', state: 'Tamil Nadu' },
-  { id: 'dc-coimbatore',       label: 'District Court Coimbatore',                  category: 'District Court', icon: '🏢', state: 'Tamil Nadu' },
-  { id: 'dc-cuttack',          label: 'District Court Cuttack',                     category: 'District Court', icon: '🏢', state: 'Odisha' },
-  { id: 'dc-dehradun',         label: 'District Court Dehradun',                    category: 'District Court', icon: '🏢', state: 'Uttarakhand' },
-  { id: 'dc-delhi-saket',      label: 'District Court Delhi – Saket',               category: 'District Court', icon: '🏢', state: 'Delhi' },
-  { id: 'dc-delhi-tis-hazari', label: 'District Court Delhi – Tis Hazari',          category: 'District Court', icon: '🏢', state: 'Delhi' },
-  { id: 'dc-delhi-rohini',     label: 'District Court Delhi – Rohini',              category: 'District Court', icon: '🏢', state: 'Delhi' },
-  { id: 'dc-delhi-dwarka',     label: 'District Court Delhi – Dwarka',              category: 'District Court', icon: '🏢', state: 'Delhi' },
-  { id: 'dc-delhi-karkardooma','label': 'District Court Delhi – Karkardooma',       category: 'District Court', icon: '🏢', state: 'Delhi' },
-  { id: 'dc-delhi-patiala',    label: 'District Court Delhi – Patiala House',      category: 'District Court', icon: '🏢', state: 'Delhi' },
-  { id: 'dc-ernakulam',        label: 'District Court Ernakulam',                   category: 'District Court', icon: '🏢', state: 'Kerala' },
-  { id: 'dc-faridabad',        label: 'District Court Faridabad',                   category: 'District Court', icon: '🏢', state: 'Haryana' },
-  { id: 'dc-ghaziabad',        label: 'District Court Ghaziabad',                   category: 'District Court', icon: '🏢', state: 'Uttar Pradesh' },
-  { id: 'dc-gorakhpur',        label: 'District Court Gorakhpur',                   category: 'District Court', icon: '🏢', state: 'Uttar Pradesh' },
-  { id: 'dc-gurgaon',          label: 'District Court Gurugram',                    category: 'District Court', icon: '🏢', state: 'Haryana' },
-  { id: 'dc-guwahati',         label: 'District Court Guwahati',                    category: 'District Court', icon: '🏢', state: 'Assam' },
-  { id: 'dc-gwalior',          label: 'District Court Gwalior',                     category: 'District Court', icon: '🏢', state: 'Madhya Pradesh' },
-  { id: 'dc-hyderabad',        label: 'District Court Hyderabad',                   category: 'District Court', icon: '🏢', state: 'Telangana' },
-  { id: 'dc-indore',           label: 'District Court Indore',                      category: 'District Court', icon: '🏢', state: 'Madhya Pradesh' },
-  { id: 'dc-jaipur',           label: 'District Court Jaipur',                      category: 'District Court', icon: '🏢', state: 'Rajasthan' },
-  { id: 'dc-jalandhar',        label: 'District Court Jalandhar',                   category: 'District Court', icon: '🏢', state: 'Punjab' },
-  { id: 'dc-jammu',            label: 'District Court Jammu',                       category: 'District Court', icon: '🏢', state: 'J&K' },
-  { id: 'dc-jodhpur',          label: 'District Court Jodhpur',                     category: 'District Court', icon: '🏢', state: 'Rajasthan' },
-  { id: 'dc-kanpur',           label: 'District Court Kanpur',                      category: 'District Court', icon: '🏢', state: 'Uttar Pradesh' },
-  { id: 'dc-kochi',            label: 'District Court Kochi',                       category: 'District Court', icon: '🏢', state: 'Kerala' },
-  { id: 'dc-kolkata',          label: 'District Court Kolkata',                     category: 'District Court', icon: '🏢', state: 'West Bengal' },
-  { id: 'dc-kozhikode',        label: 'District Court Kozhikode',                   category: 'District Court', icon: '🏢', state: 'Kerala' },
-  { id: 'dc-lucknow',          label: 'District Court Lucknow',                     category: 'District Court', icon: '🏢', state: 'Uttar Pradesh' },
-  { id: 'dc-ludhiana',         label: 'District Court Ludhiana',                    category: 'District Court', icon: '🏢', state: 'Punjab' },
-  { id: 'dc-madurai',          label: 'District Court Madurai',                     category: 'District Court', icon: '🏢', state: 'Tamil Nadu' },
-  { id: 'dc-mangaluru',        label: 'District Court Mangaluru',                   category: 'District Court', icon: '🏢', state: 'Karnataka' },
-  { id: 'dc-meerut',           label: 'District Court Meerut',                      category: 'District Court', icon: '🏢', state: 'Uttar Pradesh' },
-  { id: 'dc-mumbai',           label: 'District Court Mumbai City',                 category: 'District Court', icon: '🏢', state: 'Maharashtra' },
-  { id: 'dc-mysuru',           label: 'District Court Mysuru',                      category: 'District Court', icon: '🏢', state: 'Karnataka' },
-  { id: 'dc-nagpur',           label: 'District Court Nagpur',                      category: 'District Court', icon: '🏢', state: 'Maharashtra' },
-  { id: 'dc-nashik',           label: 'District Court Nashik',                      category: 'District Court', icon: '🏢', state: 'Maharashtra' },
-  { id: 'dc-noida',            label: 'District Court Gautam Budh Nagar (Noida)',   category: 'District Court', icon: '🏢', state: 'Uttar Pradesh' },
-  { id: 'dc-patna',            label: 'District Court Patna',                       category: 'District Court', icon: '🏢', state: 'Bihar' },
-  { id: 'dc-pune',             label: 'District Court Pune',                        category: 'District Court', icon: '🏢', state: 'Maharashtra' },
-  { id: 'dc-raipur',           label: 'District Court Raipur',                      category: 'District Court', icon: '🏢', state: 'Chhattisgarh' },
-  { id: 'dc-rajkot',           label: 'District Court Rajkot',                      category: 'District Court', icon: '🏢', state: 'Gujarat' },
-  { id: 'dc-ranchi',           label: 'District Court Ranchi',                      category: 'District Court', icon: '🏢', state: 'Jharkhand' },
-  { id: 'dc-shimla',           label: 'District Court Shimla',                      category: 'District Court', icon: '🏢', state: 'Himachal Pradesh' },
-  { id: 'dc-siliguri',         label: 'District Court Siliguri',                    category: 'District Court', icon: '🏢', state: 'West Bengal' },
-  { id: 'dc-srinagar',         label: 'District Court Srinagar',                    category: 'District Court', icon: '🏢', state: 'J&K' },
-  { id: 'dc-surat',            label: 'District Court Surat',                       category: 'District Court', icon: '🏢', state: 'Gujarat' },
-  { id: 'dc-thiruvananthapuram','label': 'District Court Thiruvananthapuram',        category: 'District Court', icon: '🏢', state: 'Kerala' },
-  { id: 'dc-thane',            label: 'District Court Thane',                       category: 'District Court', icon: '🏢', state: 'Maharashtra' },
-  { id: 'dc-tiruchirappalli',  label: 'District Court Tiruchirappalli',             category: 'District Court', icon: '🏢', state: 'Tamil Nadu' },
-  { id: 'dc-vadodara',         label: 'District Court Vadodara',                    category: 'District Court', icon: '🏢', state: 'Gujarat' },
-  { id: 'dc-varanasi',         label: 'District Court Varanasi',                    category: 'District Court', icon: '🏢', state: 'Uttar Pradesh' },
-  { id: 'dc-vijayawada',       label: 'District Court Vijayawada',                  category: 'District Court', icon: '🏢', state: 'Andhra Pradesh' },
-  { id: 'dc-visakhapatnam',    label: 'District Court Visakhapatnam',               category: 'District Court', icon: '🏢', state: 'Andhra Pradesh' },
+// ─────────────────────────────────────────────────────────────
+// searchCourts
+// Replaces the old client-side INDIAN_COURTS.filter(...) logic.
+// Called whenever user types in the search box or changes category.
+// ─────────────────────────────────────────────────────────────
+export async function searchCourts(
+  q: string = "",
+  category: string = ""
+): Promise<Court[]> {
+  const params = new URLSearchParams();
 
-  // ── Family Courts ──────────────────────────────────
-  { id: 'fc-delhi',            label: 'Family Court Delhi',                         category: 'Family Court', icon: '👨‍👩‍👧', state: 'Delhi' },
-  { id: 'fc-mumbai',           label: 'Family Court Mumbai',                        category: 'Family Court', icon: '👨‍👩‍👧', state: 'Maharashtra' },
-  { id: 'fc-bangalore',        label: 'Family Court Bengaluru',                     category: 'Family Court', icon: '👨‍👩‍👧', state: 'Karnataka' },
-  { id: 'fc-hyderabad',        label: 'Family Court Hyderabad',                     category: 'Family Court', icon: '👨‍👩‍👧', state: 'Telangana' },
-  { id: 'fc-chennai',          label: 'Family Court Chennai',                       category: 'Family Court', icon: '👨‍👩‍👧', state: 'Tamil Nadu' },
-  { id: 'fc-kolkata',          label: 'Family Court Kolkata',                       category: 'Family Court', icon: '👨‍👩‍👧', state: 'West Bengal' },
-  { id: 'fc-pune',             label: 'Family Court Pune',                          category: 'Family Court', icon: '👨‍👩‍👧', state: 'Maharashtra' },
-  { id: 'fc-lucknow',          label: 'Family Court Lucknow',                       category: 'Family Court', icon: '👨‍👩‍👧', state: 'Uttar Pradesh' },
+  if (q.trim())        params.set("q", q.trim());
+  if (category.trim()) params.set("category", category.trim());
 
-  // ── Tribunals ─────────────────────────────────────
-  { id: 'trib-nclat',          label: 'National Company Law Appellate Tribunal (NCLAT)', category: 'Tribunal', icon: '🏦', state: 'New Delhi' },
-  { id: 'trib-nclt-delhi',     label: 'National Company Law Tribunal – Delhi',      category: 'Tribunal', icon: '🏦', state: 'Delhi' },
-  { id: 'trib-nclt-mumbai',    label: 'National Company Law Tribunal – Mumbai',     category: 'Tribunal', icon: '🏦', state: 'Maharashtra' },
-  { id: 'trib-nclt-chennai',   label: 'National Company Law Tribunal – Chennai',    category: 'Tribunal', icon: '🏦', state: 'Tamil Nadu' },
-  { id: 'trib-nclt-kolkata',   label: 'National Company Law Tribunal – Kolkata',    category: 'Tribunal', icon: '🏦', state: 'West Bengal' },
-  { id: 'trib-nclt-hyderabad', label: 'National Company Law Tribunal – Hyderabad', category: 'Tribunal', icon: '🏦', state: 'Telangana' },
-  { id: 'trib-nclt-ahmedabad', label: 'National Company Law Tribunal – Ahmedabad', category: 'Tribunal', icon: '🏦', state: 'Gujarat' },
-  { id: 'trib-nclt-bangalore', label: 'National Company Law Tribunal – Bengaluru', category: 'Tribunal', icon: '🏦', state: 'Karnataka' },
-  { id: 'trib-itat-delhi',     label: 'Income Tax Appellate Tribunal – Delhi',      category: 'Tribunal', icon: '🏦', state: 'Delhi' },
-  { id: 'trib-itat-mumbai',    label: 'Income Tax Appellate Tribunal – Mumbai',     category: 'Tribunal', icon: '🏦', state: 'Maharashtra' },
-  { id: 'trib-itat-bangalore', label: 'Income Tax Appellate Tribunal – Bengaluru', category: 'Tribunal', icon: '🏦', state: 'Karnataka' },
-  { id: 'trib-itat-kolkata',   label: 'Income Tax Appellate Tribunal – Kolkata',    category: 'Tribunal', icon: '🏦', state: 'West Bengal' },
-  { id: 'trib-itat-chennai',   label: 'Income Tax Appellate Tribunal – Chennai',    category: 'Tribunal', icon: '🏦', state: 'Tamil Nadu' },
-  { id: 'trib-itat-hyderabad', label: 'Income Tax Appellate Tribunal – Hyderabad', category: 'Tribunal', icon: '🏦', state: 'Telangana' },
-  { id: 'trib-sat',            label: 'Securities Appellate Tribunal (SAT)',        category: 'Tribunal', icon: '🏦', state: 'Maharashtra' },
-  { id: 'trib-tdsat',          label: 'Telecom Disputes Settlement & Appellate Tribunal (TDSAT)', category: 'Tribunal', icon: '🏦', state: 'New Delhi' },
-  { id: 'trib-cat',            label: 'Central Administrative Tribunal (CAT)',      category: 'Tribunal', icon: '🏦', state: 'New Delhi' },
-  { id: 'trib-ngto',           label: 'National Green Tribunal (NGT)',              category: 'Tribunal', icon: '🌿', state: 'New Delhi' },
-  { id: 'trib-ngt-pune',       label: 'National Green Tribunal – Pune Bench',      category: 'Tribunal', icon: '🌿', state: 'Maharashtra' },
-  { id: 'trib-ngt-kolkata',    label: 'National Green Tribunal – Kolkata Bench',   category: 'Tribunal', icon: '🌿', state: 'West Bengal' },
-  { id: 'trib-ngt-bhopal',     label: 'National Green Tribunal – Bhopal Bench',    category: 'Tribunal', icon: '🌿', state: 'Madhya Pradesh' },
-  { id: 'trib-ngt-chennai',    label: 'National Green Tribunal – Chennai Bench',   category: 'Tribunal', icon: '🌿', state: 'Tamil Nadu' },
-  { id: 'trib-drt-delhi',      label: 'Debt Recovery Tribunal – Delhi',            category: 'Tribunal', icon: '🏦', state: 'Delhi' },
-  { id: 'trib-drt-mumbai',     label: 'Debt Recovery Tribunal – Mumbai',           category: 'Tribunal', icon: '🏦', state: 'Maharashtra' },
-  { id: 'trib-drt-kolkata',    label: 'Debt Recovery Tribunal – Kolkata',          category: 'Tribunal', icon: '🏦', state: 'West Bengal' },
-  { id: 'trib-drt-chennai',    label: 'Debt Recovery Tribunal – Chennai',          category: 'Tribunal', icon: '🏦', state: 'Tamil Nadu' },
-  { id: 'trib-drt-bangalore',  label: 'Debt Recovery Tribunal – Bengaluru',        category: 'Tribunal', icon: '🏦', state: 'Karnataka' },
-  { id: 'trib-drt-hyderabad',  label: 'Debt Recovery Tribunal – Hyderabad',        category: 'Tribunal', icon: '🏦', state: 'Telangana' },
-  { id: 'trib-drt-jaipur',     label: 'Debt Recovery Tribunal – Jaipur',           category: 'Tribunal', icon: '🏦', state: 'Rajasthan' },
-  { id: 'trib-drt-patna',      label: 'Debt Recovery Tribunal – Patna',            category: 'Tribunal', icon: '🏦', state: 'Bihar' },
-  { id: 'trib-drt-ahmedabad',  label: 'Debt Recovery Tribunal – Ahmedabad',        category: 'Tribunal', icon: '🏦', state: 'Gujarat' },
-  { id: 'trib-drat-delhi',     label: 'Debt Recovery Appellate Tribunal – Delhi',  category: 'Tribunal', icon: '🏦', state: 'Delhi' },
-  { id: 'trib-drat-mumbai',    label: 'Debt Recovery Appellate Tribunal – Mumbai', category: 'Tribunal', icon: '🏦', state: 'Maharashtra' },
-  { id: 'trib-drat-kolkata',   label: 'Debt Recovery Appellate Tribunal – Kolkata',category: 'Tribunal', icon: '🏦', state: 'West Bengal' },
-  { id: 'trib-drat-chennai',   label: 'Debt Recovery Appellate Tribunal – Chennai',category: 'Tribunal', icon: '🏦', state: 'Tamil Nadu' },
-  { id: 'trib-armed-forces',   label: 'Armed Forces Tribunal (AFT)',               category: 'Tribunal', icon: '🏦', state: 'New Delhi' },
-  { id: 'trib-railway-claims', label: 'Railway Claims Tribunal',                   category: 'Tribunal', icon: '🏦', state: 'New Delhi' },
+  const res = await fetch(`${API_BASE}/api/courts/search?${params.toString()}`);
 
-  // ── Consumer Dispute Forums ────────────────────────
-  { id: 'consumer-ncdrc',      label: 'National Consumer Disputes Redressal Commission (NCDRC)', category: 'Consumer Forum', icon: '🛒', state: 'New Delhi' },
-  { id: 'consumer-sc-delhi',   label: 'State Consumer Commission – Delhi',         category: 'Consumer Forum', icon: '🛒', state: 'Delhi' },
-  { id: 'consumer-sc-maharashtra','label': 'State Consumer Commission – Maharashtra', category: 'Consumer Forum', icon: '🛒', state: 'Maharashtra' },
-  { id: 'consumer-sc-karnataka','label': 'State Consumer Commission – Karnataka',  category: 'Consumer Forum', icon: '🛒', state: 'Karnataka' },
-  { id: 'consumer-sc-tamilnadu','label': 'State Consumer Commission – Tamil Nadu', category: 'Consumer Forum', icon: '🛒', state: 'Tamil Nadu' },
-  { id: 'consumer-sc-up',      label: 'State Consumer Commission – Uttar Pradesh', category: 'Consumer Forum', icon: '🛒', state: 'Uttar Pradesh' },
-  { id: 'consumer-sc-gujarat', label: 'State Consumer Commission – Gujarat',       category: 'Consumer Forum', icon: '🛒', state: 'Gujarat' },
-  { id: 'consumer-sc-rajasthan','label': 'State Consumer Commission – Rajasthan',  category: 'Consumer Forum', icon: '🛒', state: 'Rajasthan' },
-  { id: 'consumer-sc-wb',      label: 'State Consumer Commission – West Bengal',   category: 'Consumer Forum', icon: '🛒', state: 'West Bengal' },
+  if (!res.ok) {
+    throw new Error(`Court search failed: ${res.status}`);
+  }
 
-  // ── Lok Adalats ────────────────────────────────────
-  { id: 'lok-national',        label: 'National Lok Adalat (NALSA)',               category: 'Lok Adalat', icon: '🤝', state: 'New Delhi' },
-  { id: 'lok-state-delhi',     label: 'State Lok Adalat – Delhi',                  category: 'Lok Adalat', icon: '🤝', state: 'Delhi' },
-  { id: 'lok-state-maharashtra','label': 'State Lok Adalat – Maharashtra',          category: 'Lok Adalat', icon: '🤝', state: 'Maharashtra' },
-  { id: 'lok-state-up',        label: 'State Lok Adalat – Uttar Pradesh',          category: 'Lok Adalat', icon: '🤝', state: 'Uttar Pradesh' },
-];
+  const data: CourtsSearchResult = await res.json();
+  return data.courts;
+}
 
+// ─────────────────────────────────────────────────────────────
+// getCategories
+// Returns the filter pill labels:
+// ["Supreme Court", "High Court", "District Court", ...]
+// Call once on page load and cache in component state.
+// ─────────────────────────────────────────────────────────────
+export async function getCategories(): Promise<string[]> {
+  const res = await fetch(`${API_BASE}/api/courts/categories`);
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch categories: ${res.status}`);
+  }
+
+  const data: { categories: string[] } = await res.json();
+  return data.categories;
+}
+
+// ─────────────────────────────────────────────────────────────
+// getCourtById
+// Called when user selects a court and moves to Step 2 (Enter CRN).
+// ─────────────────────────────────────────────────────────────
+export async function getCourtById(courtId: string): Promise<Court> {
+  const res = await fetch(`${API_BASE}/api/courts/${courtId}`);
+
+  if (res.status === 404) {
+    throw new Error(`Court not found: ${courtId}`);
+  }
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch court: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+// ─────────────────────────────────────────────────────────────
+// COURT_CATEGORIES — kept as a constant for TypeScript typing
+// only. Do NOT use this to render the filter pills —
+// use getCategories() instead so DB is the source of truth.
+// ─────────────────────────────────────────────────────────────
 export const COURT_CATEGORIES = [
-  'Supreme Court',
-  'High Court',
-  'District Court',
-  'Family Court',
-  'Tribunal',
-  'Consumer Forum',
-  'Lok Adalat',
+  "Supreme Court",
+  "High Court",
+  "District Court",
+  "Family Court",
+  "Tribunal",
+  "Consumer Forum",
+  "Lok Adalat",
 ] as const;
 
-export type CourtCategory = typeof COURT_CATEGORIES[number];
+export type CourtCategory = (typeof COURT_CATEGORIES)[number];
