@@ -65,7 +65,8 @@ def search_courts(
         # Text search — match against label OR state
         # Supabase ilike = case-insensitive LIKE
         if q and q.strip():
-            search_term = q.strip()
+            # Remove commas to prevent PostgREST from treating them as OR separators
+            search_term = q.strip().replace(",", " ")
             query = query.or_(
                 f"label.ilike.%{search_term}%,state.ilike.%{search_term}%"
             )

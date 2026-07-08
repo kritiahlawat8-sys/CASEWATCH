@@ -52,29 +52,33 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
   // Fetch courts when search query or category filter changes
   useEffect(() => {
     let active = true;
-    async function fetchCourts() {
-      setLoading(true);
-      setError(null);
-      try {
-        const categoryFilter = activeCategory === 'All' ? '' : activeCategory;
-        const results = await searchCourts(courtSearch, categoryFilter);
-        if (active) {
-          setCourts(results);
-        }
-      } catch (err) {
-        console.error('Failed to fetch courts:', err);
-        if (active) {
-          setError('Failed to connect to the backend server. Please verify the backend is running.');
-        }
-      } finally {
-        if (active) {
-          setLoading(false);
+    const timeoutId = setTimeout(() => {
+      async function fetchCourts() {
+        setLoading(true);
+        setError(null);
+        try {
+          const categoryFilter = activeCategory === 'All' ? '' : activeCategory;
+          const results = await searchCourts(courtSearch, categoryFilter);
+          if (active) {
+            setCourts(results);
+          }
+        } catch (err) {
+          console.error('Failed to fetch courts:', err);
+          if (active) {
+            setError('Failed to connect to the backend server. Please verify the backend is running.');
+          }
+        } finally {
+          if (active) {
+            setLoading(false);
+          }
         }
       }
-    }
-    fetchCourts();
+      fetchCourts();
+    }, 300);
+
     return () => {
       active = false;
+      clearTimeout(timeoutId);
     };
   }, [courtSearch, activeCategory]);
 
