@@ -42,17 +42,36 @@ Make sure you have Node.js and npm installed on your system.
 
 1. **Clone the repository**
    ```bash
-   git clone [https://github.com/your-username/casewatch.git](https://github.com/your-username/casewatch.git)
+   git clone https://github.com/your-username/casewatch.git
    cd casewatch
-   Install dependencies
-2. Install the required Node packages specified in "package.json":
+   ```
 
-Bash```
-"npm install"```
-Run the Development Server
-Start the local development environment using Vite:
+2. **Frontend Setup & Development**
+   Install the required Node packages and start the Vite development server:
+   ```bash
+   npm install
+   npm run dev
+   ```
 
-Bash```
-npm run dev```
-Open the App
-Once the server starts, open your browser and navigate to the local address provided in your terminal
+3. **Backend Setup & Development**
+   Set up the Python environment, configure environment variables, and start the FastAPI server:
+   ```bash
+   # Navigate to backend
+   cd backend
+
+   # Create virtual environment
+   python -m venv venv
+   # On Windows:
+   venv\Scripts\activate
+   # On Mac/Linux:
+   source venv/bin/activate
+
+   # Install dependencies
+   pip install -r requirements.txt
+
+   # Start the FastAPI server using Uvicorn
+   python -m uvicorn main:app --reload
+   ```
+
+4. **Verify the Installation**
+   Open your browser and navigate to the local address provided in your terminal (usually `http://localhost:5173` for the frontend). Ensure the backend is running on `http://localhost:8000`.

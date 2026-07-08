@@ -25,6 +25,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
   const [categories, setCategories] = useState<string[]>([]);
   const [selectedCourtData, setSelectedCourtData] = useState<Court | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const recaptchaRef = useRef<ReCAPTCHA>(null);
   const cardRef = useRef<HTMLElement>(null);
@@ -53,6 +54,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
     let active = true;
     async function fetchCourts() {
       setLoading(true);
+      setError(null);
       try {
         const categoryFilter = activeCategory === 'All' ? '' : activeCategory;
         const results = await searchCourts(courtSearch, categoryFilter);
@@ -61,6 +63,9 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
         }
       } catch (err) {
         console.error('Failed to fetch courts:', err);
+        if (active) {
+          setError('Failed to connect to the backend server. Please verify the backend is running.');
+        }
       } finally {
         if (active) {
           setLoading(false);
@@ -208,6 +213,15 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
                 {loading ? (
                   <div className="court-no-results">
                     <p>Loading courts...</p>
+                  </div>
+                ) : error ? (
+                  <div className="court-no-results">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger, #ef4444)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="8" x2="12" y2="12" />
+                      <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                    <p style={{ color: 'var(--color-danger, #ef4444)', marginTop: '8px' }}>{error}</p>
                   </div>
                 ) : courts.length === 0 ? (
                   <div className="court-no-results">
