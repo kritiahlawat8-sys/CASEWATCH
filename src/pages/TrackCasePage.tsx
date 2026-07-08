@@ -1,8 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { INDIAN_COURTS, COURT_CATEGORIES, CourtCategory } from '../data/indianCourts';
+import { searchCourts, getCategories, Court } from '../data/indianCourts';
 import './TrackCasePage.css';
 
 interface TrackCasePageProps {
@@ -20,10 +20,58 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
   const [partyName, setPartyName] = useState('');
   const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [courtSearch, setCourtSearch] = useState('');
-  const [activeCategory, setActiveCategory] = useState<CourtCategory | 'All'>('All');
+  const [activeCategory, setActiveCategory] = useState<string>('All');
+  const [courts, setCourts] = useState<Court[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [selectedCourtData, setSelectedCourtData] = useState<Court | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const recaptchaRef = useRef<ReCAPTCHA>(null);
   const cardRef = useRef<HTMLElement>(null);
+
+  // Fetch categories on mount
+  useEffect(() => {
+    let active = true;
+    async function loadCategories() {
+      try {
+        const cats = await getCategories();
+        if (active) {
+          setCategories(cats);
+        }
+      } catch (err) {
+        console.error('Failed to load categories:', err);
+      }
+    }
+    loadCategories();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Fetch courts when search query or category filter changes
+  useEffect(() => {
+    let active = true;
+    async function fetchCourts() {
+      setLoading(true);
+      try {
+        const categoryFilter = activeCategory === 'All' ? '' : activeCategory;
+        const results = await searchCourts(courtSearch, categoryFilter);
+        if (active) {
+          setCourts(results);
+        }
+      } catch (err) {
+        console.error('Failed to fetch courts:', err);
+      } finally {
+        if (active) {
+          setLoading(false);
+        }
+      }
+    }
+    fetchCourts();
+    return () => {
+      active = false;
+    };
+  }, [courtSearch, activeCategory]);
 
   // Scroll to the interactive card section
   const scrollToCard = () => {
@@ -43,6 +91,10 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
 
   const handleCourtSelect = (courtId: string) => {
     setSelectedCourt(courtId);
+    const court = courts.find(c => c.id === courtId);
+    if (court) {
+      setSelectedCourtData(court);
+    }
   };
 
   const handleCourtProceed = () => {
@@ -72,15 +124,8 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
     return '';
   };
 
-  const filteredCourts = INDIAN_COURTS.filter(c => {
-    const matchesSearch = c.label.toLowerCase().includes(courtSearch.toLowerCase()) ||
-      (c.state || '').toLowerCase().includes(courtSearch.toLowerCase());
-    const matchesCategory = activeCategory === 'All' || c.category === activeCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  const selectedCourtLabel = INDIAN_COURTS.find(c => c.id === selectedCourt)?.label;
-  const selectedCourtIcon = INDIAN_COURTS.find(c => c.id === selectedCourt)?.icon;
+  const selectedCourtLabel = selectedCourtData?.label;
+  const selectedCourtIcon = selectedCourtData?.icon;
 
   return (
     <div className="track-page-wrapper">
@@ -146,21 +191,25 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
                   type="button"
                   className={`court-cat-tab ${activeCategory === 'All' ? 'active' : ''}`}
                   onClick={() => setActiveCategory('All')}
-                >All ({INDIAN_COURTS.length})</button>
-                {COURT_CATEGORIES.map(cat => (
+                >All</button>
+                {categories.map(cat => (
                   <button
                     key={cat}
                     type="button"
                     className={`court-cat-tab ${activeCategory === cat ? 'active' : ''}`}
                     onClick={() => setActiveCategory(cat)}
                   >
-                    {cat} ({INDIAN_COURTS.filter(c => c.category === cat).length})
+                    {cat}
                   </button>
                 ))}
               </div>
 
               <div className="court-list-container">
-                {filteredCourts.length === 0 ? (
+                {loading ? (
+                  <div className="court-no-results">
+                    <p>Loading courts...</p>
+                  </div>
+                ) : courts.length === 0 ? (
                   <div className="court-no-results">
                     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                       <circle cx="11" cy="11" r="8" />
@@ -170,7 +219,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
                   </div>
                 ) : (
                   <div className="court-grid">
-                    {filteredCourts.map(court => (
+                    {courts.map(court => (
                       <button
                         key={court.id}
                         type="button"
@@ -229,7 +278,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
                   Back
                 </button>
                 <span className="step-back-court-tag">
-                  {INDIAN_COURTS.find(c => c.id === selectedCourt)?.icon} {selectedCourtLabel}
+                  {selectedCourtIcon} {selectedCourtLabel}
                 </span>
               </div>
               <form onSubmit={handleFormSubmit}>
