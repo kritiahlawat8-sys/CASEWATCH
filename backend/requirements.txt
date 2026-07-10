@@ -1,6 +1,6 @@
-fastapi
-uvicorn[standard]
-httpx
-supabase
-python-dotenv
-pydantic-settings
+fastapi==0.120.2
+uvicorn==0.38.0
+httpx==0.28.1
+supabase==2.31.0
+python-dotenv==1.2.1
+pydantic-settings==2.11.0
