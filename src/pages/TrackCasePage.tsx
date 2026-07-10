@@ -95,7 +95,8 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
         setCaseLoading(true);
         setCaseError(null);
         try {
-          const res = await fetch('http://localhost:8000/api/cases/lookup', {
+          const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+          const res = await fetch(`${apiUrl}/api/cases/lookup`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ cnr: crnNumber, party_name: partyName })
