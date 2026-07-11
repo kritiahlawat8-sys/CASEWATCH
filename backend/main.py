@@ -20,7 +20,12 @@ app = FastAPI(title="CaseWatch API", version="0.4.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://casewatch.vercel.app",
+        "http://localhost:5173",
+        "http://localhost:3000"
+    ],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -30,10 +35,12 @@ app.add_middleware(
 # ─────────────────────────────────────────
 
 @app.get("/")
+@app.head("/")
 def root():
     return {"status": "CaseWatch API is running"}
 
 @app.get("/api/health")
+@app.head("/api/health")
 def health():
     return {"status": "ok", "version": "0.4.0"}
 
