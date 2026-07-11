@@ -51,7 +51,7 @@ export default function Footer() {
           <div className="footer-column">
             <h3 className="column-title">CASEWATCH</h3>
             <ul className="footer-links">
-              <li><a href="#about">About</a></li>
+              <li><Link to="/about">About</Link></li>
               <li><Link to="/how-it-works">How it works</Link></li>
               <li><a href="#case-types">Case Types</a></li>
               <li><a href="#contact">Contact</a></li>
