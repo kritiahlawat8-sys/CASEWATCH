@@ -8,21 +8,21 @@ export default function Footer() {
     <footer className="casewatch-footer">
       {/* Subtle top border accent with Indian tricolor colors */}
       <div className="footer-top-accent"></div>
-      
+
       <div className="footer-container">
         <div className="footer-grid">
-          
+
           {/* Column 1: Brand About (Logo, Description, Socials) */}
           <div className="footer-column brand-col">
             <a href="#" className="footer-logo-wrapper">
               <img src="/logo.png" alt="CaseWatch Logo" className="logo-img" />
               <span className="logo-text">CASEWATCH</span>
             </a>
-            
+
             <p className="brand-desc">
               A secure legal tech platform helping citizens monitor case statuses, receive updates, and understand court proceedings.
             </p>
-            
+
             {/* Social Icons */}
             <div className="social-links">
               <a href="#" className="social-icon" aria-label="Twitter" title="Twitter">
@@ -57,7 +57,7 @@ export default function Footer() {
               <li><a href="#contact">Contact</a></li>
             </ul>
           </div>
-          
+
           {/* Column 3: Legal INFO */}
           <div className="footer-column">
             <h3 className="column-title">Legal INFO</h3>
@@ -70,17 +70,17 @@ export default function Footer() {
               <li><Link to="/legal-info/labour">Labour</Link></li>
             </ul>
           </div>
-          
+
           {/* Column 4: GOV PORTALS */}
           <div className="footer-column">
             <h3 className="column-title">GOV PORTALS</h3>
             <ul className="footer-links">
               {govPortalsLinks.map((link) => (
                 <li key={link.label}>
-                  <a 
-                    href={link.url} 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
                     {link.label}
                   </a>
@@ -88,7 +88,7 @@ export default function Footer() {
               ))}
             </ul>
           </div>
-          
+
           {/* Column 5: LEGAL */}
           <div className="footer-column">
             <h3 className="column-title">LEGAL</h3>
@@ -99,9 +99,9 @@ export default function Footer() {
               <li><Link to="/grievance">Grievance</Link></li>
             </ul>
           </div>
-          
+
         </div>
-        
+
         {/* Bottom Copyright & Small Print */}
         <div className="footer-bottom">
           <div className="footer-bottom-flex">
@@ -117,9 +117,9 @@ export default function Footer() {
               <span>An Initiative for Accessible Legal Services in India</span>
             </div>
           </div>
-          
+
           <div className="footer-disclaimer">
-            <p>CaseWatch is an independent platform and is not affiliated with, endorsed by, or operated by the Government of India, the Indian Judiciary, or any of the bodies linked above. Links are provided for the convenience of users.</p>
+            <p>CaseWatch is a personal prototype built by working developers and is not affiliated with, endorsed by, or operated by the Government of India, the Indian Judiciary, or any of the bodies linked above. Any emblems or logos used are local implementations and have not been officially provided by any government authority. Links are provided for the convenience of users.</p>
           </div>
 
         </div>
