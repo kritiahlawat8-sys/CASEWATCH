@@ -126,6 +126,11 @@ export const termsOfUseContent = [
     id: 'changes-to-terms',
     title: '12. Changes to Terms',
     content: `We may modify these terms at any time. Continued use of the platform constitutes acceptance of modified terms.`
+  },
+  {
+    id: 'Platform Status & Government Affiliation',
+    title: '13. Platform Status & Government Affiliation',
+    content: `CaseWatch is a personal prototype built by working developers as part of an academic and internship project.It is not approved, authorized, or endorsed by the Government of India, the Indian Judiciary, or any government body.Any emblems, logos, or visual elements resembling official government or judicial insignia used on this platform are local design implementations created for representational purposes only, and have not been officially provided or sanctioned by any government authority.`
   }
 ];
 
