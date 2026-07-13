@@ -62,7 +62,7 @@ const Hero = () => {
           <input
             type="text"
             className="cnr-search-input"
-            placeholder="Enter CNR Number (e.g. HRGR010012342026)"
+            placeholder="Enter CNR Number (e.g. ABCD010012342026)"
             value={cnr}
             onChange={(e) => setCnr(e.target.value)}
             required
