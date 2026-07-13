@@ -90,7 +90,6 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
 
   // Handle auto-lookup from homepage CNR search
   useEffect(() => {
-    let active = true;
     const params = new URLSearchParams(window.location.search);
     let cnrVal = params.get('cnr');
     if (!cnrVal) {
@@ -103,39 +102,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
     if (cnrVal) {
       const sanitizedCnr = cnrVal.trim().toUpperCase();
       setCrnNumber(sanitizedCnr);
-      setCurrentStep(3);
-
-      async function triggerAutoLookup() {
-        setCaseLoading(true);
-        setCaseError(null);
-        try {
-          const apiUrl = import.meta.env.VITE_API_URL || 'https://casewatch.onrender.com';
-          const res = await fetch(`${apiUrl}/api/cases/lookup`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cnr: sanitizedCnr })
-          });
-          const data = await res.json();
-          if (!res.ok) {
-            throw new Error(data.detail || 'Failed to fetch case details');
-          }
-          if (active) {
-            setCaseData(data);
-            setCurrentStep(4);
-          }
-        } catch (err: any) {
-          if (active) {
-            setCaseError(err.message || 'An error occurred while fetching case data.');
-          }
-        } finally {
-          if (active) {
-            setCaseLoading(false);
-          }
-        }
-      }
-      triggerAutoLookup();
     }
-    return () => { active = false; };
   }, []);
 
   // Fetch Case Details when reaching Step 4
