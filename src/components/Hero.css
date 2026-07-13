@@ -268,3 +268,57 @@
     transform: scale(1) rotate(var(--rotation));
   }
 }
+
+/* Quick CNR Search Styles */
+.hero-cnr-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  margin-bottom: 40px;
+  opacity: 0;
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards;
+  width: 100%;
+  max-width: 540px;
+}
+
+.cnr-search-input {
+  flex: 1;
+  background-color: #ffffff;
+  color: #242424;
+  border: 1px solid #e0e0e0;
+  border-radius: 999px;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-family: var(--nav-font, 'Inter', sans-serif);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.cnr-search-input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.cnr-search-submit {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .hero-cnr-search {
+    flex-direction: column;
+    width: 100%;
+    max-width: 300px;
+    gap: 12px;
+  }
+  .cnr-search-input {
+    width: 100%;
+    text-align: center;
+  }
+  .cnr-search-submit {
+    width: 100%;
+    justify-content: center;
+  }
+}
