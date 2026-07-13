@@ -27,6 +27,11 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Step 4 State
+  const [caseData, setCaseData] = useState<any>(null);
+  const [caseLoading, setCaseLoading] = useState(false);
+  const [caseError, setCaseError] = useState<string | null>(null);
+
   const recaptchaRef = useRef<ReCAPTCHA>(null);
   const cardRef = useRef<HTMLElement>(null);
 
@@ -81,6 +86,36 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
       clearTimeout(timeoutId);
     };
   }, [courtSearch, activeCategory]);
+
+  // Fetch Case Details when reaching Step 4
+  useEffect(() => {
+    let active = true;
+    if (currentStep === 4) {
+      async function fetchCase() {
+        setCaseLoading(true);
+        setCaseError(null);
+        try {
+          const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+          const res = await fetch(`${apiUrl}/api/cases/lookup`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cnr: crnNumber, party_name: partyName })
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.detail || 'Failed to fetch case details');
+          }
+          if (active) setCaseData(data);
+        } catch (err: any) {
+          if (active) setCaseError(err.message || 'An error occurred while fetching case data.');
+        } finally {
+          if (active) setCaseLoading(false);
+        }
+      }
+      fetchCase();
+    }
+    return () => { active = false; };
+  }, [currentStep, crnNumber, partyName]);
 
   // Scroll to the interactive card section
   const scrollToCard = () => {
@@ -413,6 +448,84 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
                   </svg>
                 </button>
               </div>
+            </div>
+          )}
+          {/* STEP 4: CASE DETAILS */}
+          {currentStep === 4 && (
+            <div id="caseDetailsState" className="case-details-panel fade-in-up">
+              {caseLoading ? (
+                <div className="case-loading-state">
+                  <div className="case-spinner"></div>
+                  <p>Fetching real-time case data from eCourts India...</p>
+                </div>
+              ) : caseError ? (
+                <div className="case-error-state">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-error, #c0392b)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                  </svg>
+                  <h3>Verification Failed</h3>
+                  <p>{caseError}</p>
+                  <button className="pg-submit-btn" style={{ marginTop: '20px' }} onClick={() => setCurrentStep(2)}>
+                    Try Again
+                  </button>
+                </div>
+              ) : caseData ? (
+                <div className="case-data-dashboard">
+                  <div className="case-header-card glass-panel">
+                    <div className="case-status-badge" data-status={caseData.status?.toLowerCase().includes('disposed') ? 'disposed' : 'pending'}>
+                      {caseData.status || 'Status Unknown'}
+                    </div>
+                    <h3 className="case-title">
+                      <span className="party">{caseData.petitioner || 'Unknown'}</span> 
+                      <span className="vs">vs</span> 
+                      <span className="party">{caseData.respondent || 'Unknown'}</span>
+                    </h3>
+                    
+                    <div className="case-meta-grid">
+                      <div className="meta-item">
+                        <span className="meta-label">Case Reference No. (CNR)</span>
+                        <span className="meta-value mono">{caseData.cnr}</span>
+                      </div>
+                      <div className="meta-item">
+                        <span className="meta-label">Case Number</span>
+                        <span className="meta-value">{caseData.case_number || 'N/A'}</span>
+                      </div>
+                      <div className="meta-item">
+                        <span className="meta-label">Court</span>
+                        <span className="meta-value">{caseData.court_name}</span>
+                      </div>
+                      <div className="meta-item">
+                        <span className="meta-label">Jurisdiction</span>
+                        <span className="meta-value">{caseData.district}, {caseData.state}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="case-timeline-section">
+                    <h4 className="section-heading">Hearing Timeline</h4>
+                    {caseData.history && caseData.history.length > 0 ? (
+                      <div className="timeline-container">
+                        {caseData.history.map((h: any, idx: number) => (
+                          <div key={idx} className="timeline-item">
+                            <div className="timeline-dot"></div>
+                            <div className="timeline-content">
+                              <div className="timeline-date">{h.hearing_date || 'Date Not Specified'}</div>
+                              <div className="timeline-purpose">{h.purpose || 'Hearing'}</div>
+                              {h.judge && <div className="timeline-judge">Presiding: {h.judge}</div>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="no-history-msg">
+                        <p>No historical hearings are recorded for this case.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : null}
             </div>
           )}
 

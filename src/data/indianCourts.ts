@@ -14,7 +14,7 @@ export interface CourtsSearchResult {
 }
 
 // ── Change this to your Render URL when deployed ──────────────
-const API_BASE = import.meta.env.VITE_API_URL ?? "https://casewatch.onrender.com";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 // ─────────────────────────────────────────────────────────────
 // searchCourts
