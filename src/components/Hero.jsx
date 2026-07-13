@@ -1,8 +1,19 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import './Hero.css';
 
 const Hero = () => {
+  const [cnr, setCnr] = useState('');
+  const navigate = useNavigate();
+
+  const handleCnrSearch = (e) => {
+    e.preventDefault();
+    if (cnr.trim()) {
+      localStorage.setItem('cnr_search', cnr.trim());
+      navigate(`/track-case.html?cnr=${encodeURIComponent(cnr.trim())}`);
+    }
+  };
+
   return (
     <section className="hero-section">
       <div className="hero-grid-bg"></div>
@@ -46,6 +57,20 @@ const Hero = () => {
             Explore features
           </button>
         </div>
+
+        <form onSubmit={handleCnrSearch} className="hero-cnr-search">
+          <input
+            type="text"
+            className="cnr-search-input"
+            placeholder="Enter CNR Number (e.g. HRGR010095272026)"
+            value={cnr}
+            onChange={(e) => setCnr(e.target.value)}
+            required
+          />
+          <button type="submit" className="btn-dark cnr-search-submit">
+            Track Case &rarr;
+          </button>
+        </form>
         
         <p className="hero-description">
           With over 50 million pending cases across India, navigate the legal system effortlessly. <br />

@@ -88,15 +88,65 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
     };
   }, [courtSearch, activeCategory]);
 
+  // Handle auto-lookup from homepage CNR search
+  useEffect(() => {
+    let active = true;
+    const params = new URLSearchParams(window.location.search);
+    let cnrVal = params.get('cnr');
+    if (!cnrVal) {
+      cnrVal = localStorage.getItem('cnr_search');
+      if (cnrVal) {
+        localStorage.removeItem('cnr_search');
+      }
+    }
+
+    if (cnrVal) {
+      const sanitizedCnr = cnrVal.trim().toUpperCase();
+      setCrnNumber(sanitizedCnr);
+      setCurrentStep(3);
+
+      async function triggerAutoLookup() {
+        setCaseLoading(true);
+        setCaseError(null);
+        try {
+          const apiUrl = import.meta.env.VITE_API_URL || 'https://casewatch.onrender.com';
+          const res = await fetch(`${apiUrl}/api/cases/lookup`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ cnr: sanitizedCnr })
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.detail || 'Failed to fetch case details');
+          }
+          if (active) {
+            setCaseData(data);
+            setCurrentStep(4);
+          }
+        } catch (err: any) {
+          if (active) {
+            setCaseError(err.message || 'An error occurred while fetching case data.');
+          }
+        } finally {
+          if (active) {
+            setCaseLoading(false);
+          }
+        }
+      }
+      triggerAutoLookup();
+    }
+    return () => { active = false; };
+  }, []);
+
   // Fetch Case Details when reaching Step 4
   useEffect(() => {
     let active = true;
-    if (currentStep === 4) {
+    if (currentStep === 4 && (!caseData || caseData.cnr !== crnNumber)) {
       async function fetchCase() {
         setCaseLoading(true);
         setCaseError(null);
         try {
-          const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+          const apiUrl = import.meta.env.VITE_API_URL || 'https://casewatch.onrender.com';
           const res = await fetch(`${apiUrl}/api/cases/lookup`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -116,7 +166,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
       fetchCase();
     }
     return () => { active = false; };
-  }, [currentStep, crnNumber, partyName]);
+  }, [currentStep, crnNumber, partyName, caseData]);
 
   // Scroll to the interactive card section
   const scrollToCard = () => {
@@ -160,6 +210,30 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
   const handleProceedClick = () => {
     setCurrentStep(4);
     if (onProceed) onProceed(crnNumber);
+  };
+
+  const handleCnrRetry = async () => {
+    if (!crnNumber.trim()) return;
+    setCaseLoading(true);
+    setCaseError(null);
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://casewatch.onrender.com';
+      const res = await fetch(`${apiUrl}/api/cases/lookup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cnr: crnNumber.trim().toUpperCase() })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.detail || 'Failed to fetch case details');
+      }
+      setCaseData(data);
+      setCurrentStep(4);
+    } catch (err: any) {
+      setCaseError(err.message || 'An error occurred while fetching case data.');
+    } finally {
+      setCaseLoading(false);
+    }
   };
 
   // Dynamic progress step class helper
@@ -425,31 +499,74 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
           {/* STEP 3: CRN VERIFIED */}
           {currentStep === 3 && (
             <div id="successState" className="success-panel">
-              <div className="success-checkbox-badge">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                  <polyline points="22 4 12 14.01 9 11.01" />
-                </svg>
-              </div>
+              {caseLoading ? (
+                <div className="case-loading-state" style={{ padding: '40px 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <div className="case-spinner"></div>
+                  <p style={{ marginTop: '16px' }}>Fetching real-time case data from eCourts India...</p>
+                </div>
+              ) : (
+                <>
+                  <div className="success-checkbox-badge">
+                    {caseError ? (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-error, #c0392b)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="15" y1="9" x2="9" y2="15" />
+                        <line x1="9" y1="9" x2="15" y2="15" />
+                      </svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                        <polyline points="22 4 12 14.01 9 11.01" />
+                      </svg>
+                    )}
+                  </div>
 
-              <h2 className="success-h2">CRN Verified Successfully</h2>
-              <p className="success-guidance">
-                Judicial filing records match the reference CNR key. Real-time docket timelines, past hearings, and upcoming court schedules are ready to download.
-              </p>
+                  <h2 className="success-h2">
+                    {caseError ? 'Verification Failed' : 'CRN Verified Successfully'}
+                  </h2>
+                  <p className="success-guidance">
+                    {caseError 
+                      ? 'We could not locate details for the entered CNR. Please verify the code and try again.'
+                      : 'Judicial filing records match the reference CNR key. Real-time docket timelines, past hearings, and upcoming court schedules are ready to download.'
+                    }
+                  </p>
 
-              <div className="confirmed-preview-badge">
-                {crnNumber}
-              </div>
+                  <div className="field-group" style={{ maxWidth: '400px', width: '100%', margin: '0 auto 24px auto' }}>
+                    <input
+                      type="text"
+                      className="pg-input mono"
+                      style={{ textAlign: 'center', borderRadius: '8px', border: caseError ? '1px solid var(--color-error, #c0392b)' : '1px solid var(--border-color)' }}
+                      value={crnNumber}
+                      onChange={handleCrnChange}
+                      placeholder="Enter CNR Number"
+                    />
+                    {caseError && (
+                      <p className="error-message" style={{ color: 'var(--color-error, #c0392b)', marginTop: '8px', fontSize: '14px', textAlign: 'center', fontWeight: '500' }}>
+                        {caseError}
+                      </p>
+                    )}
+                  </div>
 
-              <div>
-                <button type="button" className="view-details-btn" onClick={handleProceedClick}>
-                  View Case Details
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12" />
-                    <polyline points="12 5 19 12 12 19" />
-                  </svg>
-                </button>
-              </div>
+                  <div>
+                    {caseError ? (
+                      <button type="button" className="view-details-btn" onClick={handleCnrRetry}>
+                        Retry Lookup
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+                        </svg>
+                      </button>
+                    ) : (
+                      <button type="button" className="view-details-btn" onClick={handleProceedClick}>
+                        View Case Details
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <line x1="5" y1="12" x2="19" y2="12" />
+                          <polyline points="12 5 19 12 12 19" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           )}
             </section>
