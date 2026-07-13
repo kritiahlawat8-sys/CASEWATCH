@@ -1258,3 +1258,13 @@
     transform-origin: center;
   }
 }
+
+/* Step 4 Full-Width Layout Override */
+.track-page-content-full {
+  padding-top: 72px; /* Clears fixed navbar */
+  width: 100%;
+  margin: 0;
+  padding-left: 0;
+  padding-right: 0;
+  background-color: #EDEBE4; /* Seamless warm gray background */
+}

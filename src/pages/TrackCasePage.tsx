@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import ReCAPTCHA from 'react-google-recaptcha';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import CaseDetails from '../components/CaseDetails';
 import { searchCourts, getCategories, Court } from '../data/indianCourts';
 import './TrackCasePage.css';
 
@@ -177,41 +178,42 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
       <Navbar />
 
       {/* Main Page Area */}
-      <main className="track-page-content">
+      <main className={currentStep === 4 ? "track-page-content-full" : "track-page-content"}>
+        {currentStep < 4 ? (
+          <>
+            {/* Page Heading Block */}
+            <header className="page-heading-block">
+              <span className="tracking-badge">
+                ⊙ Case Tracking
+              </span>
+              <h1 className="page-title-h1">Track Your Case</h1>
+              <p className="page-lead-text">
+                Verify your Case Reference Number (CRN) to access real-time judicial schedules, timeline updates, and automate affidavit generations.
+              </p>
+            </header>
 
-        {/* Page Heading Block */}
-        <header className="page-heading-block">
-          <span className="tracking-badge">
-            ⊙ Case Tracking
-          </span>
-          <h1 className="page-title-h1">Track Your Case</h1>
-          <p className="page-lead-text">
-            Verify your Case Reference Number (CRN) to access real-time judicial schedules, timeline updates, and automate affidavit generations.
-          </p>
-        </header>
+            {/* Progress Flow Steps */}
+            <div className="progress-flow-container" aria-label="Tracking step progression">
+              <div className={`progress-step-item ${stepClass(1)}`}>
+                <div className="progress-step-node">{currentStep > 1 ? '✓' : '1'}</div>
+                <div className="progress-step-label">Select Court</div>
+              </div>
+              <div className={`progress-step-item ${stepClass(2)}`}>
+                <div className="progress-step-node">{currentStep > 2 ? '✓' : '2'}</div>
+                <div className="progress-step-label">Enter CRN</div>
+              </div>
+              <div className={`progress-step-item ${stepClass(3)}`}>
+                <div className="progress-step-node">{currentStep > 3 ? '✓' : '3'}</div>
+                <div className="progress-step-label">Verify</div>
+              </div>
+              <div className={`progress-step-item ${stepClass(4)}`}>
+                <div className="progress-step-node">4</div>
+                <div className="progress-step-label">Case Details</div>
+              </div>
+            </div>
 
-        {/* Progress Flow Steps */}
-        <div className="progress-flow-container" aria-label="Tracking step progression">
-          <div className={`progress-step-item ${stepClass(1)}`}>
-            <div className="progress-step-node">{currentStep > 1 ? '✓' : '1'}</div>
-            <div className="progress-step-label">Select Court</div>
-          </div>
-          <div className={`progress-step-item ${stepClass(2)}`}>
-            <div className="progress-step-node">{currentStep > 2 ? '✓' : '2'}</div>
-            <div className="progress-step-label">Enter CRN</div>
-          </div>
-          <div className={`progress-step-item ${stepClass(3)}`}>
-            <div className="progress-step-node">{currentStep > 3 ? '✓' : '3'}</div>
-            <div className="progress-step-label">Verify</div>
-          </div>
-          <div className={`progress-step-item ${stepClass(4)}`}>
-            <div className="progress-step-node">4</div>
-            <div className="progress-step-label">Case Details</div>
-          </div>
-        </div>
-
-        {/* Core Interactive Container Card */}
-        <section className="interactive-card" ref={cardRef}>
+            {/* Core Interactive Container Card */}
+            <section className="interactive-card" ref={cardRef}>
 
           {/* STEP 1: SELECT COURT */}
           {currentStep === 1 && (
@@ -450,90 +452,38 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
               </div>
             </div>
           )}
-          {/* STEP 4: CASE DETAILS */}
-          {currentStep === 4 && (
-            <div id="caseDetailsState" className="case-details-panel fade-in-up">
-              {caseLoading ? (
-                <div className="case-loading-state">
-                  <div className="case-spinner"></div>
-                  <p>Fetching real-time case data from eCourts India...</p>
-                </div>
-              ) : caseError ? (
-                <div className="case-error-state">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-error, #c0392b)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                  </svg>
-                  <h3>Verification Failed</h3>
-                  <p>{caseError}</p>
-                  <button className="pg-submit-btn" style={{ marginTop: '20px' }} onClick={() => setCurrentStep(2)}>
-                    Try Again
-                  </button>
-                </div>
-              ) : caseData ? (
-                <div className="case-data-dashboard">
-                  <div className="case-header-card glass-panel">
-                    <div className="case-status-badge" data-status={caseData.status?.toLowerCase().includes('disposed') ? 'disposed' : 'pending'}>
-                      {caseData.status || 'Status Unknown'}
-                    </div>
-                    <h3 className="case-title">
-                      <span className="party">{caseData.petitioner || 'Unknown'}</span> 
-                      <span className="vs">vs</span> 
-                      <span className="party">{caseData.respondent || 'Unknown'}</span>
-                    </h3>
-                    
-                    <div className="case-meta-grid">
-                      <div className="meta-item">
-                        <span className="meta-label">Case Reference No. (CNR)</span>
-                        <span className="meta-value mono">{caseData.cnr}</span>
-                      </div>
-                      <div className="meta-item">
-                        <span className="meta-label">Case Number</span>
-                        <span className="meta-value">{caseData.case_number || 'N/A'}</span>
-                      </div>
-                      <div className="meta-item">
-                        <span className="meta-label">Court</span>
-                        <span className="meta-value">{caseData.court_name}</span>
-                      </div>
-                      <div className="meta-item">
-                        <span className="meta-label">Jurisdiction</span>
-                        <span className="meta-value">{caseData.district}, {caseData.state}</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="case-timeline-section">
-                    <h4 className="section-heading">Hearing Timeline</h4>
-                    {caseData.history && caseData.history.length > 0 ? (
-                      <div className="timeline-container">
-                        {caseData.history.map((h: any, idx: number) => (
-                          <div key={idx} className="timeline-item">
-                            <div className="timeline-dot"></div>
-                            <div className="timeline-content">
-                              <div className="timeline-date">{h.hearing_date || 'Date Not Specified'}</div>
-                              <div className="timeline-purpose">{h.purpose || 'Hearing'}</div>
-                              {h.judge && <div className="timeline-judge">Presiding: {h.judge}</div>}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="no-history-msg">
-                        <p>No historical hearings are recorded for this case.</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          )}
-
-        </section>
+            </section>
+          </>
+        ) : (
+          /* STEP 4: CASE DETAILS */
+          <div id="caseDetailsState" className="fade-in-up">
+            {caseLoading ? (
+              <div className="case-loading-state">
+                <div className="case-spinner"></div>
+                <p>Fetching real-time case data from eCourts India...</p>
+              </div>
+            ) : caseError ? (
+              <div className="case-error-state">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--color-error, #c0392b)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                <h3>Verification Failed</h3>
+                <p>{caseError}</p>
+                <button className="pg-submit-btn" style={{ marginTop: '20px' }} onClick={() => setCurrentStep(2)}>
+                  Try Again
+                </button>
+              </div>
+            ) : caseData ? (
+              <CaseDetails caseData={caseData} onBack={() => setCurrentStep(2)} />
+            ) : null}
+          </div>
+        )}
       </main>
 
       {/* Global Animated Footer */}
-      <Footer />
+      {currentStep < 4 && <Footer />}
     </div>
   );
 };
