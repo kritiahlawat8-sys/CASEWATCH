@@ -103,7 +103,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
   const cardStyle = { scrollMarginTop: '96px' };
 
   return (
-    <div className="bg-[#EDEBE4] min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-12 font-sans antialiased">
+    <div className="bg-[#EDEBE4] py-8 px-4 sm:px-6 lg:px-12 font-sans antialiased">
       <div className="w-full max-w-7xl mx-auto space-y-6">
         
         {/* HEADER SECTION (Centered, back button removed) */}
