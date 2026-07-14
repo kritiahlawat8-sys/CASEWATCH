@@ -262,8 +262,8 @@ const WhyCaseWatch = () => {
                   <path d="M7 8h10M7 12h6M7 16h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
               </div>
-              <h3 className="feature-title">Affidavit Generation</h3>
-              <p className="feature-desc">Automate the creation of standard legal affidavits with integrated templates, saving hours of manual drafting and formatting.</p>
+              <h3 className="feature-title">Multiple Courts, One Platform</h3>
+              <p className="feature-desc">Track cases across a growing network of Indian courts — district and High Courts alike — all from a single CNR search.</p>
             </li>
 
             <li
