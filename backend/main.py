@@ -14,7 +14,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 ECOURTS_API_KEY = os.getenv("ECOURTS_API_KEY")
 ECOURTS_BASE = "https://webapi.ecourtsindia.com"
-
+RECAPTCHA_SECRET_KEY = os.getenv("RECAPTCHA_SECRET_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 app = FastAPI(title="CaseWatch API", version="0.4.0")
@@ -273,9 +273,26 @@ def _upsert_case(data: dict):
 async def lookup_case(payload: dict):
     cnr = payload.get("cnr", "").strip().upper()
     party_name = payload.get("party_name", "").strip()
+    captcha_token = payload.get("captcha_token", "").strip()
 
     if not cnr:
         raise HTTPException(status_code=400, detail="CNR number required")
+
+    # 0. Captcha verification
+    if RECAPTCHA_SECRET_KEY:
+        if not captcha_token:
+            raise HTTPException(status_code=400, detail="Security verification (Captcha) is required.")
+        async with httpx.AsyncClient(timeout=10) as client:
+            captcha_resp = await client.post(
+                "https://www.google.com/recaptcha/api/siteverify",
+                data={
+                    "secret": RECAPTCHA_SECRET_KEY,
+                    "response": captcha_token
+                }
+            )
+            captcha_data = captcha_resp.json()
+            if not captcha_data.get("success"):
+                raise HTTPException(status_code=400, detail="Invalid Captcha. Please verify you are human.")
 
 
     # 1. Cache check

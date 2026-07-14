@@ -117,7 +117,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
           const res = await fetch(`${apiUrl}/api/cases/lookup`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cnr: crnNumber, party_name: partyName })
+            body: JSON.stringify({ cnr: crnNumber, party_name: partyName, captcha_token: recaptchaToken || '' })
           });
           const data = await res.json();
           if (!res.ok) {
@@ -188,7 +188,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
       const res = await fetch(`${apiUrl}/api/cases/lookup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cnr: crnNumber.trim().toUpperCase(), party_name: partyName })
+        body: JSON.stringify({ cnr: crnNumber.trim().toUpperCase(), party_name: partyName, captcha_token: recaptchaToken || '' })
       });
       const data = await res.json();
       if (!res.ok) {
