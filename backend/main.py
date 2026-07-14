@@ -6,6 +6,7 @@ from supabase import create_client, Client
 from dotenv import load_dotenv
 from typing import Optional
 from datetime import datetime
+import base64
 
 load_dotenv()
 
@@ -13,7 +14,7 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 ECOURTS_API_KEY = os.getenv("ECOURTS_API_KEY")
 ECOURTS_BASE = "https://webapi.ecourtsindia.com"
-
+RECAPTCHA_SECRET_KEY = os.getenv("RECAPTCHA_SECRET_KEY")
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 app = FastAPI(title="CaseWatch API", version="0.4.0")
@@ -119,65 +120,115 @@ def _normalize_case(raw: dict, cnr: str) -> dict:
     petitioners = d.get("petitioners", [])
     respondents = d.get("respondents", [])
 
-    petitioner = petitioners[0] if petitioners else "N/A"
-    respondent = respondents[0] if respondents else "N/A"
+    def _safe_decode(value: str) -> str:
+        """Attempt base64 decode; return original string if it fails or looks normal."""
+        if not value:
+            return value
+        try:
+            decoded = base64.b64decode(value).decode("utf-8")
+            # Only use decoded value if it looks like a real name (printable ASCII/Unicode, no padding chars)
+            if decoded.isprintable() and "=" not in decoded:
+                return decoded
+        except Exception:
+            pass
+        return value
+
+    petitioner = _safe_decode(petitioners[0]) if petitioners else None
+    respondent = _safe_decode(respondents[0]) if respondents else None
 
     # Next hearing — last entry in history
     history = d.get("historyOfCaseHearings", [])
-    next_hearing = None
-    if history:
-        last = history[-1]
-        next_hearing = last.get("hearingDate")
+    next_hearing = (
+        d.get("nextHearingDate")
+        or d.get("nextDate")
+        or d.get("nextHearingDateRaw")
+        or (history[-1].get("hearingDate") if history else None)
+    )
+
+    # Acts & Sections formatting
+    raw_acts = (
+        d.get("actsAndSections")
+        or d.get("acts_sections")
+        or d.get("acts")
+        or d.get("actAndSections")
+        or []
+    )
+    act_groups = {}
+    for a in raw_acts:
+        act_name = a.get("act") or a.get("actName")
+        if not act_name:
+            continue
+        sec = a.get("section") or a.get("sections")
+        if act_name not in act_groups:
+            act_groups[act_name] = []
+        if sec and sec not in act_groups[act_name]:
+            act_groups[act_name].append(sec)
+    acts_sections = [{"act": k, "sections": v} for k, v in act_groups.items()]
+
+    # FIR Details formatting
+    raw_fir = (
+        d.get("firDetails")
+        or d.get("fir_details")
+        or d.get("fir")
+        or {}
+    )
+    fir_details = {}
+    if raw_fir:
+        fir_details = {
+            "police_station": raw_fir.get("policeStation") or raw_fir.get("police_station"),
+            "fir_number": raw_fir.get("firNumber") or raw_fir.get("fir_number") or raw_fir.get("firNo"),
+            "year": raw_fir.get("year")
+        }
+
+    # Interim Orders formatting
+    raw_orders = (
+        d.get("interimOrders")
+        or d.get("interim_orders")
+        or d.get("orders")
+        or []
+    )
+    interim_orders = []
+    for i, o in enumerate(raw_orders):
+        interim_orders.append({
+            "order_no": str(i + 1).zfill(2),
+            "title": o.get("description") or o.get("title") or "Interim Order",
+            "date": o.get("orderDate") or o.get("date") or "Unknown Date"
+        })
 
     return {
         "cnr": cnr,
-        "case_number": d.get("caseNumber") or "HR-2023-GR-456",
-        "case_type": d.get("caseType") or d.get("caseTypeRaw") or "Criminal Appeal",
-        "filing_no": d.get("filingNumber") or d.get("filingNo") or "123/2023",
-        "filing_date": d.get("filingDate") or "14-03-2023",
-        "registration_no": d.get("registrationNumber") or d.get("registrationNo") or d.get("caseNumber") or "CRA/456/2023",
-        "registration_date": d.get("registrationDate") or d.get("lastHearingDate") or "18-03-2023",
-        "court_name": d.get("courtName") or "District and Sessions Court, Gurugram",
+        "case_number": d.get("caseNumber"),
+        "case_type": d.get("caseType") or d.get("caseTypeRaw"),
+        "filing_no": d.get("filingNumber") or d.get("filingNo"),
+        "filing_date": d.get("filingDate"),
+        "registration_no": d.get("registrationNumber") or d.get("registrationNo") or d.get("caseNumber"),
+        "registration_date": d.get("registrationDate") or d.get("regDate") or None,
+        "court_name": d.get("courtName"),
         "court_type": "District Court",
-        "state": d.get("state") or "Haryana",
-        "district": d.get("district") or "Gurugram",
-        "status": d.get("stageOfCaseRaw") or d.get("purpose") or "Pending",
-        "first_hearing_date": d.get("firstHearingDate") or "20-03-2023",
-        "next_hearing": next_hearing or "15-11-2023",
-        "stage": d.get("stageOfCaseRaw") or d.get("purpose") or "Evidence",
-        "court_no": d.get("courtNo") or d.get("courtNumber") or "Court No. 4",
-        "judge": d.get("judge") or d.get("judgeName") or "Sh. Rajesh Kumar, ASJ",
+        "state": d.get("state"),
+        "district": d.get("district"),
+        "status": d.get("stageOfCaseRaw") or d.get("purpose"),
+        "first_hearing_date": d.get("firstHearingDate"),
+        "next_hearing": next_hearing,
+        "stage": d.get("stageOfCaseRaw") or d.get("purpose"),
+        "court_no": d.get("courtNo") or d.get("courtNumber"),
+        "judge": d.get("judge") or d.get("judgeName"),
         "petitioner": petitioner,
-        "petitioner_advocate": d.get("petitionerAdvocate") or d.get("petAdvocate") or "Vikram Singh Rathore",
+        "petitioner_advocate": d.get("petitionerAdvocate") or d.get("petAdvocate"),
         "respondent": respondent,
-        "respondent_advocate": d.get("respondentAdvocate") or d.get("resAdvocate") or "Public Prosecutor",
-        "acts_sections": d.get("actsAndSections") or d.get("acts") or [
-            { "act": "Indian Penal Code", "sections": ["Section 302", "Section 34"] },
-            { "act": "Arms Act", "sections": ["Section 25"] }
-        ],
-        "fir_details": d.get("firDetails") or d.get("fir") or {
-            "police_station": "PS Civil Lines, Gurugram",
-            "fir_number": "1024",
-            "year": "2023"
-        },
+        "respondent_advocate": d.get("respondentAdvocate") or d.get("resAdvocate"),
+        "acts_sections": acts_sections,
+        "fir_details": fir_details,
         "history": [
             {
-                "hearing_date": h.get("hearingDate"),
-                "purpose": h.get("purposeOfListing"),
-                "judge": h.get("judge"),
-                "business_on_date": h.get("businessOnDate"),
+                "judge": h.get("judge") or h.get("judgeName") or h.get("judgeNm"),
+                "business_on_date": h.get("businessOnDate") or h.get("businessDate") or h.get("bizDate"),
+                "hearing_date": h.get("hearingDate") or h.get("nextHearingDate") or h.get("nextDate"),
+                "purpose": h.get("purposeOfListing") or h.get("purpose") or h.get("purposeOfCase"),
             }
             for h in history
-        ] if history else [
-            { "judge": "Sh. Rajesh Kumar", "business_on_date": "Notice Issued", "hearing_date": "20-03-2023", "purpose": "Appearance" },
-            { "judge": "Sh. Rajesh Kumar", "business_on_date": "Pleadings Complete", "hearing_date": "15-05-2023", "purpose": "Arguments" },
-            { "judge": "Sh. Rajesh Kumar", "business_on_date": "Order Reserved", "hearing_date": "12-08-2023", "purpose": "Evidence" }
-        ],
-        "interim_orders": d.get("interimOrders") or d.get("orders") or [
-            { "order_no": "01", "title": "Interim Relief Order", "date": "25-03-2023" },
-            { "order_no": "02", "title": "Notice to Respondents", "date": "14-04-2023" },
-            { "order_no": "03", "title": "Adjournment Order", "date": "02-08-2023" }
-        ],
+        ] if history else [],
+        "interim_orders": interim_orders,
         "source": "ecourtsindia",
     }
 
@@ -222,88 +273,27 @@ def _upsert_case(data: dict):
 async def lookup_case(payload: dict):
     cnr = payload.get("cnr", "").strip().upper()
     party_name = payload.get("party_name", "").strip()
+    captcha_token = payload.get("captcha_token", "").strip()
 
     if not cnr:
         raise HTTPException(status_code=400, detail="CNR number required")
 
-    # Mock case details matching Stitch mockup design
-    if cnr in ("HRGR01-001234-2023", "HRGR010012342023"):
-        return {
-            "cnr": "HRGR01-001234-2023",
-            "case_number": "HR-2023-GR-456",
-            "case_type": "Criminal Appeal",
-            "filing_no": "123/2023",
-            "filing_date": "14-03-2023",
-            "registration_no": "CRA/456/2023",
-            "registration_date": "18-03-2023",
-            "court_name": "District and Sessions Court, Gurugram",
-            "court_type": "District Court",
-            "state": "Haryana",
-            "district": "Gurugram",
-            "status": "Pending",
-            "first_hearing_date": "20-03-2023",
-            "next_hearing": "15-11-2023",
-            "stage": "Evidence",
-            "court_no": "Court No. 4",
-            "judge": "Sh. Rajesh Kumar, ASJ",
-            "petitioner": "Amit Sharma & Others",
-            "petitioner_advocate": "Vikram Singh Rathore",
-            "respondent": "State of Haryana",
-            "respondent_advocate": "Public Prosecutor",
-            "acts_sections": [
-                {
-                    "act": "Indian Penal Code",
-                    "sections": ["Section 302", "Section 34"]
-                },
-                {
-                    "act": "Arms Act",
-                    "sections": ["Section 25"]
+    # 0. Captcha verification
+    if RECAPTCHA_SECRET_KEY:
+        if not captcha_token:
+            raise HTTPException(status_code=400, detail="Security verification (Captcha) is required.")
+        async with httpx.AsyncClient(timeout=10) as client:
+            captcha_resp = await client.post(
+                "https://www.google.com/recaptcha/api/siteverify",
+                data={
+                    "secret": RECAPTCHA_SECRET_KEY,
+                    "response": captcha_token
                 }
-            ],
-            "fir_details": {
-                "police_station": "PS Civil Lines, Gurugram",
-                "fir_number": "1024",
-                "year": "2023"
-            },
-            "history": [
-                {
-                    "judge": "Sh. Rajesh Kumar",
-                    "business_on_date": "Notice Issued",
-                    "hearing_date": "20-03-2023",
-                    "purpose": "Appearance"
-                },
-                {
-                    "judge": "Sh. Rajesh Kumar",
-                    "business_on_date": "Pleadings Complete",
-                    "hearing_date": "15-05-2023",
-                    "purpose": "Arguments"
-                },
-                {
-                    "judge": "Sh. Rajesh Kumar",
-                    "business_on_date": "Order Reserved",
-                    "hearing_date": "12-08-2023",
-                    "purpose": "Evidence"
-                }
-            ],
-            "interim_orders": [
-                {
-                    "order_no": "01",
-                    "title": "Interim Relief Order",
-                    "date": "25-03-2023"
-                },
-                {
-                    "order_no": "02",
-                    "title": "Notice to Respondents",
-                    "date": "14-04-2023"
-                },
-                {
-                    "order_no": "03",
-                    "title": "Adjournment Order",
-                    "date": "02-08-2023"
-                }
-            ],
-            "source": "mock"
-        }
+            )
+            captcha_data = captcha_resp.json()
+            if not captcha_data.get("success"):
+                raise HTTPException(status_code=400, detail="Invalid Captcha. Please verify you are human.")
+
 
     # 1. Cache check
     cached = _get_cached_case(cnr)
