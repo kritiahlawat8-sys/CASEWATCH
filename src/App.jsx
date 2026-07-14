@@ -11,7 +11,7 @@ import TrackCasePage from './pages/TrackCasePage'
 import HowItWorksPage from './pages/HowItWorksPage'
 
 import About from './pages/About'
-
+import FeaturesPage from './pages/FeaturesPage'
 
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -21,6 +21,7 @@ function App() {
       <ScrollToTop />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/features" element={<FeaturesPage />} />
         <Route path="/about" element={<About />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-use" element={<TermsOfUse />} />

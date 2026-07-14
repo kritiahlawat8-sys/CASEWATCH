@@ -1,0 +1,221 @@
+/* ── Features Page Stylesheet (Matching App Aesthetic) ────────────────────────────── */
+:root {
+  --page-bg: #f2f2f0;
+  --card-bg: #ffffff;
+  --border-color: #d8d8d4;
+  --text-muted: #888884;
+  --text-accent: #1a1a1a;
+  
+  --color-blue: #2962b8;
+}
+
+.features-page-wrapper {
+  background-color: var(--page-bg);
+  min-height: 100vh;
+  padding-bottom: 60px;
+  font-family: var(--sans);
+  color: var(--text-accent);
+  box-sizing: border-box;
+}
+
+.features-page-content {
+  padding-top: 160px;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+/* Page Heading Block */
+.features-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.features-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--color-blue);
+  background-color: rgba(41, 98, 184, 0.08);
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  margin-bottom: 1rem;
+}
+
+.features-title {
+  font-family: var(--heading);
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 500;
+  color: var(--text-accent);
+  margin: 0 0 1rem;
+  line-height: 1.1;
+}
+
+.features-subtitle {
+  font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+  line-height: 1.6;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Features Grid */
+.fp-features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+  margin-bottom: 5rem;
+}
+
+.fp-feature-card {
+  background-color: #ffffff;
+  border: 1px solid #d8d8d4;
+  padding: 2.5rem 2rem;
+  border-radius: 8px;
+  
+  /* Animation baseline */
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.55s cubic-bezier(0.19, 1, 0.22, 1),
+    transform 0.55s cubic-bezier(0.19, 1, 0.22, 1),
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+  will-change: opacity, transform;
+  
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+.fp-feature-card.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fp-feature-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+  border-color: #bbb;
+}
+
+.fp-feature-icon-wrapper {
+  margin-bottom: 1.5rem;
+  color: #1a1a1a;
+}
+
+.fp-feature-icon-wrapper .material-symbols-outlined {
+  font-size: 2.5rem;
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 48;
+}
+
+.fp-feature-title {
+  font-family: var(--heading);
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #1a1a1a !important;
+  margin-bottom: 1rem;
+}
+
+.fp-feature-desc, .fp-feature-desc li {
+  font-size: 0.95rem;
+  color: #333333 !important;
+  line-height: 1.6;
+}
+
+/* FAQ Section */
+.faq-section {
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 3rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+}
+
+.faq-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1.5rem;
+}
+
+.faq-title {
+  font-family: var(--heading);
+  font-size: 1.8rem;
+  font-weight: 500;
+  color: var(--text-accent);
+  margin: 0;
+}
+
+.lang-toggle {
+  display: flex;
+  background-color: var(--page-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
+  padding: 4px;
+}
+
+.lang-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 6px 16px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lang-btn.active {
+  background-color: var(--card-bg);
+  color: var(--text-accent);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.faq-item {
+  border-bottom: 1px solid var(--page-bg);
+  padding-bottom: 1.5rem;
+}
+
+.faq-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.faq-question {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-accent);
+  margin: 0 0 0.5rem 0;
+}
+
+.faq-answer {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .faq-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+  
+  .faq-section {
+    padding: 2rem;
+  }
+}
