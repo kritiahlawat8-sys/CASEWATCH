@@ -108,7 +108,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
   // Fetch Case Details when reaching Step 4
   useEffect(() => {
     let active = true;
-    if (currentStep === 4 && (!caseData || caseData.cnr !== crnNumber)) {
+    if (currentStep === 3 && (!caseData || caseData.cnr !== crnNumber)) {
       async function fetchCase() {
         setCaseLoading(true);
         setCaseError(null);
@@ -188,7 +188,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
       const res = await fetch(`${apiUrl}/api/cases/lookup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cnr: crnNumber.trim().toUpperCase() })
+        body: JSON.stringify({ cnr: crnNumber.trim().toUpperCase(), party_name: partyName })
       });
       const data = await res.json();
       if (!res.ok) {
@@ -560,7 +560,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
                 </button>
               </div>
             ) : caseData ? (
-              <CaseDetails caseData={caseData} onBack={() => setCurrentStep(2)} />
+              <CaseDetails caseData={caseData} onBack={() => { setCurrentStep(2); setCaseData(null); }} />
             ) : null}
           </div>
         )}

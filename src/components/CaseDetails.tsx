@@ -61,44 +61,7 @@ interface CaseDetailsProps {
 
 // Client-side fallback / enrichment for all cases to prevent cache/API misses on detailed layout sections
 const enrichCaseData = (data: CaseData): CaseData => {
-  return {
-    ...data,
-    case_number: data.case_number || "HR-2023-GR-456",
-    case_type: data.case_type || "Criminal Appeal",
-    filing_no: data.filing_no || "123/2023",
-    filing_date: data.filing_date || "14-03-2023",
-    registration_no: data.registration_no || "CRA/456/2023",
-    registration_date: data.registration_date || "18-03-2023",
-    court_name: data.court_name || "District and Sessions Court, Gurugram",
-    first_hearing_date: data.first_hearing_date || "20-03-2023",
-    next_hearing: data.next_hearing || "15-11-2023",
-    stage: data.stage || "Evidence",
-    court_no: data.court_no || "Court No. 4",
-    judge: data.judge || "Sh. Rajesh Kumar, ASJ",
-    petitioner: data.petitioner || "Amit Sharma & Others",
-    petitioner_advocate: data.petitioner_advocate || "Vikram Singh Rathore",
-    respondent: data.respondent || "State of Haryana",
-    respondent_advocate: data.respondent_advocate || "Public Prosecutor",
-    acts_sections: data.acts_sections && data.acts_sections.length > 0 ? data.acts_sections : [
-      { act: "Indian Penal Code", sections: ["Section 302", "Section 34"] },
-      { act: "Arms Act", sections: ["Section 25"] }
-    ],
-    fir_details: data.fir_details && (data.fir_details.police_station || data.fir_details.fir_number) ? data.fir_details : {
-      police_station: "PS Civil Lines, Gurugram",
-      fir_number: "1024",
-      year: "2023"
-    },
-    history: data.history && data.history.length > 0 ? data.history : [
-      { judge: "Sh. Rajesh Kumar", business_on_date: "Notice Issued", hearing_date: "20-03-2023", purpose: "Appearance" },
-      { judge: "Sh. Rajesh Kumar", business_on_date: "Pleadings Complete", hearing_date: "15-05-2023", purpose: "Arguments" },
-      { judge: "Sh. Rajesh Kumar", business_on_date: "Order Reserved", hearing_date: "12-08-2023", purpose: "Evidence" }
-    ],
-    interim_orders: data.interim_orders && data.interim_orders.length > 0 ? data.interim_orders : [
-      { order_no: "01", title: "Interim Relief Order", date: "25-03-2023" },
-      { order_no: "02", title: "Notice to Respondents", date: "14-04-2023" },
-      { order_no: "03", title: "Adjournment Order", date: "02-08-2023" }
-    ]
-  };
+  return data;
 };
 
 const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack }) => {
@@ -118,23 +81,18 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
   };
 
   // Determine if sections have valid data
-  const hasCaseId = caseData.case_type || caseData.filing_no || caseData.filing_date || caseData.registration_no || caseData.registration_date || caseData.cnr;
+  const hasLeftIdData = caseData.case_type || caseData.filing_no || caseData.filing_date || caseData.registration_no || caseData.registration_date;
+  const hasCaseId = hasLeftIdData || caseData.cnr;
   const hasStatus = caseData.first_hearing_date || caseData.next_hearing || caseData.stage || caseData.status || caseData.court_no || caseData.judge;
   const hasParties = caseData.petitioner || caseData.respondent;
   const hasActs = caseData.acts_sections && caseData.acts_sections.length > 0;
   const hasFIR = caseData.fir_details && (caseData.fir_details.police_station || caseData.fir_details.fir_number || caseData.fir_details.year);
   const hasHistory = caseData.history && caseData.history.length > 0;
   
-  // Always render exactly 3 Interim Order cards side by side in a row layout
-  const rawOrders = caseData.interim_orders || [];
-  const displayOrders = [
-    { order_no: "01", title: rawOrders[0]?.title || "Interim Relief Order", date: rawOrders[0]?.date || "25-03-2023" },
-    { order_no: "02", title: rawOrders[1]?.title || "Notice to Respondents", date: rawOrders[1]?.date || "14-04-2023" },
-    { order_no: "03", title: rawOrders[2]?.title || "Adjournment Order", date: rawOrders[2]?.date || "02-08-2023" }
-  ];
+  const displayOrders = caseData.interim_orders || [];
 
   // Resolve case file ref: either passed, or case number, or fallback
-  const resolvedCaseFileRef = caseData.case_file_ref || caseData.case_number || `REF-${caseData.cnr}`;
+  const resolvedCaseFileRef = caseData.case_number || caseData.registration_no || `REF-${caseData.cnr}`;
 
   // Direct Inline Style Overrides to prevent global prefers-color-scheme dark mode text visibility bugs
   const headingStyle = { color: '#1a1a1a', fontWeight: 'bold' };
@@ -145,7 +103,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
   const cardStyle = { scrollMarginTop: '96px' };
 
   return (
-    <div className="bg-[#EDEBE4] min-h-screen pt-12 pb-12 px-4 sm:px-6 lg:px-12 font-sans antialiased">
+    <div className="bg-[#EDEBE4] min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-12 font-sans antialiased">
       <div className="w-full max-w-7xl mx-auto space-y-6">
         
         {/* HEADER SECTION (Centered, back button removed) */}
@@ -188,6 +146,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
             
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
               {/* Left Side: Flex row with moderate, consistent spacing (gap: 24px / gap-6) */}
+              {hasLeftIdData && (
               <div className="lg:col-span-9 flex flex-wrap gap-x-8 gap-y-4">
                 {caseData.case_type && (
                   <div className="min-w-[130px]">
@@ -220,9 +179,10 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
                   </div>
                 )}
               </div>
+              )}
 
               {/* Right Side: Highlighted CNR Box */}
-              <div className="lg:col-span-3 bg-neutral-50 rounded-lg p-4 border-l-4 border-black flex flex-col justify-center">
+              <div className={`${hasLeftIdData ? 'lg:col-span-3' : 'lg:col-span-12'} bg-neutral-50 rounded-lg p-4 border-l-4 border-black flex flex-col justify-center`}>
                 <span style={textMutedStyle} className="text-[11px] font-semibold tracking-wider block mb-1">
                   CNR Number
                 </span>
@@ -498,22 +458,20 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
                     {caseData.history?.map((h, idx) => (
                       <tr key={idx} className="hover:bg-neutral-50/50 transition-colors">
                         <td style={textMutedStyle} className="py-4 text-sm whitespace-nowrap">
-                          {h.judge || 'N/A'}
+                          {h.judge}
                         </td>
                         <td style={textDarkStyle} className="py-4 text-sm font-semibold whitespace-nowrap">
-                          {h.business_on_date || 'N/A'}
+                          {h.business_on_date}
                         </td>
                         <td className="py-4 text-sm whitespace-nowrap">
                           {h.hearing_date ? (
                             <span className="text-[#22c55e] font-bold hover:underline cursor-pointer">
                               {h.hearing_date}
                             </span>
-                          ) : (
-                            <span style={textMutedStyle}>N/A</span>
-                          )}
+                          ) : null}
                         </td>
                         <td style={textMutedStyle} className="py-4 text-sm whitespace-nowrap">
-                          {h.purpose || 'N/A'}
+                          {h.purpose}
                         </td>
                       </tr>
                     ))}
@@ -524,7 +482,8 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
           </section>
         )}
 
-        {/* 7. INTERIM ORDERS SECTION (Exactly 3 cards in a 3-column row layout) */}
+        {/* 7. INTERIM ORDERS SECTION */}
+        {displayOrders.length > 0 && (
         <section 
           style={cardStyle}
           className="space-y-4 scroll-mt-24"
@@ -601,6 +560,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
             ))}
           </div>
         </section>
+        )}
 
       </div>
     </div>
