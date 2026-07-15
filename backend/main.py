@@ -1,12 +1,14 @@
 import os
 import httpx
-from fastapi import FastAPI, Query, HTTPException
+from fastapi import FastAPI, Query, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from supabase import create_client, Client
 from dotenv import load_dotenv
-from typing import Optional
+from typing import Optional, Dict, Any
 from datetime import datetime
 import base64
+import google.generativeai as genai
+from pydantic import BaseModel
 
 load_dotenv()
 
@@ -342,3 +344,58 @@ async def lookup_case(payload: dict):
 
     data["from_cache"] = False
     return data
+
+
+class CaseSummarizeRequest(BaseModel):
+    case_data: Dict[str, Any]
+
+
+@app.post("/api/cases/summarize")
+async def summarize_case(request: CaseSummarizeRequest):
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Gemini API key is missing."
+        )
+    
+    genai.configure(api_key=api_key)
+    
+    prompt = f"""
+You are a helpful legal assistant that explains Indian court cases in clear, simple English for non-lawyers.
+
+Below is structured data from a real Indian court case. Use ONLY the information provided. Do not invent or assume any facts not present in the data.
+
+--- CASE DATA ---
+{request.case_data}
+
+--- INSTRUCTIONS ---
+Now explain this case clearly under exactly these 5 sections. Use plain English. No legal jargon. No markdown. No bold text. Just plain sentences with the emoji at the start of each section.
+
+📋 What Is This Case About
+Explain who is fighting whom, what the case is about, and the basic situation in 3-4 sentences based on the case data provided.
+
+⚖️ Current Status
+Explain where the case stands right now, what that stage means practically, and how long it has been going on.
+
+📅 What The Next Hearing Means
+Explain what will happen on the next hearing date, what the purpose means for that date, and what to realistically expect.
+
+📄 Documents That May Be Needed
+Based on the current stage and any warrants or summons, explain what documents and preparations are relevant.
+
+✅ What You Should Do Next
+Give practical advice for the party involved — such as attending all hearings, staying in contact with their advocate, and what typically happens after the current stage is complete.
+
+Keep the total response under 400 words. Plain text only.
+"""
+    
+    try:
+        model = genai.GenerativeModel("gemini-3.5-flash")
+        response = model.generate_content(prompt)
+        return {"summary": response.text.strip()}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Failed to generate summary from Gemini: {str(e)}"
+        )
