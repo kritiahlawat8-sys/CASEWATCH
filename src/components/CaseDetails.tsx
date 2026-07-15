@@ -229,7 +229,28 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
               {caseData.next_hearing && (
                 <div>
                   <span className="text-xs text-emerald-800/70 font-semibold block mb-1">Next Hearing Date</span>
-                  <span className="text-sm font-bold text-[#22c55e]">{caseData.next_hearing}</span>
+                  <div className="flex flex-col gap-2">
+                    <span className="text-sm font-bold text-[#22c55e]">{caseData.next_hearing}</span>
+                    <button
+                      onClick={() => {
+                        const hearingDate = caseData.next_hearing;
+                        if (!hearingDate) return;
+                        const formattedDate = hearingDate.replace(/-/g, '');
+                        const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE` +
+                          `&text=${encodeURIComponent(`${caseData.petitioner || ''} vs ${caseData.respondent || ''}`)}` +
+                          `&dates=${formattedDate}/${formattedDate}` +
+                          `&details=${encodeURIComponent(`CNR: ${caseData.cnr}\nCourt: ${caseData.court_name || ''}\nCase Number: ${caseData.case_number || ''}\nStatus: ${caseData.status || ''}`)}` +
+                          `&location=${encodeURIComponent(caseData.court_name || '')}`;
+                        window.open(googleCalendarUrl, '_blank');
+                      }}
+                      className="bg-black text-white text-xs font-bold uppercase tracking-wider rounded-full py-3 px-6 shadow-sm hover:bg-neutral-800 transition-all flex items-center justify-center gap-2 cursor-pointer self-start"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" />
+                      </svg>
+                      Add to Calendar
+                    </button>
+                  </div>
                 </div>
               )}
               {(caseData.stage || caseData.status) && (
