@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 import React, { useState } from 'react';
 
 export interface ActSection {

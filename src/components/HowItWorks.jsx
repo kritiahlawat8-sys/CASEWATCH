@@ -35,7 +35,8 @@ const HowItWorks = () => {
       number: "4",
       icon: "assignment",
       title: "Case Details",
-      description: "Review the submitted case information before continuing to the case timeline and tracking interface."
+      description: "Review the submitted case information before continuing to the case timeline and tracking interface.",
+      image: "/case_details.png"
     }
   ];
 
