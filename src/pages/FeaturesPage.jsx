@@ -10,13 +10,7 @@ export default function FeaturesPage() {
     {
       id: 1,
       title: "Case Tracking via CRN",
-      description: "",
-      bullets: [
-        "Users can select a court jurisdiction from a search interface.",
-        "Users can enter their Case Reference Number (CRN) and optionally a party name for cross-verification.",
-        "Built-in secure reCAPTCHA verification.",
-        "Real-time case lookups communicating with your backend (/api/cases/lookup) to display the case timeline."
-      ],
+      description: "Track any court case in seconds — just select your court, enter your Case Reference Number, and optionally add the party name for extra confirmation. Get instant, up-to-date case status without visiting the court or standing in queues, along with the complete hearing timeline showing past and upcoming dates.",
       icon: "manage_search"
     },
     {
@@ -40,20 +34,13 @@ export default function FeaturesPage() {
     {
       id: 5,
       title: "Integrated Government Portals",
-      description: "A dedicated navigation dropdown that links citizens directly to official, verified government portals:",
-      bullets: [
-        "e-Courts",
-        "NALSA",
-        "Supreme Court of India",
-        "Lok Adalat (LSAMS)",
-        "Consumer Disputes (NCDRC)"
-      ],
+      description: "Skip the hassle of searching for the right government website. We give you direct, verified links to e-Courts, NALSA, the Supreme Court of India, Lok Adalat, and Consumer Disputes — all official and trustworthy, so you never land on a fake or outdated site.",
       icon: "account_balance"
     },
     {
       id: 6,
       title: "Bilingual FAQ Support",
-      description: "The capability to view frequently asked questions about the platform in both English and Hindi.",
+      description: "Have a question about your case, your privacy, or how to spot a fake court notice? Our FAQ section covers everything from understanding court tracking and case status, to keeping your data safe and identifying fraud — all explained in simple words, in both English and Hindi.",
       icon: "g_translate"
     }
   ];
