@@ -8,7 +8,7 @@ from typing import Optional, Dict, Any
 from datetime import datetime
 import base64
 import google.generativeai as genai
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -349,6 +349,14 @@ class CaseSummarizeRequest(BaseModel):
     case_data: Dict[str, Any]
 
 
+class AISummarySchema(BaseModel):
+    caseOverview: str = Field(description="A brief explanation of what the case is about, who is fighting whom, and the basic situation in 2-4 short sentences.")
+    currentStatus: str = Field(description="Explain the present stage of the case, what it means practically, and how long it has been going on in 2-4 short sentences.")
+    nextHearing: str = Field(description="Explain the upcoming hearing date, why it matters, and what to realistically expect in 2-4 short sentences.")
+    whatThisMeans: str = Field(description="Explain the current situation and implications in plain language in 2-4 short sentences.")
+    recommendedNextSteps: str = Field(description="Give practical, actionable guidance for the party involved in 2-4 short sentences.")
+
+
 @app.post("/api/cases/summarize")
 async def summarize_case(request: CaseSummarizeRequest):
     api_key = os.getenv("GEMINI_API_KEY")
@@ -369,31 +377,51 @@ Below is structured data from a real Indian court case. Use ONLY the information
 {request.case_data}
 
 --- INSTRUCTIONS ---
-Now explain this case clearly under exactly these 5 sections. Use plain English. No legal jargon. No markdown. No bold text. Just plain sentences with the emoji at the start of each section.
-
-📋 What Is This Case About
-Explain who is fighting whom, what the case is about, and the basic situation in 3-4 sentences based on the case data provided.
-
-⚖️ Current Status
-Explain where the case stands right now, what that stage means practically, and how long it has been going on.
-
-📅 What The Next Hearing Means
-Explain what will happen on the next hearing date, what the purpose means for that date, and what to realistically expect.
-
-📄 Documents That May Be Needed
-Based on the current stage and any warrants or summons, explain what documents and preparations are relevant.
-
-✅ What You Should Do Next
-Give practical advice for the party involved — such as attending all hearings, staying in contact with their advocate, and what typically happens after the current stage is complete.
-
-Keep the total response under 400 words. Plain text only.
+Explain the case using exactly these 5 keys in a JSON object:
+1. "caseOverview"
+2. "currentStatus"
+3. "nextHearing"
+4. "whatThisMeans"
+5. "recommendedNextSteps"
 """
     
     try:
         model = genai.GenerativeModel("gemini-3.5-flash")
-        response = model.generate_content(prompt)
-        return {"summary": response.text.strip()}
+        response = model.generate_content(
+            prompt,
+            generation_config={
+                "response_mime_type": "application/json",
+                "response_schema": AISummarySchema,
+            }
+        )
+        
+        # Step 1: Inspect the raw Gemini response
+        raw_text = response.text.strip()
+        print("RAW GEMINI RESPONSE:")
+        print(raw_text)
+        
+        # Step 2: Inspect the parser / JSON loader
+        import json
+        parsed_data = json.loads(raw_text)
+        print("PARSED GEMINI RESPONSE OBJECT:")
+        print(parsed_data)
+        
+        # Step 3: Verify the API response
+        result = {
+            "caseOverview": parsed_data.get("caseOverview", ""),
+            "currentStatus": parsed_data.get("currentStatus", ""),
+            "nextHearing": parsed_data.get("nextHearing", ""),
+            "whatThisMeans": parsed_data.get("whatThisMeans", ""),
+            "recommendedNextSteps": parsed_data.get("recommendedNextSteps", "")
+        }
+        print("EXACT JSON RETURNED BY API:")
+        print(result)
+        return result
+        
     except Exception as e:
+        import traceback
+        print("BACKEND EXCEPTION IN GEMINI PIPELINE:")
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=f"Failed to generate summary from Gemini: {str(e)}"

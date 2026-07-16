@@ -68,6 +68,100 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
   const caseData = enrichCaseData(rawCaseData);
   const [copiedOrderId, setCopiedOrderId] = useState<string | null>(null);
 
+  // AI Case Summary states
+  interface SummaryData {
+    caseOverview: string;
+    currentStatus: string;
+    nextHearing: string;
+    whatThisMeans: string;
+    recommendedNextSteps: string;
+  }
+
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summaryData, setSummaryData] = useState<SummaryData | null>(null);
+  const [summaryError, setSummaryError] = useState<string | null>(null);
+  const [isCopied, setIsCopied] = useState(false);
+
+  const getApiUrl = () => {
+    if (import.meta.env.VITE_API_URL) {
+      return import.meta.env.VITE_API_URL;
+    }
+    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      return 'http://localhost:8000';
+    }
+    return 'https://casewatch.onrender.com';
+  };
+
+  const handleGenerateSummary = async (forceRegenerate = false) => {
+    if (summaryData && !forceRegenerate) {
+      setIsExpanded(true);
+      return;
+    }
+    
+    setSummaryLoading(true);
+    setSummaryError(null);
+    setIsExpanded(true);
+    
+    const payload = { case_data: caseData };
+    console.log("Sending AI summary request to backend. Endpoint:", `${getApiUrl()}/api/cases/summarize`, "Payload:", payload);
+    
+    try {
+      const apiUrl = getApiUrl();
+      const response = await fetch(`${apiUrl}/api/cases/summarize`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+      
+      if (!response.ok) {
+        let errorMsg = `Server error (${response.status}): Failed to generate summary from server.`;
+        try {
+          const errData = await response.json();
+          if (errData && errData.detail) {
+            errorMsg = typeof errData.detail === 'string' ? errData.detail : JSON.stringify(errData.detail);
+          }
+        } catch (_) {}
+        throw new Error(errorMsg);
+      }
+      
+      const data = await response.json();
+      console.log("API response data received in frontend:", data);
+      
+      setSummaryData({
+        caseOverview: data.caseOverview || '',
+        currentStatus: data.currentStatus || '',
+        nextHearing: data.nextHearing || '',
+        whatThisMeans: data.whatThisMeans || '',
+        recommendedNextSteps: data.recommendedNextSteps || '',
+      });
+    } catch (err: any) {
+      console.error("AI summary generation error:", err);
+      setSummaryError(err.message || 'An error occurred while generating the summary.');
+    } finally {
+      setSummaryLoading(false);
+    }
+  };
+
+  const handleCopySummary = () => {
+    if (!summaryData) return;
+    
+    const textToCopy = [
+      `📄 Case Overview\n${summaryData.caseOverview}`,
+      `⚖️ Current Status\n${summaryData.currentStatus}`,
+      `📅 Next Hearing\n${summaryData.nextHearing}`,
+      `💡 What This Means\n${summaryData.whatThisMeans}`,
+      `✅ Recommended Next Steps\n${summaryData.recommendedNextSteps}`
+    ].join('\n\n');
+      
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    });
+  };
+
   const handleCopy = (order: InterimOrder) => {
     const textToCopy = `${order.title} (${order.date}) - Case CNR: ${caseData.cnr}`;
     navigator.clipboard.writeText(textToCopy).then(() => {
@@ -502,6 +596,178 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
             </div>
           </section>
         )}
+
+        {/* AI CASE SUMMARY SECTION */}
+        <section 
+          style={cardStyle}
+          className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-6 sm:p-8 scroll-mt-24 w-full"
+        >
+          <style>{`
+            @keyframes loadingBar {
+              0% { transform: translateX(-100%); }
+              50% { transform: translateX(0); }
+              100% { transform: translateX(100%); }
+            }
+            .animate-loading-bar {
+              animation: loadingBar 2s infinite ease-in-out;
+            }
+            @keyframes spinSlow {
+              from { transform: rotate(0deg); }
+              to { transform: rotate(360deg); }
+            }
+            .animate-spin-slow {
+              animation: spinSlow 4s linear infinite;
+            }
+          `}</style>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div className="flex items-start gap-4">
+              <div className="p-2.5 bg-emerald-50 rounded-xl text-emerald-600 flex-shrink-0">
+                <svg className="w-5 h-5 animate-spin-slow" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 21L8.188 15.904L3 15L8.188 14.096L9 9L9.813 14.096L15 15L9.813 15.904Z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.071 4.929L18.5 8L17.929 4.929L15 4.357L17.929 3.786L18.5 0.714L19.071 3.786L22 4.357L19.071 4.929Z" />
+                </svg>
+              </div>
+              <div>
+                <h2 style={headingStyle} className="font-serif text-lg sm:text-xl leading-snug">
+                  AI Case Summary
+                </h2>
+                <p style={textDarkStyle} className="text-sm font-medium mt-0.5">
+                  Understand this case in simple language
+                </p>
+                <p style={textMutedStyle} className="text-xs mt-1.5 font-sans">
+                  Generated only from official case records. No assumptions are made.
+                </p>
+              </div>
+            </div>
+            
+            {!isExpanded && (
+              <button
+                onClick={() => handleGenerateSummary(false)}
+                className="w-full md:w-auto bg-[#22c55e] text-white text-xs font-bold uppercase tracking-wider rounded-full py-3 px-6 shadow-sm hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap self-stretch md:self-center"
+              >
+                Generate Summary
+              </button>
+            )}
+          </div>
+
+          {/* Accordion Expansion Container */}
+          <div 
+            className="transition-all duration-500 ease-in-out overflow-hidden"
+            style={{
+              maxHeight: isExpanded ? '2000px' : '0px',
+              opacity: isExpanded ? 1 : 0,
+              marginTop: isExpanded ? '24px' : '0px',
+              paddingTop: isExpanded ? '24px' : '0px',
+              borderTop: isExpanded ? '1px solid #E5E7EB' : 'none'
+            }}
+          >
+            {summaryLoading ? (
+              <div className="flex flex-col items-center justify-center py-10 text-center animate-pulse">
+                <div className="relative w-16 h-16 flex items-center justify-center mb-4">
+                  <svg className="w-10 h-10 text-emerald-600 animate-spin-slow" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 21L8.188 15.904L3 15L8.188 14.096L9 9L9.813 14.096L15 15L9.813 15.904Z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.071 4.929L18.5 8L17.929 4.929L15 4.357L17.929 3.786L18.5 0.714L19.071 3.786L22 4.357L19.071 4.929Z" />
+                  </svg>
+                </div>
+                <p style={textDarkStyle} className="text-sm font-semibold animate-pulse font-sans">
+                  Generating your case summary...
+                </p>
+                <div className="w-48 h-1.5 bg-neutral-100 rounded-full mt-4 overflow-hidden relative">
+                  <div className="h-full bg-[#22c55e] rounded-full animate-loading-bar absolute top-0 left-0 w-24"></div>
+                </div>
+              </div>
+            ) : summaryError ? (
+              <div className="flex flex-col items-center justify-center py-6 text-center">
+                <svg className="w-10 h-10 text-red-500 mb-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                <p className="text-sm font-semibold text-red-600 font-sans">{summaryError}</p>
+                <button
+                  onClick={() => handleGenerateSummary(true)}
+                  className="mt-4 bg-black text-white text-xs font-bold uppercase tracking-wider rounded-full py-2.5 px-6 shadow-sm hover:bg-neutral-800 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  Try Again
+                </button>
+              </div>
+            ) : summaryData ? (
+              <div className="space-y-6">
+                {[
+                  { title: 'Case Overview', emoji: '📄', content: summaryData.caseOverview },
+                  { title: 'Current Status', emoji: '⚖️', content: summaryData.currentStatus },
+                  { title: 'Next Hearing', emoji: '📅', content: summaryData.nextHearing },
+                  { title: 'What This Means', emoji: '💡', content: summaryData.whatThisMeans },
+                  { title: 'Recommended Next Steps', emoji: '✅', content: summaryData.recommendedNextSteps },
+                ].map((section, idx) => (
+                  <div key={idx} className="flex gap-4">
+                    <div className="flex-shrink-0 text-xl w-6 h-6 flex items-center justify-center bg-neutral-50 rounded-lg">
+                      {section.emoji}
+                    </div>
+                    <div>
+                      <h3 style={headingStyle} className="font-serif text-sm sm:text-base font-bold leading-tight">
+                        {section.title}
+                      </h3>
+                      <p style={textMutedStyle} className="text-sm mt-1 leading-relaxed font-sans">
+                        {section.content}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Footer Actions */}
+                <div className="flex flex-wrap items-center justify-between gap-4 mt-8 pt-4 border-t border-[#E5E7EB]">
+                  <button
+                    onClick={handleCopySummary}
+                    className="text-xs font-bold text-neutral-500 hover:text-black transition-colors uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
+                  >
+                    {isCopied ? (
+                      <>
+                        <svg className="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <span className="text-emerald-600">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H5.4m1.5-.45h2.25m3.3 0h5.025c.621 0 1.125.504 1.125 1.125V17.25c0 .621-.504 1.125-1.125 1.125H9.75M8.25 21h8.25" />
+                        </svg>
+                        Copy Summary
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => setIsExpanded(false)}
+                    className="text-xs font-bold text-neutral-500 hover:text-black transition-colors uppercase tracking-wider flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                      <polyline points="18 15 12 9 6 15" />
+                    </svg>
+                    Collapse
+                  </button>
+                </div>
+
+                {/* AI Disclaimer Box */}
+                <div 
+                  className="mt-6 p-4 rounded-xl border flex gap-3 text-[13px] sm:text-[14px] leading-relaxed text-[#78350f] bg-[#FFFBEB] border-[#FCD34D]"
+                >
+                  <svg className="w-5 h-5 flex-shrink-0 text-[#d97706] mt-0.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="12" x2="12" y2="16" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                  </svg>
+                  <div>
+                    <strong className="font-bold block mb-0.5">AI Disclaimer</strong>
+                    <span>
+                      This summary is generated using AI to help you understand your case in simple language. It may not include every legal detail, so please check the official court records to confirm important information. We do not provide legal advice, and this summary should not be treated as legal advice.
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        </section>
 
         {/* 7. INTERIM ORDERS SECTION */}
         {displayOrders.length > 0 && (
