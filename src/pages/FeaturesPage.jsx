@@ -21,9 +21,9 @@ export default function FeaturesPage() {
     },
     {
       id: 2,
-      title: "Visual Step-by-Step Guidance",
-      description: "An interactive, visual timeline interface that breaks down the process of tracking a case into four simple steps (Select Court, Enter CRN, Verify, Case Details) to help non-technical users navigate the platform.",
-      icon: "steppers"
+      title: "AI-Powered Case Summaries",
+      description: "Automatically converts complex case data — hearing history, case stage, and party details into a clear, easy-to-read summary. Explains what the case is about, where it currently stands, and what the next hearing means, along with practical next steps. Grounded strictly in real case data, with nothing invented or assumed.",
+      icon: "summarize"
     },
     {
       id: 3,

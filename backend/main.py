@@ -11,7 +11,6 @@ import google.generativeai as genai
 from pydantic import BaseModel
 
 load_dotenv()
-
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 ECOURTS_API_KEY = os.getenv("ECOURTS_API_KEY")
