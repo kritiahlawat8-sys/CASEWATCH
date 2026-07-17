@@ -9,6 +9,8 @@ from datetime import datetime
 import base64
 import google.generativeai as genai
 from pydantic import BaseModel, Field
+import json
+from app.cache import r
 
 load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
@@ -32,7 +34,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ─────────────────────────────────────────
 # Root & Health
 # ─────────────────────────────────────────
 
@@ -52,9 +53,8 @@ def ping_db():
     return {"db": "connected", "sample": result.data}
 
 
-# ─────────────────────────────────────────
 # Courts Search
-# ─────────────────────────────────────────
+
 
 @app.get("/api/courts/search")
 def search_courts(
@@ -107,9 +107,7 @@ def get_court_by_id(court_id: str):
         raise HTTPException(status_code=500, detail=f"Failed: {str(e)}")
 
 
-# ─────────────────────────────────────────
 # Case Lookup  ← REAL eCourts API
-# ─────────────────────────────────────────
 
 def _normalize_case(raw: dict, cnr: str) -> dict:
     """
@@ -359,6 +357,28 @@ class AISummarySchema(BaseModel):
 
 @app.post("/api/cases/summarize")
 async def summarize_case(request: CaseSummarizeRequest):
+    cnr = request.case_data.get("cnr", "").strip().upper()
+    CACHE_TTL = 7 * 24 * 60 * 60
+    cache_key = f"casewatch:summary:{cnr}"
+
+    if cnr and r:
+        try:
+            cached_val = r.get(cache_key)
+            if cached_val:
+                parsed_data = json.loads(cached_val)
+                result = {
+                    "caseOverview": parsed_data.get("caseOverview", ""),
+                    "currentStatus": parsed_data.get("currentStatus", ""),
+                    "nextHearing": parsed_data.get("nextHearing", ""),
+                    "whatThisMeans": parsed_data.get("whatThisMeans", ""),
+                    "recommendedNextSteps": parsed_data.get("recommendedNextSteps", ""),
+                    "source": "cache"
+                }
+                print("CACHE HIT FOR SUMMARY:", cnr)
+                return result
+        except Exception as e:
+            print("REDIS CACHE ERROR (GET) - FALLING THROUGH TO GEMINI:", str(e))
+
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise HTTPException(
@@ -401,7 +421,6 @@ Explain the case using exactly these 5 keys in a JSON object:
         print(raw_text)
         
         # Step 2: Inspect the parser / JSON loader
-        import json
         parsed_data = json.loads(raw_text)
         print("PARSED GEMINI RESPONSE OBJECT:")
         print(parsed_data)
@@ -416,6 +435,17 @@ Explain the case using exactly these 5 keys in a JSON object:
         }
         print("EXACT JSON RETURNED BY API:")
         print(result)
+        
+        if cnr and r:
+            try:
+                # Strip "source" key if present (always strip source before storing)
+                data_to_store = {k: v for k, v in result.items() if k != "source"}
+                r.setex(cache_key, CACHE_TTL, json.dumps(data_to_store))
+                print("CACHE STORE SUCCESS FOR SUMMARY:", cnr)
+            except Exception as e:
+                print("REDIS CACHE ERROR (SET) - FAIL SILENTLY:", str(e))
+        
+        result["source"] = "gemini"
         return result
         
     except Exception as e:
