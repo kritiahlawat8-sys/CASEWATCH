@@ -277,7 +277,7 @@ async def lookup_case(payload: dict):
     if not cnr:
         raise HTTPException(status_code=400, detail="CNR number required")
 
-    # 0. Captcha verification
+    # 0. Captcha verification 
     if RECAPTCHA_SECRET_KEY:
         if not captcha_token:
             raise HTTPException(status_code=400, detail="Security verification (Captcha) is required.")
@@ -406,7 +406,7 @@ Explain the case using exactly these 5 keys in a JSON object:
 """
     
     try:
-        model = genai.GenerativeModel("gemini-3.5-flash")
+        model = genai.GenerativeModel("gemini-1.5-flash")
         response = model.generate_content(
             prompt,
             generation_config={
