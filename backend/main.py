@@ -1,4 +1,4 @@
-# Force reload for API key again
+# Force reload for API key again again
 import os
 import httpx
 from fastapi import FastAPI, Query, HTTPException, status
@@ -291,7 +291,7 @@ async def lookup_case(payload: dict):
                 }
             )
             captcha_data = captcha_resp.json()
-            if not captcha_data.get("success"):
+            if not captcha_data.get("success") or captcha_data.get("score", 0.0) < 0.5:
                 raise HTTPException(status_code=400, detail="Invalid Captcha. Please verify you are human.")
 
 

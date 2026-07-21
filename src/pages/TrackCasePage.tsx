@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import ReCAPTCHA from 'react-google-recaptcha';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CaseDetails from '../components/CaseDetails';
@@ -19,7 +18,6 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
   const [isVerified, setIsVerified] = useState(false);
   const [crnNumber, setCrnNumber] = useState('');
   const [partyName, setPartyName] = useState('');
-  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
   const [courtSearch, setCourtSearch] = useState('');
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [courts, setCourts] = useState<Court[]>([]);
@@ -33,7 +31,6 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
   const [caseLoading, setCaseLoading] = useState(false);
   const [caseError, setCaseError] = useState<string | null>(null);
 
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const cardRef = useRef<HTMLElement>(null);
 
   // Fetch categories on mount
@@ -139,19 +136,29 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (recaptchaToken && crnNumber.trim()) {
+    if (crnNumber.trim()) {
       setIsVerified(true);
       setCurrentStep(3);
       
       setCaseLoading(true);
       setCaseError(null);
       try {
+        const siteKey = import.meta.env.VITE_RECAPTCHA_V3_SITEKEY;
+        let token = '';
+        if (siteKey && (window as any).grecaptcha) {
+          token = await new Promise((resolve) => {
+            (window as any).grecaptcha.ready(() => {
+              (window as any).grecaptcha.execute(siteKey, { action: 'submit' }).then((t: string) => resolve(t));
+            });
+          });
+        }
+
         const apiUrl = import.meta.env.VITE_API_URL || 'https://casewatch.onrender.com';
         console.log('Fetching case from:', apiUrl);
         const res = await fetch(`${apiUrl}/api/cases/lookup`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ cnr: crnNumber, party_name: partyName, captcha_token: recaptchaToken || '' })
+          body: JSON.stringify({ cnr: crnNumber, party_name: partyName, captcha_token: token })
         });
         const data = await res.json();
         if (!res.ok) {
@@ -398,21 +405,11 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
                   {/* Middle Column Divider */}
                   <div className="middle-divider-col" aria-hidden="true" />
 
-                  {/* Right reCAPTCHA Column */}
+                  {/* Right Column (Empty for v3 invisible recaptcha) */}
                   <div className="right-captcha-col">
-                    <div className="field-group">
-                      <label className="field-label">Security Verification</label>
-                      <ReCAPTCHA
-                        ref={recaptchaRef}
-                        sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
-                        onChange={(token) => setRecaptchaToken(token)}
-                        onExpired={() => setRecaptchaToken(null)}
-                        theme="light"
-                      />
-                    </div>
+                    {/* Invisible reCAPTCHA v3 runs in the background */}
                   </div>
                 </div>
-
                 {/* Card Footer Bar */}
                 <div className="card-footer-bar">
                   <div className="privacy-encrypted-note">
@@ -427,7 +424,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
                   <button
                     type="submit"
                     className="pg-submit-btn"
-                    disabled={!recaptchaToken || !crnNumber.trim()}
+                    disabled={!crnNumber.trim()}
                   >
                     Track My Case
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
