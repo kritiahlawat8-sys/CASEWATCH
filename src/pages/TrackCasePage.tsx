@@ -105,35 +105,6 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
     }
   }, []);
 
-  // Fetch Case Details when reaching Step 4
-  useEffect(() => {
-    let active = true;
-    if (currentStep === 3 && (!caseData || caseData.cnr !== crnNumber)) {
-      async function fetchCase() {
-        setCaseLoading(true);
-        setCaseError(null);
-        try {
-          const apiUrl = import.meta.env.VITE_API_URL || 'https://casewatch.onrender.com';
-          const res = await fetch(`${apiUrl}/api/cases/lookup`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ cnr: crnNumber, party_name: partyName, captcha_token: recaptchaToken || '' })
-          });
-          const data = await res.json();
-          if (!res.ok) {
-            throw new Error(data.detail || 'Failed to fetch case details');
-          }
-          if (active) setCaseData(data);
-        } catch (err: any) {
-          if (active) setCaseError(err.message || 'An error occurred while fetching case data.');
-        } finally {
-          if (active) setCaseLoading(false);
-        }
-      }
-      fetchCase();
-    }
-    return () => { active = false; };
-  }, [currentStep, crnNumber, partyName, caseData]);
 
   // Scroll to the interactive card section
   const scrollToCard = () => {
@@ -166,11 +137,31 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
     }
   };
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (recaptchaToken && crnNumber.trim()) {
       setIsVerified(true);
       setCurrentStep(3);
+      
+      setCaseLoading(true);
+      setCaseError(null);
+      try {
+        const apiUrl = import.meta.env.VITE_API_URL || 'https://casewatch.onrender.com';
+        const res = await fetch(`${apiUrl}/api/cases/lookup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cnr: crnNumber, party_name: partyName, captcha_token: recaptchaToken || '' })
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.detail || 'Failed to fetch case details');
+        }
+        setCaseData(data);
+      } catch (err: any) {
+        setCaseError(err.message || 'An error occurred while fetching case data.');
+      } finally {
+        setCaseLoading(false);
+      }
     }
   };
 
@@ -179,28 +170,13 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
     if (onProceed) onProceed(crnNumber);
   };
 
-  const handleCnrRetry = async () => {
-    if (!crnNumber.trim()) return;
-    setCaseLoading(true);
-    setCaseError(null);
-    try {
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://casewatch.onrender.com';
-      const res = await fetch(`${apiUrl}/api/cases/lookup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cnr: crnNumber.trim().toUpperCase(), party_name: partyName, captcha_token: recaptchaToken || '' })
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.detail || 'Failed to fetch case details');
-      }
-      setCaseData(data);
-      setCurrentStep(4);
-    } catch (err: any) {
-      setCaseError(err.message || 'An error occurred while fetching case data.');
-    } finally {
-      setCaseLoading(false);
+  const handleCnrRetry = () => {
+    setRecaptchaToken(null);
+    if (recaptchaRef.current) {
+      recaptchaRef.current.reset();
     }
+    setCaseError(null);
+    setCurrentStep(2);
   };
 
   // Dynamic progress step class helper
@@ -427,7 +403,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
                       <label className="field-label">Security Verification</label>
                       <ReCAPTCHA
                         ref={recaptchaRef}
-                        sitekey="6LdK90AtAAAAAIUtdb3TwH_iWdJSO1U5FxvPovbO"
+                        sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"
                         onChange={(token) => setRecaptchaToken(token)}
                         onExpired={() => setRecaptchaToken(null)}
                         theme="light"
@@ -493,7 +469,9 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
                   </h2>
                   <p className="success-guidance">
                     {caseError 
-                      ? 'We could not locate details for the entered CNR. Please verify the code and try again.'
+                      ? (caseError.includes('not found') || caseError.includes('CNR')
+                          ? 'We could not locate details for the entered CNR. Please verify the code and try again.'
+                          : 'There was an issue processing your request. Please try again.')
                       : 'Judicial filing records match the reference CNR key. Real-time docket timelines, past hearings, and upcoming court schedules are ready to download.'
                     }
                   </p>
