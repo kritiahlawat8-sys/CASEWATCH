@@ -20,13 +20,6 @@ export interface HistoryItem {
   purpose?: string;
 }
 
-export interface InterimOrder {
-  order_no: string;
-  title: string;
-  date: string;
-  copy_url?: string;
-}
-
 export interface CaseData {
   cnr: string;
   case_number?: string;
@@ -52,7 +45,6 @@ export interface CaseData {
   acts_sections?: ActSection[];
   fir_details?: FIRDetails;
   history?: HistoryItem[];
-  interim_orders?: InterimOrder[];
   case_file_ref?: string;
 }
 
@@ -68,7 +60,7 @@ const enrichCaseData = (data: CaseData): CaseData => {
 
 const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack }) => {
   const caseData = enrichCaseData(rawCaseData);
-  const [copiedOrderId, setCopiedOrderId] = useState<string | null>(null);
+
 
   // AI Case Summary states
   interface SummaryData {
@@ -164,17 +156,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
     });
   };
 
-  const handleCopy = (order: InterimOrder) => {
-    const textToCopy = `${order.title} (${order.date}) - Case CNR: ${caseData.cnr}`;
-    navigator.clipboard.writeText(textToCopy).then(() => {
-      setCopiedOrderId(order.order_no);
-      setTimeout(() => setCopiedOrderId(null), 2000);
-    });
-  };
 
-  const handlePrint = () => {
-    window.print();
-  };
 
   // Determine if sections have valid data
   const hasLeftIdData = caseData.case_type || caseData.filing_no || caseData.filing_date || caseData.registration_no || caseData.registration_date;
@@ -185,7 +167,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
   const hasFIR = caseData.fir_details && (caseData.fir_details.police_station || caseData.fir_details.fir_number || caseData.fir_details.year);
   const hasHistory = caseData.history && caseData.history.length > 0;
   
-  const displayOrders = caseData.interim_orders || [];
+
 
   // Resolve case file ref: either passed, or case number, or fallback
   const resolvedCaseFileRef = caseData.case_number || caseData.registration_no || `REF-${caseData.cnr}`;
@@ -199,15 +181,15 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
   const cardStyle = { scrollMarginTop: '96px' };
 
   return (
-    <div className="bg-[#EDEBE4] py-8 px-4 sm:px-6 lg:px-12 font-sans antialiased">
+    <div className="bg-[#EDEBE4] py-6 px-4 sm:py-8 sm:px-6 lg:px-12 font-sans antialiased">
       <div className="w-full max-w-7xl mx-auto space-y-6">
         
         {/* HEADER SECTION (Centered, back button removed) */}
-        <header className="flex flex-col items-center justify-center text-center gap-1.5 mb-6 w-full">
+        <header className="flex flex-col items-center justify-center text-center gap-1.5 mb-4 sm:mb-6 w-full">
           {/* Court Name */}
           <h1 
             style={headingStyle}
-            className="font-serif text-2xl sm:text-3xl leading-tight"
+            className="font-serif text-xl sm:text-3xl leading-tight"
           >
             {caseData.court_name || 'Court Name Not Specified'}
           </h1>
@@ -223,7 +205,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
         {hasCaseId && (
           <section 
             style={cardStyle}
-            className="bg-white rounded-xl border border-[#E5E3DB] shadow-sm p-6 scroll-mt-24"
+            className="bg-white rounded-xl border border-[#E5E3DB] shadow-sm p-5 sm:p-6 scroll-mt-24"
           >
             <div className="mb-4">
               <span 
@@ -243,7 +225,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
               {/* Left Side: Flex row with moderate, consistent spacing (gap: 24px / gap-6) */}
               {hasLeftIdData && (
-              <div className="lg:col-span-9 flex flex-wrap gap-x-8 gap-y-4">
+              <div className="lg:col-span-9 flex flex-col sm:flex-row sm:flex-wrap gap-6 sm:gap-x-8 sm:gap-y-4 w-full order-2 lg:order-1">
                 {caseData.case_type && (
                   <div className="min-w-[130px]">
                     <span style={textMutedStyle} className="text-xs font-semibold block mb-0.5">Case Type</span>
@@ -278,7 +260,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
               )}
 
               {/* Right Side: Highlighted CNR Box */}
-              <div className={`${hasLeftIdData ? 'lg:col-span-3' : 'lg:col-span-12'} bg-neutral-50 rounded-lg p-4 border-l-4 border-black flex flex-col justify-center`}>
+              <div className={`${hasLeftIdData ? 'lg:col-span-3' : 'lg:col-span-12'} bg-neutral-50 rounded-lg p-4 border-l-4 border-black flex flex-col justify-center order-1 lg:order-2`}>
                 <span style={textMutedStyle} className="text-[11px] font-semibold tracking-wider block mb-1">
                   CNR Number
                 </span>
@@ -300,7 +282,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
         {hasStatus && (
           <section 
             style={cardStyle}
-            className="bg-[#edfaf4] border-l-4 border-[#22c55e] rounded-r-xl border-y border-r border-[#d4f2e4] shadow-sm p-6 sm:p-8 scroll-mt-24"
+            className="bg-[#edfaf4] border-l-4 border-[#22c55e] rounded-r-xl border-y border-r border-[#d4f2e4] shadow-sm p-5 sm:p-8 scroll-mt-24"
           >
             <div className="mb-6">
               <span className="text-xs font-semibold uppercase tracking-wider text-emerald-800 font-sans block mb-1">
@@ -315,7 +297,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
             </div>
 
             {/* Rendered in a single row on larger screens */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-6">
               {caseData.first_hearing_date && (
                 <div>
                   <span className="text-xs text-emerald-800/70 font-semibold block mb-1">First Hearing Date</span>
@@ -323,10 +305,12 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
                 </div>
               )}
               {caseData.next_hearing && (
-                <div>
-                  <span className="text-xs text-emerald-800/70 font-semibold block mb-1">Next Hearing Date</span>
-                  <div className="flex flex-col gap-2">
-                    <span className="text-sm font-bold text-[#22c55e]">{caseData.next_hearing}</span>
+                <div className="col-span-full sm:col-span-1">
+                  <div className="flex flex-row sm:flex-col items-center sm:items-start justify-between sm:justify-start gap-4 sm:gap-2 w-full">
+                    <div className="flex flex-col">
+                      <span className="text-xs text-emerald-800/70 font-semibold block mb-1">Next Hearing Date</span>
+                      <span className="text-sm font-bold text-[#22c55e]">{caseData.next_hearing}</span>
+                    </div>
                     <button
                       onClick={() => {
                         const hearingDate = caseData.next_hearing;
@@ -339,12 +323,12 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
                           `&location=${encodeURIComponent(caseData.court_name || '')}`;
                         window.open(googleCalendarUrl, '_blank');
                       }}
-                      className="bg-black text-white text-xs font-bold uppercase tracking-wider rounded-full py-3 px-6 shadow-sm hover:bg-neutral-800 transition-all flex items-center justify-center gap-2 cursor-pointer self-start"
+                      className="bg-black text-white text-xs font-bold uppercase tracking-wider rounded-full py-3 px-4 sm:px-6 shadow-sm hover:bg-neutral-800 transition-all flex items-center justify-center gap-2 cursor-pointer w-auto self-center sm:self-start flex-shrink min-w-0"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5m-9-6h.008v.008H12v-.008zM12 15h.008v.008H12V15zm0 2.25h.008v.008H12v-.008zM9.75 15h.008v.008H9.75V15zm0 2.25h.008v.008H9.75v-.008zM7.5 15h.008v.008H7.5V15zm0 2.25h.008v.008H7.5v-.008zm6.75-4.5h.008v.008h-.008v-.008zm0 2.25h.008v.008h-.008V15zm0 2.25h.008v.008h-.008v-.008zm2.25-4.5h.008v.008H16.5v-.008zm0 2.25h.008v.008H16.5V15z" />
                       </svg>
-                      Add to Calendar
+                      <span className="truncate">Add to Calendar</span>
                     </button>
                   </div>
                 </div>
@@ -378,7 +362,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
             {caseData.petitioner && (
               <section 
                 style={cardStyle}
-                className="bg-white rounded-xl border border-[#E5E3DB] shadow-sm p-6 sm:p-8 scroll-mt-24"
+                className="bg-white rounded-xl border border-[#E5E3DB] shadow-sm p-5 sm:p-8 scroll-mt-24"
               >
                 <div className="mb-4">
                   <span 
@@ -414,7 +398,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
             {caseData.respondent && (
               <section 
                 style={cardStyle}
-                className="bg-white rounded-xl border border-[#E5E3DB] shadow-sm p-6 sm:p-8 scroll-mt-24"
+                className="bg-white rounded-xl border border-[#E5E3DB] shadow-sm p-5 sm:p-8 scroll-mt-24"
               >
                 <div className="mb-4">
                   <span 
@@ -452,7 +436,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
         {hasActs && (
           <section 
             style={cardStyle}
-            className="bg-white rounded-xl border border-[#E5E3DB] shadow-sm p-6 sm:p-8 scroll-mt-24"
+            className="bg-white rounded-xl border border-[#E5E3DB] shadow-sm p-5 sm:p-8 scroll-mt-24"
           >
             <div className="mb-6">
               <span 
@@ -494,7 +478,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
         {hasFIR && (
           <section 
             style={cardStyle}
-            className="bg-[#FAF7F0] rounded-xl border border-[#ECE5D8] shadow-sm p-6 sm:p-8 scroll-mt-24"
+            className="bg-[#FAF7F0] rounded-xl border border-[#ECE5D8] shadow-sm p-5 sm:p-8 scroll-mt-24"
           >
             <div className="mb-6">
               <span className="text-xs font-semibold uppercase tracking-wider text-amber-800 font-sans block mb-1">
@@ -508,7 +492,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
               </h2>
             </div>
 
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               {caseData.fir_details?.police_station && (
                 <div>
                   <span className="text-xs text-amber-800/70 font-semibold block mb-1">Police Station</span>
@@ -535,7 +519,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
         {hasHistory && (
           <section 
             style={cardStyle}
-            className="bg-white rounded-xl border border-[#E5E3DB] shadow-sm p-6 sm:p-8 overflow-hidden scroll-mt-24"
+            className="bg-white rounded-xl border border-[#E5E3DB] shadow-sm p-5 sm:p-8 overflow-hidden scroll-mt-24"
           >
             <div className="mb-6">
               <span 
@@ -552,7 +536,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
               </h2>
             </div>
 
-            <div className="overflow-x-auto -mx-6 sm:-mx-8">
+            <div className="hidden sm:block overflow-x-auto -mx-6 sm:-mx-8">
               <div className="inline-block min-w-full align-middle px-6 sm:px-8">
                 <table className="min-w-full divide-y divide-neutral-200">
                   <thead>
@@ -596,13 +580,47 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
                 </table>
               </div>
             </div>
+
+            {/* Mobile Card Layout */}
+            <div className="block sm:hidden space-y-4">
+              {caseData.history?.map((h, idx) => (
+                <div 
+                  key={idx} 
+                  className="bg-[#FAF9F5] border border-[#E9E7DF] rounded-xl p-5 space-y-3"
+                >
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <span style={textMutedStyle} className="text-xs font-semibold block mb-0.5">Business on Date</span>
+                      <span style={textDarkStyle} className="text-sm font-semibold">{h.business_on_date || '—'}</span>
+                    </div>
+                    <div>
+                      <span style={textMutedStyle} className="text-xs font-semibold block mb-0.5">Hearing Date</span>
+                      {h.hearing_date ? (
+                        <span className="text-sm text-[#22c55e] font-bold block">{h.hearing_date}</span>
+                      ) : (
+                        <span style={textMutedStyle} className="text-sm block">—</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="border-t border-neutral-100 my-2"></div>
+                  <div>
+                    <span style={textMutedStyle} className="text-xs font-semibold block mb-0.5">Judge</span>
+                    <span style={textDarkStyle} className="text-sm font-medium leading-snug">{h.judge || '—'}</span>
+                  </div>
+                  <div>
+                    <span style={textMutedStyle} className="text-xs font-semibold block mb-0.5">Purpose</span>
+                    <span style={textDarkStyle} className="text-sm font-medium leading-snug">{h.purpose || '—'}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </section>
         )}
 
         {/* AI CASE SUMMARY SECTION */}
         <section 
           style={cardStyle}
-          className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-6 sm:p-8 scroll-mt-24 w-full"
+          className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-5 sm:p-8 scroll-mt-24 w-full"
         >
           <style>{`
             @keyframes loadingBar {
@@ -771,85 +789,6 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
           </div>
         </section>
 
-        {/* 7. INTERIM ORDERS SECTION */}
-        {displayOrders.length > 0 && (
-        <section 
-          style={cardStyle}
-          className="space-y-4 scroll-mt-24"
-        >
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <span 
-                style={textMutedStyle}
-                className="text-xs font-semibold uppercase tracking-wider font-sans block mb-1"
-              >
-                LEGAL DOCUMENTS
-              </span>
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-neutral-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                </svg>
-                <h2 
-                  style={headingStyle}
-                  className="font-serif text-xl sm:text-2xl"
-                >
-                  Interim Orders
-                </h2>
-              </div>
-            </div>
-
-            {/* Action Button: Print Case Details */}
-            <button
-              onClick={handlePrint}
-              className="bg-black text-white text-xs font-bold uppercase tracking-wider rounded-full py-3 px-6 shadow-sm hover:bg-neutral-800 transition-all flex items-center justify-center gap-2 cursor-pointer self-start sm:self-auto"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.615 0-1.113-.485-1.12-1.1L6.34 18m11.318-3.662a4 4 0 11-7.75 0m7.75 0a1.866 1.866 0 00-1.866-1.866H6.797a1.867 1.867 0 00-1.867 1.866" />
-              </svg>
-              Print Case Details
-            </button>
-          </div>
-
-          {/* Interim Orders 3-Column Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {displayOrders.map((order) => (
-              <div
-                key={order.order_no}
-                className="bg-[#FAF9F5] border border-[#E9E7DF] rounded-xl p-5 flex items-center justify-between gap-4 hover:shadow-md hover:border-[#DFDDD5] transition-all"
-              >
-                <div className="flex items-start gap-3">
-                  <span style={textMutedStyle} className="text-[10px] font-mono font-bold mt-1">
-                    #{order.order_no}.
-                  </span>
-                  <div>
-                    <h3 style={textDarkStyle} className="text-sm font-bold leading-tight">
-                      {order.title}
-                    </h3>
-                    <p style={textMutedStyle} className="text-[11px] mt-1 font-medium font-sans">
-                      Date: {order.date}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Copy Button */}
-                <button
-                  onClick={() => handleCopy(order)}
-                  className="flex items-center gap-1.5 text-xs font-bold text-[#22c55e] hover:text-emerald-700 transition-colors uppercase tracking-wider cursor-pointer"
-                >
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                    {copiedOrderId === order.order_no ? (
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                    ) : (
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H5.4m1.5-.45h2.25m3.3 0h5.025c.621 0 1.125.504 1.125 1.125V17.25c0 .621-.504 1.125-1.125 1.125H9.75M8.25 21h8.25" />
-                    )}
-                  </svg>
-                  {copiedOrderId === order.order_no ? 'Copied' : 'Copy'}
-                </button>
-              </div>
-            ))}
-          </div>
-        </section>
-        )}
 
       </div>
     </div>

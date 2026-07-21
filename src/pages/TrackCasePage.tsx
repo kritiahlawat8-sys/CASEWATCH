@@ -179,10 +179,6 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
   };
 
   const handleCnrRetry = () => {
-    setRecaptchaToken(null);
-    if (recaptchaRef.current) {
-      recaptchaRef.current.reset();
-    }
     setCaseError(null);
     setCurrentStep(2);
   };
