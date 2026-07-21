@@ -407,7 +407,7 @@ Explain the case using exactly these 5 keys in a JSON object:
 """
     
     try:
-        model = genai.GenerativeModel("gemini-flash-latest")
+        model = genai.GenerativeModel("gemini-3.1-flash-lite")
         
         response = model.generate_content(
             prompt,
