@@ -363,7 +363,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
               </div>
               <form onSubmit={handleFormSubmit}>
                 <div className="form-split-grid">
-                  {/* Left Input Column */}
+                  {/* Left Column */}
                   <div className="left-input-col">
                     <div className="field-group">
                       <label htmlFor="pg-crn-number" className="field-label">
@@ -371,7 +371,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
                       </label>
                       <div className="input-with-icon-wrapper">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="input-receipt-icon" aria-hidden="true">
-                          <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1Z" />
+                          <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1Z" />
                           <path d="M16 8H8M16 12H8M13 16H8" />
                         </svg>
                         <input
@@ -386,7 +386,10 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
                         />
                       </div>
                     </div>
+                  </div>
 
+                  {/* Right Column */}
+                  <div className="left-input-col">
                     <div className="field-group">
                       <label htmlFor="pg-party-name" className="field-label">
                         Party Name (Optional)
@@ -400,14 +403,6 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
                         onChange={handlePartyNameChange}
                       />
                     </div>
-                  </div>
-
-                  {/* Middle Column Divider */}
-                  <div className="middle-divider-col" aria-hidden="true" />
-
-                  {/* Right Column (Empty for v3 invisible recaptcha) */}
-                  <div className="right-captcha-col">
-                    {/* Invisible reCAPTCHA v3 runs in the background */}
                   </div>
                 </div>
                 {/* Card Footer Bar */}
