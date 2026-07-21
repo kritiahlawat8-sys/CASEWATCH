@@ -1,4 +1,4 @@
-# Force reload for API key
+# Force reload for API key again
 import os
 import httpx
 from fastapi import FastAPI, Query, HTTPException, status
@@ -407,25 +407,15 @@ Explain the case using exactly these 5 keys in a JSON object:
 """
     
     try:
-        import time
-        model = genai.GenerativeModel("gemini-3.5-flash")
+        model = genai.GenerativeModel("gemini-flash-latest")
         
-        for attempt in range(3):
-            try:
-                response = model.generate_content(
-                    prompt,
-                    generation_config={
-                        "response_mime_type": "application/json",
-                        "response_schema": AISummarySchema,
-                    }
-                )
-                break
-            except Exception as e:
-                if "429" in str(e) and attempt < 2:
-                    print(f"Rate limit hit. Retrying in 15 seconds... (Attempt {attempt+1}/3)")
-                    time.sleep(15)
-                else:
-                    raise
+        response = model.generate_content(
+            prompt,
+            generation_config={
+                "response_mime_type": "application/json",
+                "response_schema": AISummarySchema,
+            }
+        )
         
         # Step 1: Inspect the raw Gemini response
         raw_text = response.text.strip()
