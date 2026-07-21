@@ -147,6 +147,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
       setCaseError(null);
       try {
         const apiUrl = import.meta.env.VITE_API_URL || 'https://casewatch.onrender.com';
+        console.log('Fetching case from:', apiUrl);
         const res = await fetch(`${apiUrl}/api/cases/lookup`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
