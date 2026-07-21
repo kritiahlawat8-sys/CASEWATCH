@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 import json
 from app.cache import r
 
-load_dotenv()
+load_dotenv(override=True)
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 ECOURTS_API_KEY = os.getenv("ECOURTS_API_KEY")
@@ -406,14 +406,25 @@ Explain the case using exactly these 5 keys in a JSON object:
 """
     
     try:
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        response = model.generate_content(
-            prompt,
-            generation_config={
-                "response_mime_type": "application/json",
-                "response_schema": AISummarySchema,
-            }
-        )
+        import time
+        model = genai.GenerativeModel("gemini-3.5-flash")
+        
+        for attempt in range(3):
+            try:
+                response = model.generate_content(
+                    prompt,
+                    generation_config={
+                        "response_mime_type": "application/json",
+                        "response_schema": AISummarySchema,
+                    }
+                )
+                break
+            except Exception as e:
+                if "429" in str(e) and attempt < 2:
+                    print(f"Rate limit hit. Retrying in 15 seconds... (Attempt {attempt+1}/3)")
+                    time.sleep(15)
+                else:
+                    raise
         
         # Step 1: Inspect the raw Gemini response
         raw_text = response.text.strip()
