@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 
 export interface ActSection {
   act: string;
@@ -76,6 +76,39 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
   const [summaryData, setSummaryData] = useState<SummaryData | null>(null);
   const [summaryError, setSummaryError] = useState<string | null>(null);
   const [isCopied, setIsCopied] = useState(false);
+
+  // Case History states and refs
+  const [showAllHistory, setShowAllHistory] = useState(false);
+  const historySectionRef = useRef<HTMLDivElement>(null);
+  const historyToggleBtnRef = useRef<HTMLButtonElement>(null);
+
+  const sortedHistory = useMemo(() => {
+    if (!caseData.history) return [];
+    // The history array is typically oldest first; reverse it to show most recent first
+    return [...caseData.history].reverse();
+  }, [caseData.history]);
+
+  const INITIAL_HISTORY_COUNT = 5;
+  const visibleHistory = useMemo(() => {
+    if (showAllHistory) return sortedHistory;
+    return sortedHistory.slice(0, INITIAL_HISTORY_COUNT);
+  }, [sortedHistory, showAllHistory]);
+
+  const handleToggleHistory = () => {
+    if (showAllHistory) {
+      setShowAllHistory(false);
+      setTimeout(() => {
+        if (historySectionRef.current) {
+          historySectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        if (historyToggleBtnRef.current) {
+          historyToggleBtnRef.current.focus();
+        }
+      }, 50);
+    } else {
+      setShowAllHistory(true);
+    }
+  };
 
   const getApiUrl = () => {
     if (import.meta.env.VITE_API_URL) {
@@ -362,7 +395,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
             {caseData.petitioner && (
               <section 
                 style={cardStyle}
-                className="bg-white rounded-xl border border-[#E5E3DB] shadow-sm p-5 sm:p-8 scroll-mt-24"
+                className="bg-white rounded-xl border border-[#E5E3DB] shadow-sm p-5 sm:p-8 scroll-mt-24 min-w-0"
               >
                 <div className="mb-4">
                   <span 
@@ -384,10 +417,18 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
                   </div>
                 </div>
                 <div className="space-y-1.5 mt-4">
-                  <p style={textDarkStyle} className="text-sm font-bold">{caseData.petitioner}</p>
+                  <p 
+                    style={{ ...textDarkStyle, overflowWrap: 'break-word', wordBreak: 'break-word' }} 
+                    className="text-sm font-bold break-words"
+                  >
+                    {caseData.petitioner}
+                  </p>
                   {caseData.petitioner_advocate && (
-                    <p style={textMutedStyle} className="text-[12px] font-sans">
-                      Advocate: <span style={textDarkStyle} className="font-semibold">{caseData.petitioner_advocate}</span>
+                    <p 
+                      style={{ ...textMutedStyle, overflowWrap: 'break-word', wordBreak: 'break-word' }} 
+                      className="text-[12px] font-sans break-words"
+                    >
+                      Advocate: <span style={{ ...textDarkStyle, overflowWrap: 'break-word', wordBreak: 'break-word' }} className="font-semibold">{caseData.petitioner_advocate}</span>
                     </p>
                   )}
                 </div>
@@ -398,7 +439,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
             {caseData.respondent && (
               <section 
                 style={cardStyle}
-                className="bg-white rounded-xl border border-[#E5E3DB] shadow-sm p-5 sm:p-8 scroll-mt-24"
+                className="bg-white rounded-xl border border-[#E5E3DB] shadow-sm p-5 sm:p-8 scroll-mt-24 min-w-0"
               >
                 <div className="mb-4">
                   <span 
@@ -420,10 +461,18 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
                   </div>
                 </div>
                 <div className="space-y-1.5 mt-4">
-                  <p style={textDarkStyle} className="text-sm font-bold">{caseData.respondent}</p>
+                  <p 
+                    style={{ ...textDarkStyle, overflowWrap: 'break-word', wordBreak: 'break-word' }} 
+                    className="text-sm font-bold break-words"
+                  >
+                    {caseData.respondent}
+                  </p>
                   {caseData.respondent_advocate && (
-                    <p style={textMutedStyle} className="text-[12px] font-sans">
-                      Advocate: <span style={textDarkStyle} className="font-semibold">{caseData.respondent_advocate}</span>
+                    <p 
+                      style={{ ...textMutedStyle, overflowWrap: 'break-word', wordBreak: 'break-word' }} 
+                      className="text-[12px] font-sans break-words"
+                    >
+                      Advocate: <span style={{ ...textDarkStyle, overflowWrap: 'break-word', wordBreak: 'break-word' }} className="font-semibold">{caseData.respondent_advocate}</span>
                     </p>
                   )}
                 </div>
@@ -518,6 +567,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
         {/* 6. CASE HISTORY TABLE (Positioned between FIR Details and Interim Orders) */}
         {hasHistory && (
           <section 
+            ref={historySectionRef}
             style={cardStyle}
             className="bg-white rounded-xl border border-[#E5E3DB] shadow-sm p-5 sm:p-8 overflow-hidden scroll-mt-24"
           >
@@ -532,7 +582,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
                 style={headingStyle}
                 className="font-serif text-xl sm:text-2xl"
               >
-                Case History
+                Case History {sortedHistory.length > 0 && `(${sortedHistory.length} hearings)`}
               </h2>
             </div>
 
@@ -555,65 +605,103 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-neutral-100">
-                    {caseData.history?.map((h, idx) => (
-                      <tr key={idx} className="hover:bg-neutral-50/50 transition-colors">
-                        <td style={textMutedStyle} className="py-4 text-sm whitespace-nowrap">
-                          {h.judge}
-                        </td>
-                        <td style={textDarkStyle} className="py-4 text-sm font-semibold whitespace-nowrap">
-                          {h.business_on_date}
-                        </td>
-                        <td className="py-4 text-sm whitespace-nowrap">
-                          {h.hearing_date ? (
-                            <span className="text-[#22c55e] font-bold hover:underline cursor-pointer">
-                              {h.hearing_date}
-                            </span>
-                          ) : null}
-                        </td>
-                        <td style={textMutedStyle} className="py-4 text-sm whitespace-nowrap">
-                          {h.purpose}
-                        </td>
-                      </tr>
-                    ))}
+                  <tbody id="case-history-tbody" className="divide-y divide-neutral-100">
+                    {visibleHistory.map((h, idx) => {
+                      const isExpandedRow = idx >= INITIAL_HISTORY_COUNT;
+                      return (
+                        <tr 
+                          key={idx} 
+                          className={`hover:bg-neutral-50/50 transition-colors ${isExpandedRow ? 'history-row-animate' : ''}`}
+                        >
+                          <td style={textMutedStyle} className="py-4 text-sm whitespace-nowrap">
+                            {h.judge}
+                          </td>
+                          <td style={textDarkStyle} className="py-4 text-sm font-semibold whitespace-nowrap">
+                            {h.business_on_date}
+                          </td>
+                          <td className="py-4 text-sm whitespace-nowrap">
+                            {h.hearing_date ? (
+                              <span className="text-[#22c55e] font-bold hover:underline cursor-pointer">
+                                {h.hearing_date}
+                              </span>
+                            ) : null}
+                          </td>
+                          <td style={textMutedStyle} className="py-4 text-sm whitespace-nowrap">
+                            {h.purpose}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
             </div>
 
             {/* Mobile Card Layout */}
-            <div className="block sm:hidden space-y-4">
-              {caseData.history?.map((h, idx) => (
-                <div 
-                  key={idx} 
-                  className="bg-[#FAF9F5] border border-[#E9E7DF] rounded-xl p-5 space-y-3"
-                >
-                  <div className="grid grid-cols-2 gap-4">
+            <div id="case-history-mobile-list" className="block sm:hidden space-y-4">
+              {visibleHistory.map((h, idx) => {
+                const isExpandedRow = idx >= INITIAL_HISTORY_COUNT;
+                return (
+                  <div 
+                    key={idx} 
+                    className={`bg-[#FAF9F5] border border-[#E9E7DF] rounded-xl p-5 space-y-3 ${isExpandedRow ? 'history-row-animate' : ''}`}
+                  >
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <span style={textMutedStyle} className="text-xs font-semibold block mb-0.5">Business on Date</span>
+                        <span style={textDarkStyle} className="text-sm font-semibold">{h.business_on_date || '—'}</span>
+                      </div>
+                      <div>
+                        <span style={textMutedStyle} className="text-xs font-semibold block mb-0.5">Hearing Date</span>
+                        {h.hearing_date ? (
+                          <span className="text-sm text-[#22c55e] font-bold block">{h.hearing_date}</span>
+                        ) : (
+                          <span style={textMutedStyle} className="text-sm block">—</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="border-t border-neutral-100 my-2"></div>
                     <div>
-                      <span style={textMutedStyle} className="text-xs font-semibold block mb-0.5">Business on Date</span>
-                      <span style={textDarkStyle} className="text-sm font-semibold">{h.business_on_date || '—'}</span>
+                      <span style={textMutedStyle} className="text-xs font-semibold block mb-0.5">Judge</span>
+                      <span style={textDarkStyle} className="text-sm font-medium leading-snug">{h.judge || '—'}</span>
                     </div>
                     <div>
-                      <span style={textMutedStyle} className="text-xs font-semibold block mb-0.5">Hearing Date</span>
-                      {h.hearing_date ? (
-                        <span className="text-sm text-[#22c55e] font-bold block">{h.hearing_date}</span>
-                      ) : (
-                        <span style={textMutedStyle} className="text-sm block">—</span>
-                      )}
+                      <span style={textMutedStyle} className="text-xs font-semibold block mb-0.5">Purpose</span>
+                      <span style={textDarkStyle} className="text-sm font-medium leading-snug">{h.purpose || '—'}</span>
                     </div>
                   </div>
-                  <div className="border-t border-neutral-100 my-2"></div>
-                  <div>
-                    <span style={textMutedStyle} className="text-xs font-semibold block mb-0.5">Judge</span>
-                    <span style={textDarkStyle} className="text-sm font-medium leading-snug">{h.judge || '—'}</span>
-                  </div>
-                  <div>
-                    <span style={textMutedStyle} className="text-xs font-semibold block mb-0.5">Purpose</span>
-                    <span style={textDarkStyle} className="text-sm font-medium leading-snug">{h.purpose || '—'}</span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
+
+            {/* Show More / Show Less Toggle Button */}
+            {sortedHistory.length > INITIAL_HISTORY_COUNT && (
+              <div className="mt-6 flex justify-center border-t border-neutral-100 pt-6">
+                <button
+                  ref={historyToggleBtnRef}
+                  onClick={handleToggleHistory}
+                  aria-expanded={showAllHistory}
+                  aria-controls="case-history-tbody case-history-mobile-list"
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-neutral-200 hover:border-neutral-300 bg-white hover:bg-neutral-50 text-neutral-700 text-sm font-semibold transition-all duration-200 cursor-pointer shadow-sm focus:outline-none focus:ring-2 focus:ring-[#22c55e] focus:ring-offset-2 active:scale-95"
+                >
+                  {showAllHistory ? (
+                    <>
+                      <span>Show Less</span>
+                      <svg className="w-4 h-4 transform rotate-180 transition-transform duration-200" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                      </svg>
+                    </>
+                  ) : (
+                    <>
+                      <span>View All History ({sortedHistory.length})</span>
+                      <svg className="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                      </svg>
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
           </section>
         )}
 
