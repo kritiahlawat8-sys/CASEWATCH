@@ -58,6 +58,16 @@ const enrichCaseData = (data: CaseData): CaseData => {
   return data;
 };
 
+const DOCUMENT_TEMPLATES: Record<string, { filename: string; url: string }> = {
+  "Affidavit": { filename: "affidavit_template.docx", url: "/templates/affidavit_template.docx" },
+  "Vakalatnama": { filename: "vakalatnama_template.docx", url: "/templates/vakalatnama_template.docx" },
+  "Written Statement": { filename: "written_statement_template.docx", url: "/templates/written_statement_template.docx" },
+  "Bail Application": { filename: "bail_application_template.docx", url: "/templates/bail_application_template.docx" },
+  "Rejoinder": { filename: "rejoinder_template.docx", url: "/templates/rejoinder_template.docx" },
+  "Stay Application": { filename: "stay_application_template.docx", url: "/templates/stay_application_template.docx" },
+  "Interlocutory Application": { filename: "ia_template.docx", url: "/templates/ia_template.docx" },
+};
+
 const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack }) => {
   const caseData = enrichCaseData(rawCaseData);
 
@@ -69,6 +79,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
     nextHearing: string;
     whatThisMeans: string;
     recommendedNextSteps: string;
+    requiredDocuments: string[];
   }
 
   const [isExpanded, setIsExpanded] = useState(false);
@@ -163,6 +174,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
         nextHearing: data.nextHearing || '',
         whatThisMeans: data.whatThisMeans || '',
         recommendedNextSteps: data.recommendedNextSteps || '',
+        requiredDocuments: data.requiredDocuments || [],
       });
     } catch (err: any) {
       console.error("AI summary generation error:", err);
@@ -180,7 +192,8 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
       `⚖️ Current Status\n${summaryData.currentStatus}`,
       `📅 Next Hearing\n${summaryData.nextHearing}`,
       `💡 What This Means\n${summaryData.whatThisMeans}`,
-      `✅ Recommended Next Steps\n${summaryData.recommendedNextSteps}`
+      `✅ Recommended Next Steps\n${summaryData.recommendedNextSteps}`,
+      `📎 Required Documents\n${summaryData.requiredDocuments.join(', ') || 'None identified'}`
     ].join('\n\n');
       
     navigator.clipboard.writeText(textToCopy).then(() => {
@@ -822,6 +835,54 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
                     </div>
                   </div>
                 ))}
+
+                {summaryData.requiredDocuments && summaryData.requiredDocuments.length > 0 && (
+                  <div className="mt-6 pt-6 border-t border-[#E5E7EB]">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-lg">📎</span>
+                      <h3 style={headingStyle} className="font-serif text-sm sm:text-base font-bold">
+                        Required Documents
+                      </h3>
+                    </div>
+                    <p style={textMutedStyle} className="text-xs mb-4 font-sans">
+                      Based on your case stage, you may need to prepare these. Download blank templates to get started.
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {summaryData.requiredDocuments.map((docName, idx) => {
+                        const template = DOCUMENT_TEMPLATES[docName];
+                        return (
+                          <div key={idx} className="flex items-center justify-between bg-neutral-50 border border-[#E5E3DB] rounded-xl p-4">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-white rounded-lg border border-[#E5E3DB]">
+                                <svg className="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                                </svg>
+                              </div>
+                              <span style={textDarkStyle} className="text-sm font-semibold">{docName}</span>
+                            </div>
+                            {template ? (
+                              <a
+                                href={template.url}
+                                download={template.filename}
+                                className="bg-black text-white text-xs font-bold uppercase tracking-wider rounded-full py-2 px-4 hover:bg-neutral-800 transition-all flex items-center gap-1.5"
+                              >
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                                </svg>
+                                Download
+                              </a>
+                            ) : (
+                              <span style={textMutedStyle} className="text-xs italic">Template coming soon</span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <p style={textMutedStyle} className="text-[11px] mt-3 font-sans leading-relaxed">
+                      ⚠️ Blank templates only. Consult your advocate before filing. CaseWatch is not responsible for legal outcomes.
+                    </p>
+                  </div>
+                )}
 
                 {/* Footer Actions */}
                 <div className="flex flex-wrap items-center justify-between gap-4 mt-8 pt-4 border-t border-[#E5E7EB]">
