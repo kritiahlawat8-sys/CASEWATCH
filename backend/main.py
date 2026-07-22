@@ -402,6 +402,7 @@ STRICT RULES:
 - For requiredDocuments: consider the case_type AND stage together. 
   Never suggest a document that matches the case_type itself (e.g. if case_type is "BA", do not suggest "Bail Application").
   Only suggest documents needed for upcoming procedural steps at the current stage.
+- If status field contains "Decided", "Disposed", "Decree", or "Closed", OR if a decision_date is present in the data, clearly state in caseOverview and currentStatus that this case has been DECIDED and is no longer active. Do not suggest a next hearing date for decided cases. For requiredDocuments return [] for decided/disposed cases.
 
 --- CASE DATA ---
 {request.case_data}
