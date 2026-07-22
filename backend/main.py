@@ -8,7 +8,8 @@ from dotenv import load_dotenv
 from typing import Optional, Dict, Any
 from datetime import datetime
 import base64
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from pydantic import BaseModel, Field
 import json
 from app.cache import r
@@ -354,6 +355,7 @@ class AISummarySchema(BaseModel):
     nextHearing: str = Field(description="Explain the upcoming hearing date, why it matters, and what to realistically expect in 2-4 short sentences.")
     whatThisMeans: str = Field(description="Explain the current situation and implications in plain language in 2-4 short sentences.")
     recommendedNextSteps: str = Field(description="Give practical, actionable guidance for the party involved in 2-4 short sentences.")
+    requiredDocuments: list[str] = Field(description="A list of standard Indian court document names the party may need to prepare or submit, based on the case stage, acts, and proceeding type. Choose only from commonly known documents such as: Affidavit, Vakalatnama, Written Statement, Rejoinder, Caveat Petition, Stay Application, Execution Petition, Interlocutory Application, Surety Bond, Character Certificate. Return empty list [] if unclear.")
 
 
 @app.post("/api/cases/summarize")
@@ -373,6 +375,7 @@ async def summarize_case(request: CaseSummarizeRequest):
                     "nextHearing": parsed_data.get("nextHearing", ""),
                     "whatThisMeans": parsed_data.get("whatThisMeans", ""),
                     "recommendedNextSteps": parsed_data.get("recommendedNextSteps", ""),
+                    "requiredDocuments": parsed_data.get("requiredDocuments", []),
                     "source": "cache"
                 }
                 print("CACHE HIT FOR SUMMARY:", cnr)
@@ -387,34 +390,44 @@ async def summarize_case(request: CaseSummarizeRequest):
             detail="Gemini API key is missing."
         )
     
-    genai.configure(api_key=api_key)
+    client = genai.Client(api_key=api_key)
     
     prompt = f"""
-You are a helpful legal assistant that explains Indian court cases in clear, simple English for non-lawyers.
+You are a legal assistant that explains Indian court cases in simple English for non-lawyers.
 
-Below is structured data from a real Indian court case. Use ONLY the information provided. Do not invent or assume any facts not present in the data.
+STRICT RULES:
+- Use ONLY the data provided below. Do not invent, infer, or assume ANY fact not explicitly present.
+- If a field is null, empty, or missing, write "Not available in records" for that point.
+- Do not guess names, charges, FIR numbers, or case background from context.
+- For requiredDocuments: consider the case_type AND stage together. 
+  Never suggest a document that matches the case_type itself (e.g. if case_type is "BA", do not suggest "Bail Application").
+  Only suggest documents needed for upcoming procedural steps at the current stage.
 
 --- CASE DATA ---
 {request.case_data}
 
---- INSTRUCTIONS ---
-Explain the case using exactly these 5 keys in a JSON object:
-1. "caseOverview"
-2. "currentStatus"
-3. "nextHearing"
-4. "whatThisMeans"
-5. "recommendedNextSteps"
+--- OUTPUT FORMAT ---
+Return a JSON object with exactly these 6 keys:
+1. "caseOverview" - What this case is about, based only on provided fields
+2. "currentStatus" - Current stage and recent hearing activity
+3. "nextHearing" - Next hearing date and what to expect
+4. "whatThisMeans" - Plain English explanation for a non-lawyer
+5. "recommendedNextSteps" - Practical steps for the party involved
+6. "requiredDocuments" - List of documents needed for current/upcoming stage.
+   Choose only from: ["Affidavit", "Vakalatnama", "Written Statement", 
+   "Rejoinder", "Caveat Petition", "Stay Application", "Execution Petition", 
+   "Interlocutory Application", "Surety Bond", "Character Certificate"]
+   Return [] if stage is unclear or no documents are needed.
 """
     
     try:
-        model = genai.GenerativeModel("gemini-3.1-flash-lite")
-        
-        response = model.generate_content(
-            prompt,
-            generation_config={
-                "response_mime_type": "application/json",
-                "response_schema": AISummarySchema,
-            }
+        response = client.models.generate_content(
+            model="gemini-3.1-flash-lite",
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema=AISummarySchema,
+            )
         )
         
         # Step 1: Inspect the raw Gemini response
@@ -433,7 +446,8 @@ Explain the case using exactly these 5 keys in a JSON object:
             "currentStatus": parsed_data.get("currentStatus", ""),
             "nextHearing": parsed_data.get("nextHearing", ""),
             "whatThisMeans": parsed_data.get("whatThisMeans", ""),
-            "recommendedNextSteps": parsed_data.get("recommendedNextSteps", "")
+            "recommendedNextSteps": parsed_data.get("recommendedNextSteps", ""),
+            "requiredDocuments": parsed_data.get("requiredDocuments", [])
         }
         print("EXACT JSON RETURNED BY API:")
         print(result)
