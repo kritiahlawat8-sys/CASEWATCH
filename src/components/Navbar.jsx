@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import './Navbar.css';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isGovDropdownOpen, setIsGovDropdownOpen] = useState(false);
+  
   const dropdownRef = useRef(null);
+  const navRefs = useRef({});
+  const [indicatorStyle, setIndicatorStyle] = useState({ opacity: 0 });
+  const location = useLocation();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -26,9 +30,27 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    // Update sliding indicator position
+    const activeKey = isGovDropdownOpen ? '/government' : location.pathname;
+    const activeElement = navRefs.current[activeKey];
+    
+    if (activeElement) {
+      setIndicatorStyle({
+        left: activeElement.offsetLeft,
+        width: activeElement.offsetWidth,
+        opacity: 1
+      });
+    } else {
+      setIndicatorStyle({ opacity: 0 });
+    }
+  }, [location.pathname, isGovDropdownOpen]);
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
+
+  const activePath = isGovDropdownOpen ? '/government' : location.pathname;
 
   return (
     <nav className={`navbar ${isScrolled ? 'scrolled' : ''}`} aria-label="Main Navigation">
@@ -40,13 +62,20 @@ const Navbar = () => {
       </div>
 
       <div className={`navbar-center ${isMenuOpen ? 'open' : ''}`}>
-        <ul className="navbar-links">
-          <li><Link to="/features" className="nav-item">Features <span className="chevron"></span></Link></li>
-          <li><Link to="/how-it-works" className="nav-item">How It Works <span className="chevron"></span></Link></li>
-          <li><Link to="/documents" className="nav-item">Documents <span className="chevron"></span></Link></li>
-          <li className="nav-dropdown-container" ref={dropdownRef}>
+        <ul className="navbar-links" style={{ position: 'relative' }}>
+          <div className="nav-indicator" style={indicatorStyle}></div>
+          <li ref={(el) => (navRefs.current['/features'] = el)}>
+            <Link to="/features" className={`nav-item ${activePath === '/features' ? 'active' : ''}`}>Features <span className="chevron"></span></Link>
+          </li>
+          <li ref={(el) => (navRefs.current['/how-it-works'] = el)}>
+            <Link to="/how-it-works" className={`nav-item ${activePath === '/how-it-works' ? 'active' : ''}`}>How It Works <span className="chevron"></span></Link>
+          </li>
+          <li ref={(el) => (navRefs.current['/documents'] = el)}>
+            <Link to="/documents" className={`nav-item ${activePath === '/documents' ? 'active' : ''}`}>Documents <span className="chevron"></span></Link>
+          </li>
+          <li className="nav-dropdown-container" ref={(el) => { dropdownRef.current = el; navRefs.current['/government'] = el; }}>
             <button 
-              className="nav-item nav-dropdown-btn" 
+              className={`nav-item nav-dropdown-btn ${activePath === '/government' ? 'active' : ''}`} 
               onClick={(e) => { e.preventDefault(); setIsGovDropdownOpen(!isGovDropdownOpen); }}
               aria-expanded={isGovDropdownOpen}
             >
@@ -60,7 +89,9 @@ const Navbar = () => {
               <li><a href="https://ncdrc.nic.in" target="_blank" rel="noopener noreferrer" className="nav-dropdown-item">Consumer Disputes (NCDRC)</a></li>
             </ul>
           </li>
-          <li><Link to="/about" className="nav-item">About <span className="chevron"></span></Link></li>
+          <li ref={(el) => (navRefs.current['/about'] = el)}>
+            <Link to="/about" className={`nav-item ${activePath === '/about' ? 'active' : ''}`}>About <span className="chevron"></span></Link>
+          </li>
           <li className="mobile-only-btn">
             <Link to="/track-case.html" className="btn-get-started mobile-btn">Get Started</Link>
           </li>

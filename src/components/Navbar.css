@@ -3,6 +3,7 @@
   --text-primary: #1c1c1c; /* Very dark grey, almost black */
   --text-nav-default: #4f4f4f; /* Medium grey for links */
   --text-nav-hover: #1c1c1c;
+  --color-blue: #2962b8;
   --btn-primary-bg: #282828;
   --btn-primary-text: #ffffff;
   --btn-primary-radius: 999px; /* full pill */
@@ -144,6 +145,20 @@ body {
 
 .navbar-links .nav-item:hover {
   color: var(--text-nav-hover);
+}
+
+.navbar-links .nav-item.active {
+  color: var(--color-blue);
+}
+
+.nav-indicator {
+  position: absolute;
+  bottom: -6px;
+  height: 3px;
+  background-color: var(--color-blue);
+  border-radius: 4px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
 }
 
 /* Dropdown chevron to match screenshot */
