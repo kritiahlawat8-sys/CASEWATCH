@@ -1,0 +1,386 @@
+/* ── Documents Page Stylesheet (Spacious List Row Layout) ─────── */
+.documents-page-wrapper {
+  background-color: var(--page-bg, #f2f2f0);
+  min-height: 100vh;
+  padding-bottom: 60px;
+  font-family: var(--sans, system-ui, sans-serif);
+  color: var(--text-accent, #1a1a1a);
+  box-sizing: border-box;
+}
+
+.documents-page-content {
+  padding-top: 160px;
+  max-width: 1200px; /* Expanded container width */
+  margin: 0 auto;
+  padding-left: 1rem; /* Reduced outer side padding */
+  padding-right: 1rem;
+}
+
+/* Header Section */
+.documents-header {
+  text-align: center;
+  margin-bottom: 3.5rem;
+}
+
+.documents-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--color-blue, #2962b8);
+  background-color: rgba(41, 98, 184, 0.08);
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  margin-bottom: 1rem;
+}
+
+.documents-title {
+  /* Match Georgia heading font & layout style used in How It Works */
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+  font-weight: 700;
+  color: var(--text-accent, #1a1a1a);
+  margin: 0 0 1rem;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+.documents-subtitle {
+  font-size: clamp(0.95rem, 1.8vw, 1.1rem);
+  line-height: 1.6;
+  color: var(--text-muted, #888884);
+  max-width: 650px;
+  margin: 0 auto;
+}
+
+/* Controls: Search and Filter Pills */
+.documents-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  /* Increased margin below controls for more breathing room */
+  margin-bottom: 3.75rem;
+  width: 100%;
+}
+
+.search-input-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted, #888884);
+  font-size: 1.5rem;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 1.1rem 3rem 1.1rem 3rem;
+  font-size: 1rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border-color, #d8d8d4);
+  background-color: #ffffff;
+  color: var(--text-accent, #1a1a1a);
+  outline: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.02);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-input:focus {
+  border-color: var(--color-blue, #2962b8);
+  box-shadow: 0 4px 12px rgba(41, 98, 184, 0.08);
+}
+
+.clear-search-btn {
+  position: absolute;
+  right: 1.1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--text-muted, #888884);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.clear-search-btn:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: var(--text-accent, #1a1a1a);
+}
+
+/* Horizontal scrolling for filter pills on smaller viewports */
+.filter-pills-container {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  max-width: 100%;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  scrollbar-width: none; /* Firefox */
+  -webkit-overflow-scrolling: touch;
+}
+
+.filter-pills-container::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.filter-pill {
+  white-space: nowrap;
+  background-color: #ffffff;
+  border: 1px solid var(--border-color, #d8d8d4);
+  color: var(--text-muted, #888884);
+  padding: 0.6rem 1.3rem;
+  border-radius: 9999px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01);
+}
+
+.filter-pill:hover {
+  border-color: var(--text-accent, #1a1a1a);
+  color: var(--text-accent, #1a1a1a);
+}
+
+.filter-pill.active {
+  background-color: var(--color-blue, #2962b8);
+  border-color: var(--color-blue, #2962b8);
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(41, 98, 184, 0.2);
+}
+
+/* Document List Section */
+.documents-list-section {
+  width: 100%;
+}
+
+/* Remove big outer container card, rows sit directly on page background */
+.documents-list {
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+  margin-bottom: 5rem;
+}
+
+.document-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* Reduced vertical padding to ~18px, horizontal remains 40px */
+  padding: 1.15rem 2.5rem; 
+  margin-bottom: 1.25rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  /* Soft, low-opacity border */
+  border: 1px solid rgba(0, 0, 0, 0.045);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.015);
+  /* 32px gap between text column and action column */
+  gap: 2rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+/* Soft hover scaling and elevated shadow */
+.document-row:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
+  background-color: rgba(255, 255, 255, 0.99);
+}
+
+.row-left {
+  flex: 1;
+  /* 24px margin-right fallback */
+  margin-right: 1.5rem;
+}
+
+.document-row-name {
+  font-family: var(--sans, system-ui, sans-serif);
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: var(--text-accent, #1a1a1a);
+  margin: 0 0 0.45rem 0;
+}
+
+.document-row-desc {
+  font-size: 0.95rem;
+  /* Airy line-height */
+  line-height: 1.55;
+  color: var(--text-muted, #888884);
+  margin: 0;
+}
+
+.row-right {
+  display: flex;
+  align-items: center;
+  /* Generous 32px gap between tags and download button */
+  gap: 2rem;
+  flex-shrink: 0;
+}
+
+.row-category-label {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text-muted, #888884);
+  text-transform: capitalize;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Solid Blue download button */
+.btn-download-row {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: var(--color-blue, #2962b8);
+  border: 1px solid var(--color-blue, #2962b8);
+  color: #ffffff;
+  padding: 0.7rem 1.4rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-download-row:hover {
+  background-color: #1d4b8e;
+  border-color: #1d4b8e;
+  box-shadow: 0 4px 10px rgba(29, 75, 142, 0.2);
+}
+
+.btn-download-row span {
+  font-size: 1.15rem;
+}
+
+/* Empty State Styling */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 4.5rem 2rem;
+  background-color: #ffffff;
+  border: 1px dashed var(--border-color, #d8d8d4);
+  border-radius: 12px;
+  max-width: 600px;
+  margin: 0 auto 5rem;
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  color: var(--text-muted, #888884);
+  margin-bottom: 1.2rem;
+}
+
+.empty-state-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text-accent, #1a1a1a);
+  margin: 0 0 0.5rem 0;
+}
+
+.empty-state-text {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--text-muted, #888884);
+  max-width: 420px;
+  margin: 0 0 1.8rem 0;
+}
+
+.btn-reset {
+  background-color: var(--color-blue, #2962b8);
+  border: 1px solid var(--color-blue, #2962b8);
+  color: #ffffff;
+  padding: 0.7rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 10px rgba(41, 98, 184, 0.15);
+}
+
+.btn-reset:hover {
+  background-color: #1d4b8e;
+  border-color: #1d4b8e;
+  box-shadow: 0 4px 12px rgba(29, 75, 142, 0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .documents-page-content {
+    padding-top: 130px;
+  }
+  
+  .documents-header {
+    margin-bottom: 2.5rem;
+  }
+  
+  .documents-controls {
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+  }
+  
+  .filter-pills-container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    width: 100vw;
+    margin-left: calc(-1.5rem);
+    padding-left: 1.5rem;
+  }
+  
+  .document-row {
+    padding: 1.5rem 1.75rem;
+  }
+}
+
+@media (max-width: 600px) {
+  /* Keep overall list format but wrap elements cleanly */
+  .document-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.25rem 1.25rem;
+  }
+  
+  .row-left {
+    grid-column: 1;
+    margin-right: 0.5rem;
+  }
+  
+  .row-right {
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+  }
+  
+  .row-category-label {
+    font-size: 0.75rem;
+  }
+  
+  .btn-download-row {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+}

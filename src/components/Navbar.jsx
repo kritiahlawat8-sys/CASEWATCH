@@ -43,7 +43,7 @@ const Navbar = () => {
         <ul className="navbar-links">
           <li><Link to="/features" className="nav-item">Features <span className="chevron"></span></Link></li>
           <li><Link to="/how-it-works" className="nav-item">How It Works <span className="chevron"></span></Link></li>
-          <li><a href="#documents" className="nav-item">Documents <span className="chevron"></span></a></li>
+          <li><Link to="/documents" className="nav-item">Documents <span className="chevron"></span></Link></li>
           <li className="nav-dropdown-container" ref={dropdownRef}>
             <button 
               className="nav-item nav-dropdown-btn" 
