@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 
 export interface ActSection {
   act: string;
@@ -131,6 +131,87 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
     return 'https://casewatch.onrender.com';
   };
 
+  useEffect(() => {
+    let intervalId: any = null;
+    let isMounted = true;
+    const cnr = caseData.cnr;
+    const apiUrl = getApiUrl();
+    const startTime = Date.now();
+
+    const fetchSummaryOnMount = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/case/${cnr}/summary`);
+        if (!response.ok) {
+          throw new Error("Summary unavailable");
+        }
+        const data = await response.json();
+        if (!isMounted) return;
+
+        if (data.status === "done") {
+          setSummaryData({
+            caseOverview: data.summary.caseOverview || '',
+            currentStatus: data.summary.currentStatus || '',
+            nextHearing: data.summary.nextHearing || '',
+            whatThisMeans: data.summary.whatThisMeans || '',
+            recommendedNextSteps: data.summary.recommendedNextSteps || '',
+            requiredDocuments: data.summary.requiredDocuments || [],
+          });
+        } else if (data.status === "processing") {
+          setSummaryLoading(true);
+          setIsExpanded(true);
+          
+          intervalId = setInterval(async () => {
+            if (Date.now() - startTime > 45000) {
+              if (intervalId) clearInterval(intervalId);
+              if (isMounted) {
+                setSummaryLoading(false);
+                setSummaryError("Summary unavailable");
+              }
+              return;
+            }
+            
+            try {
+              const res = await fetch(`${apiUrl}/case/${cnr}/summary/status`);
+              if (!res.ok) {
+                throw new Error("Summary unavailable");
+              }
+              const statusData = await res.json();
+              if (!isMounted) return;
+              
+              if (statusData.status === "done") {
+                setSummaryData({
+                  caseOverview: statusData.summary.caseOverview || '',
+                  currentStatus: statusData.summary.currentStatus || '',
+                  nextHearing: statusData.summary.nextHearing || '',
+                  whatThisMeans: statusData.summary.whatThisMeans || '',
+                  recommendedNextSteps: statusData.summary.recommendedNextSteps || '',
+                  requiredDocuments: statusData.summary.requiredDocuments || [],
+                });
+                setSummaryLoading(false);
+                if (intervalId) clearInterval(intervalId);
+              }
+            } catch (err) {
+              if (intervalId) clearInterval(intervalId);
+              if (isMounted) {
+                setSummaryLoading(false);
+                setSummaryError("Summary unavailable");
+              }
+            }
+          }, 3000);
+        }
+      } catch (err) {
+        console.error("Mount summary fetch error:", err);
+      }
+    };
+
+    fetchSummaryOnMount();
+
+    return () => {
+      isMounted = false;
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [caseData.cnr]);
+
   const handleGenerateSummary = async (forceRegenerate = false) => {
     if (summaryData && !forceRegenerate) {
       setIsExpanded(true);
@@ -141,45 +222,57 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
     setSummaryError(null);
     setIsExpanded(true);
     
-    const payload = { case_data: caseData };
-    console.log("Sending AI summary request to backend. Endpoint:", `${getApiUrl()}/api/cases/summarize`, "Payload:", payload);
-    
     try {
       const apiUrl = getApiUrl();
-      const response = await fetch(`${apiUrl}/api/cases/summarize`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-      
+      const response = await fetch(`${apiUrl}/case/${caseData.cnr}/summary`);
       if (!response.ok) {
-        let errorMsg = `Server error (${response.status}): Failed to generate summary from server.`;
-        try {
-          const errData = await response.json();
-          if (errData && errData.detail) {
-            errorMsg = typeof errData.detail === 'string' ? errData.detail : JSON.stringify(errData.detail);
-          }
-        } catch (_) {}
-        throw new Error(errorMsg);
+        throw new Error("Summary unavailable");
       }
-      
       const data = await response.json();
-      console.log("API response data received in frontend:", data);
-      
-      setSummaryData({
-        caseOverview: data.caseOverview || '',
-        currentStatus: data.currentStatus || '',
-        nextHearing: data.nextHearing || '',
-        whatThisMeans: data.whatThisMeans || '',
-        recommendedNextSteps: data.recommendedNextSteps || '',
-        requiredDocuments: data.requiredDocuments || [],
-      });
+      if (data.status === "done") {
+        setSummaryData({
+          caseOverview: data.summary.caseOverview || '',
+          currentStatus: data.summary.currentStatus || '',
+          nextHearing: data.summary.nextHearing || '',
+          whatThisMeans: data.summary.whatThisMeans || '',
+          recommendedNextSteps: data.summary.recommendedNextSteps || '',
+          requiredDocuments: data.summary.requiredDocuments || [],
+        });
+        setSummaryLoading(false);
+      } else if (data.status === "processing") {
+        const startTime = Date.now();
+        const intervalId = setInterval(async () => {
+          if (Date.now() - startTime > 45000) {
+            clearInterval(intervalId);
+            setSummaryLoading(false);
+            setSummaryError("Summary unavailable");
+            return;
+          }
+          try {
+            const statusRes = await fetch(`${apiUrl}/case/${caseData.cnr}/summary/status`);
+            if (!statusRes.ok) throw new Error("Summary unavailable");
+            const statusData = await statusRes.json();
+            if (statusData.status === "done") {
+              setSummaryData({
+                caseOverview: statusData.summary.caseOverview || '',
+                currentStatus: statusData.summary.currentStatus || '',
+                nextHearing: statusData.summary.nextHearing || '',
+                whatThisMeans: statusData.summary.whatThisMeans || '',
+                recommendedNextSteps: statusData.summary.recommendedNextSteps || '',
+                requiredDocuments: statusData.summary.requiredDocuments || [],
+              });
+              setSummaryLoading(false);
+              clearInterval(intervalId);
+            }
+          } catch (err) {
+            clearInterval(intervalId);
+            setSummaryLoading(false);
+            setSummaryError("Summary unavailable");
+          }
+        }, 3000);
+      }
     } catch (err: any) {
-      console.error("AI summary generation error:", err);
       setSummaryError(err.message || 'An error occurred while generating the summary.');
-    } finally {
       setSummaryLoading(false);
     }
   };
