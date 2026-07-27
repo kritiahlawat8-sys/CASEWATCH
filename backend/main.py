@@ -1,10 +1,15 @@
 # Force reload for API key again again
 import os
+from dotenv import load_dotenv
+
+backend_dir = os.path.dirname(os.path.abspath(__file__))
+dotenv_path = os.path.join(backend_dir, ".env")
+load_dotenv(dotenv_path=dotenv_path, override=True)
+
 import httpx
 from fastapi import FastAPI, Query, HTTPException, status, Request
 from fastapi.middleware.cors import CORSMiddleware
 from supabase import create_client, Client
-from dotenv import load_dotenv
 from typing import Optional, Dict, Any
 from datetime import datetime
 import base64
@@ -12,14 +17,13 @@ from google import genai
 from google.genai import types
 from pydantic import BaseModel, Field
 import json
+from redis import Redis
+from rq import Queue
+from rq.job import Job, NoSuchJobError
 from app.cache import r
 from contextlib import asynccontextmanager
 from arq import create_pool
 from arq.connections import RedisSettings
-
-backend_dir = os.path.dirname(os.path.abspath(__file__))
-dotenv_path = os.path.join(backend_dir, ".env")
-load_dotenv(dotenv_path=dotenv_path, override=True)
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 ECOURTS_API_KEY = os.getenv("ECOURTS_API_KEY")
@@ -59,6 +63,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ── Redis Queue setup ─────────────────────────────────────────────────────────
+def _get_queue() -> Queue | None:
+    """Return an RQ Queue if Redis is available, else None (graceful degradation)."""
+    try:
+        redis_url = os.getenv("REDIS_URL", "")
+        if not redis_url:
+            return None
+        conn = Redis.from_url(redis_url, decode_responses=False)
+        return Queue("summary", connection=conn)
+    except Exception as e:
+        print(f"WARNING: Failed to initialize RQ Queue: {e}")
+        return None
 
 # Root & Health
 # ─────────────────────────────────────────
@@ -544,164 +561,68 @@ async def lookup_case(payload: dict):
     return data
 
 
+from app.summary_job import generate_summary
+
 class CaseSummarizeRequest(BaseModel):
     case_data: Dict[str, Any]
 
+@app.post("/api/cases/summarize/enqueue")
+async def summarize_case_enqueue(request: CaseSummarizeRequest):
+    cnr = request.case_data.get("cnr", "").strip().upper()
+    if not cnr:
+        raise HTTPException(status_code=400, detail="CNR is required")
 
-class AISummarySchema(BaseModel):
-    caseOverview: str = Field(description="A brief explanation of what the case is about, who is fighting whom, and the basic situation in 2-4 short sentences.")
-    currentStatus: str = Field(description="Explain the present stage of the case, what it means practically, and how long it has been going on in 2-4 short sentences.")
-    nextHearing: str = Field(description="Explain the upcoming hearing date, why it matters, and what to realistically expect in 2-4 short sentences.")
-    whatThisMeans: str = Field(description="Explain the current situation and implications in plain language in 2-4 short sentences.")
-    recommendedNextSteps: str = Field(description="Give practical, actionable guidance for the party involved in 2-4 short sentences.")
-    requiredDocuments: list[str] = Field(description="A list of standard Indian court document names the party may need to prepare or submit, based on the case stage, acts, and proceeding type. Choose only from commonly known documents such as: Affidavit, Vakalatnama, Written Statement, Rejoinder, Caveat Petition, Stay Application, Execution Petition, Interlocutory Application, Surety Bond, Character Certificate. Return empty list [] if unclear.")
+    cache_key = f"casewatch:summary:{cnr}"
+    
+    if r:
+        try:
+            cached_val = r.get(cache_key)
+            if cached_val:
+                parsed_data = json.loads(cached_val)
+                parsed_data["status"] = "done"
+                return parsed_data
+        except Exception:
+            pass
 
+    # Enqueue job
+    q = _get_queue()
+    if not q:
+        raise HTTPException(status_code=503, detail="Redis queue unavailable")
 
-async def _fetch_case_data(cnr: str) -> dict:
-    # 1. Check DB first
-    cached = _get_cached_case(cnr)
-    if cached and _is_fresh(cached):
-        raw_json = cached.get("raw_json")
-        if isinstance(raw_json, dict):
-            return raw_json
-        return cached
-
-    # 2. Fetch from eCourts API
     try:
-        async with httpx.AsyncClient(timeout=3) as client:
-            resp = await client.get(
-                f"{ECOURTS_BASE}/api/partner/case/{cnr}",
-                headers={"Authorization": f"Bearer {ECOURTS_API_KEY}"}
-            )
-        if resp.status_code == 200:
-            raw = resp.json()
-            data = _normalize_case(raw, cnr)
-            try:
-                _upsert_case(data)
-            except Exception:
-                pass
-            return data
-        elif resp.status_code in (401, 402, 403, 429, 502, 503, 504):
-            mock_case = _generate_mock_case(cnr)
-            try:
-                _upsert_case(mock_case)
-            except Exception:
-                pass
-            return mock_case
+        job = q.enqueue(
+            generate_summary,
+            cnr=cnr,
+            case_data=request.case_data,
+            job_id=f"summary_{cnr}",
+            job_timeout=60
+        )
+        return {"status": "queued", "job_id": job.id}
     except Exception as e:
-        print(f"Error fetching case data from eCourts for summary: {e}")
-        
-    if cached:
-        raw_json = cached.get("raw_json")
-        if isinstance(raw_json, dict):
-            return raw_json
-        return cached
-        
-    mock_case = _generate_mock_case(cnr)
-    try:
-        _upsert_case(mock_case)
-    except Exception:
-        pass
-    return mock_case
+        raise HTTPException(status_code=500, detail=str(e))
 
-
-@app.get("/case/{cnr}/summary")
-@app.get("/api/case/{cnr}/summary")
-async def get_case_summary(cnr: str, request: Request):
+@app.get("/api/cases/summarize/status/{cnr}")
+async def summarize_case_status(cnr: str):
     cnr = cnr.strip().upper()
-    cache_key = f"casewatch:summary:{cnr}"
     
-    # Step 1: Check Redis cache → if hit return {status:"done", summary, source:"cache"}
-    if r:
-        try:
-            cached_val = r.get(cache_key)
-            if cached_val:
-                parsed_data = json.loads(cached_val)
-                return {
-                    "status": "done",
-                    "summary": {
-                        "caseOverview": parsed_data.get("caseOverview", ""),
-                        "currentStatus": parsed_data.get("currentStatus", ""),
-                        "nextHearing": parsed_data.get("nextHearing", ""),
-                        "whatThisMeans": parsed_data.get("whatThisMeans", ""),
-                        "recommendedNextSteps": parsed_data.get("recommendedNextSteps", ""),
-                        "requiredDocuments": parsed_data.get("requiredDocuments", []),
-                    },
-                    "source": "cache"
-                }
-        except Exception as e:
-            print("REDIS CACHE ERROR (GET) - FALLING THROUGH TO QUEUE:", str(e))
-
-    # Step 2: Fetch case_data via existing eCourtsindia service (do not change this)
-    case_data = await _fetch_case_data(cnr)
-
-    # Step 3: pool.enqueue_job("generate_case_summary", cnr, case_data, _job_id=f"summary:{cnr}")
-    pool = request.app.state.arq_pool
-    if not pool:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Background queue (Redis) is currently unavailable. Please ensure Redis is running."
-        )
-    job = await pool.enqueue_job("generate_case_summary", cnr, case_data, _job_id=f"summary:{cnr}")
-    job_id = job.job_id
-
-    # Step 4: Return {status:"processing", job_id, poll_url:f"/case/{cnr}/summary/status"}
-    return {
-        "status": "processing",
-        "job_id": job_id,
-        "poll_url": f"/case/{cnr}/summary/status"
-    }
-
-
-@app.get("/case/{cnr}/summary/status")
-@app.get("/api/case/{cnr}/summary/status")
-async def get_case_summary_status(cnr: str, request: Request):
-    cnr = cnr.strip().upper()
-    cache_key = f"casewatch:summary:{cnr}"
-    
-    # 1. Check Redis cache first
-    if r:
-        try:
-            cached_val = r.get(cache_key)
-            if cached_val:
-                parsed_data = json.loads(cached_val)
-                return {
-                    "status": "done",
-                    "summary": {
-                        "caseOverview": parsed_data.get("caseOverview", ""),
-                        "currentStatus": parsed_data.get("currentStatus", ""),
-                        "nextHearing": parsed_data.get("nextHearing", ""),
-                        "whatThisMeans": parsed_data.get("whatThisMeans", ""),
-                        "recommendedNextSteps": parsed_data.get("recommendedNextSteps", ""),
-                        "requiredDocuments": parsed_data.get("requiredDocuments", []),
-                    }
-                }
-        except Exception as e:
-            print("REDIS CACHE ERROR (GET) - FALLING THROUGH TO JOB CHECK:", str(e))
-
-    # 2. Check Job status
-    pool = request.app.state.arq_pool
-    if not pool:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Background queue (Redis) is currently unavailable."
-        )
-    from arq.jobs import Job
-    job = Job(f"summary:{cnr}", pool)
-    job_result = None
+    if not r:
+        raise HTTPException(status_code=503, detail="Redis unavailable")
+        
+    result_key = f"casewatch:job_result:{cnr}"
     try:
-        result_info = await job.result_info()
-        if result_info is not None:
-            job_result = result_info.result
-    except Exception:
-        pass
-
-    if job_result:
-        if "error" in job_result:
-            raise HTTPException(status_code=502, detail=job_result["error"])
-        return {
-            "status": "done",
-            "summary": job_result["summary"]
-        }
-    
-    return {"status": "processing"}
+        res = r.get(result_key)
+        if res:
+            return json.loads(res)
+            
+        q = _get_queue()
+        if q:
+            try:
+                job = Job.fetch(f"summary_{cnr}", connection=q.connection)
+                if job.is_failed:
+                    return {"status": "error", "detail": "Job failed"}
+            except NoSuchJobError:
+                pass
+                
+        return {"status": "pending"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

@@ -1,0 +1,44 @@
+services:
+  - type: web
+    name: casewatch-api
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: REDIS_URL
+        fromService:
+          name: casewatch-redis
+          type: redis
+          property: connectionString
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: ECOURTS_API_KEY
+        sync: false
+      - key: RECAPTCHA_SECRET_KEY
+        sync: false
+      - key: GEMINI_MIN_INTERVAL_SECONDS
+        value: "4"
+
+  - type: worker
+    name: casewatch-summary-worker
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m app.worker
+    envVars:
+      - key: REDIS_URL
+        fromService:
+          name: casewatch-redis
+          type: redis
+          property: connectionString
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MIN_INTERVAL_SECONDS
+        value: "4"
+
+  - type: redis
+    name: casewatch-redis
+    plan: free
