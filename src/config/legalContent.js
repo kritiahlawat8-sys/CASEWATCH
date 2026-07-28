@@ -10,10 +10,7 @@ export const privacyPolicyContent = [
     id: 'information-we-collect',
     title: '2. Information We Collect',
     content: `<ul>
-      <li><strong>Identity data:</strong> name, phone number, email</li>
       <li><strong>Case data:</strong> CNR numbers, case status, hearing dates (sourced from public eCourts/NJDG records)</li>
-      <li><strong>Documents:</strong> files uploaded to the Document Vault</li>
-      <li><strong>Communication data:</strong> SMS/WhatsApp opt-in number, notification preferences</li>
       <li><strong>Usage data:</strong> device/browser info, app interaction logs</li>
     </ul>`
   },
