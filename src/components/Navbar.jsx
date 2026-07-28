@@ -50,6 +50,13 @@ const Navbar = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
+  const handleGetStartedClick = () => {
+    if (location.pathname === '/track-case' || location.pathname === '/track-case.html') {
+      const event = new CustomEvent('reset-track-case');
+      window.dispatchEvent(event);
+    }
+  };
+
   const activePath = isGovDropdownOpen ? '/government' : location.pathname;
 
   return (
@@ -93,13 +100,13 @@ const Navbar = () => {
             <Link to="/about" className={`nav-item ${activePath === '/about' ? 'active' : ''}`}>About <span className="chevron"></span></Link>
           </li>
           <li className="mobile-only-btn">
-            <Link to="/track-case.html" className="btn-get-started mobile-btn">Get Started</Link>
+            <Link to="/track-case.html" className="btn-get-started mobile-btn" onClick={handleGetStartedClick}>Get Started</Link>
           </li>
         </ul>
       </div>
 
       <div className="navbar-right">
-        <Link to="/track-case.html" className="btn-get-started">Get Started</Link>
+        <Link to="/track-case.html" className="btn-get-started" onClick={handleGetStartedClick}>Get Started</Link>
         <button 
           className="hamburger" 
           aria-label="Toggle navigation menu" 

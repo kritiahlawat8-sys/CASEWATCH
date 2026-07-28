@@ -102,6 +102,23 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
     }
   }, []);
 
+  useEffect(() => {
+    const handleReset = () => {
+      setCurrentStep(1);
+      setSelectedCourt('');
+      setSelectedCourtData(null);
+      setIsVerified(false);
+      setCrnNumber('');
+      setPartyName('');
+      setCaseData(null);
+      setCaseError(null);
+    };
+
+    window.addEventListener('reset-track-case', handleReset);
+    return () => {
+      window.removeEventListener('reset-track-case', handleReset);
+    };
+  }, []);
 
   // Scroll to the interactive card section
   const scrollToCard = () => {
