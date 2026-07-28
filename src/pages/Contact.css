@@ -1,0 +1,149 @@
+.contact-page {
+  font-family: var(--sans, system-ui, sans-serif);
+  background-color: var(--why-bg-light, #f5f4f0);
+  color: var(--why-text-dark, #0f1014);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.contact-container {
+  max-width: 650px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 120px 24px 80px;
+  flex: 1;
+}
+
+.contact-eyebrow {
+  display: block;
+  font-size: var(--why-t-eyebrow, 0.8rem);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--why-accent, #2563eb);
+  margin-bottom: 12px;
+}
+
+.contact-heading {
+  font-family: var(--heading, system-ui, sans-serif);
+  font-size: clamp(2rem, 4vw, 2.75rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: var(--why-text-dark, #0f1014);
+  margin-bottom: 40px;
+}
+
+.contact-card {
+  background: var(--why-card-bg, #ffffff);
+  border: 1px solid var(--why-card-border, #e8e6e1);
+  border-radius: 16px;
+  padding: clamp(2rem, 5vw, 3rem);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  text-align: left;
+}
+
+.contact-subheading {
+  font-family: var(--sans, system-ui, sans-serif);
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-top: 0;
+  margin-bottom: 24px;
+  color: var(--why-text-dark, #0f1014);
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.team-member {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--text-h, #08060d);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.team-member::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background-color: var(--why-accent, #2563eb);
+  border-radius: 50%;
+  opacity: 0.6;
+}
+
+.contact-divider {
+  border: 0;
+  border-top: 1px solid var(--why-card-border, #e8e6e1);
+  margin: 32px 0;
+}
+
+.contact-row {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.contact-row:last-child {
+  margin-bottom: 0;
+}
+
+.contact-label {
+  font-weight: 700;
+  font-size: 0.85rem;
+  width: 90px;
+  color: var(--text, #6b6375);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+.contact-value {
+  font-size: 1.05rem;
+  word-break: break-all;
+}
+
+.contact-value a {
+  color: var(--why-accent, #2563eb);
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.2s ease;
+}
+
+.contact-value a:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .team-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .contact-container {
+    padding-top: 100px;
+    padding-bottom: 60px;
+  }
+  
+  .contact-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  
+  .contact-label {
+    width: auto;
+  }
+}

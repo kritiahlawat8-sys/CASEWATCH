@@ -13,6 +13,7 @@ import HowItWorksPage from './pages/HowItWorksPage'
 import About from './pages/About'
 import FeaturesPage from './pages/FeaturesPage'
 import Documents from './pages/Documents'
+import Contact from './pages/Contact'
 
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -24,6 +25,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/features" element={<FeaturesPage />} />
         <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/documents" element={<Documents />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-of-use" element={<TermsOfUse />} />
