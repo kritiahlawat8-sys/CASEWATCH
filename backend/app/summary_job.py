@@ -182,7 +182,7 @@ STRUCTURE YOUR RESPONSE AS EXACTLY THESE 7 SECTIONS (RETURN AS JSON ONLY):
         "whatCourtIsAskingFromYou": parsed.get("whatCourtIsAskingFromYou", ""),
         "requiredDocuments":        parsed.get("requiredDocuments", []),
         "urgencyAlert":             parsed.get("urgencyAlert", ""),
-        "ordersAnalyzed":           len(order_pdfs),
+        "ordersAnalyzed":           len(order_texts),
     }
 
     # Cache long-lived summary
