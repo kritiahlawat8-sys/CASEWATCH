@@ -10,11 +10,9 @@ import os
 import json
 import time
 import logging
-import httpx
 from redis import Redis
 from dotenv import load_dotenv
 from google import genai
-from google.genai import types
 
 load_dotenv(override=True)
 
@@ -28,41 +26,6 @@ SUMMARY_TTL  = 7 * 24 * 3600  # 7 d — how long the final summary is cached
 # Paid tier can be higher; adjust GEMINI_MIN_INTERVAL_SECONDS env var.
 MIN_SECONDS_BETWEEN_CALLS = int(os.getenv("GEMINI_MIN_INTERVAL_SECONDS", "4"))
 
-ECOURTS_API_BASE = "https://webapi.ecourtsindia.com/api/partner"
-ECOURTS_API_TOKEN = os.getenv("ECOURTS_API_TOKEN")
-
-def _fetch_order_pdfs(cnr: str, case_data: dict) -> list[bytes]:
-    """Fetch all interim order PDFs for a case. Returns list of PDF bytes."""
-    pdf_bytes_list = []
-    
-    try:
-        orders = case_data.get("interimOrders", []) or []
-        
-        for order in orders:
-            filename = order.get("orderUrl") or order.get("filename")
-            if not filename:
-                continue
-            
-            url = f"{ECOURTS_API_BASE}/case/{cnr}/order/{filename}"
-            resp = httpx.get(
-                url,
-                headers={"Authorization": f"Bearer {ECOURTS_API_TOKEN}"},
-                timeout=15
-            )
-            
-            if resp.status_code == 200:
-                data = resp.json().get("data", {})
-                download_url = data.get("downloadUrl") or data.get("url")
-                
-                if download_url:
-                    pdf_resp = httpx.get(download_url, timeout=30)
-                    if pdf_resp.status_code == 200:
-                        pdf_bytes_list.append(pdf_resp.content)
-                        
-    except Exception as e:
-        logger.warning("Failed to fetch order PDFs for %s: %s", cnr, e)
-    
-    return pdf_bytes_list
 
 
 def _redis() -> Redis:
@@ -110,21 +73,16 @@ def generate_summary(cnr: str, case_data: dict) -> dict:
 
     client = genai.Client(api_key=api_key)
 
-    # Fetch PDFs
-    order_pdfs = _fetch_order_pdfs(cnr, case_data)
-    logger.info("Fetched %d order PDFs for %s", len(order_pdfs), cnr)
+    # Extract Markdown texts
+    order_texts = []
+    for f in case_data.get("files", []):
+        md = f.get("markdownContent")
+        if md:
+            order_texts.append(md)
+            
+    logger.info("Extracted %d markdown order texts for %s", len(order_texts), cnr)
 
-    # Build contents list: PDFs first, then text prompt
-    contents = []
-    
-    for i, pdf_bytes in enumerate(order_pdfs):
-        contents.append(
-            types.Part.from_bytes(
-                data=pdf_bytes,
-                mime_type="application/pdf"
-            )
-        )
-
+    # Build prompt
     prompt = f"""
 You are a senior Indian legal advisor explaining a court case to the accused or their family member who has no legal background whatsoever.
 
@@ -186,14 +144,20 @@ STRUCTURE YOUR RESPONSE AS EXACTLY THESE 7 SECTIONS (RETURN AS JSON ONLY):
    If the next hearing is close, if the accused is missing representation, or if any critical deadline is approaching — flag it clearly here with a sense of urgency. Otherwise write "No immediate alerts."
 """
     
-    contents.append(prompt)
+    # Append extracted order texts if any
+    if order_texts:
+        combined_orders = "\n\n--- NEXT COURT ORDER ---\n\n".join(order_texts)
+        prompt += f"\n\n--- COURT ORDERS TEXT ---\n{combined_orders}"
 
+    contents = [prompt]
+
+    logger.info("Calling Gemini API for CNR %s", cnr)
     # Record timestamp BEFORE the call so other workers know to wait
     r.set(last_call_key, str(time.time()), ex=60)
 
     try:
         response = client.models.generate_content(
-            model="gemini-3.6-flash",
+            model='gemini-3.6-flash',
             contents=contents,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",

@@ -292,6 +292,13 @@ def _normalize_case(raw: dict, cnr: str) -> dict:
                     "date": o.get("orderDate") or o.get("date") or "Unknown Date"
                 })
 
+    # Files (for Markdown Orders)
+    files_data = []
+    if isinstance(raw, dict) and isinstance(raw.get("data"), dict):
+        files_obj = raw.get("data", {}).get("files", {})
+        if isinstance(files_obj, dict):
+            files_data = files_obj.get("files", [])
+
     return {
         "cnr": cnr,
         "case_number": d.get("caseNumber"),
@@ -326,6 +333,7 @@ def _normalize_case(raw: dict, cnr: str) -> dict:
             for h in history if isinstance(h, dict)
         ] if history else [],
         "interim_orders": interim_orders,
+        "files": files_data,
         "source": "ecourtsindia",
     }
 
