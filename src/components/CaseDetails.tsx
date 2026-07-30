@@ -74,12 +74,13 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
 
   // AI Case Summary states
   interface SummaryData {
-    caseOverview: string;
+    storyOfTheCase: string;
+    whatEvidenceMeans: string;
     currentStatus: string;
-    nextHearing: string;
-    whatThisMeans: string;
-    recommendedNextSteps: string;
+    nextHearingBreakdown: string;
+    whatCourtIsAskingFromYou: string;
     requiredDocuments: string[];
+    urgencyAlert: string;
   }
 
   const [isExpanded, setIsExpanded] = useState(false);
@@ -156,12 +157,13 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
       if (jobStatus === 'done') {
         const data = payload.data ?? payload;
         setSummaryData({
-          caseOverview:         data.caseOverview         || '',
-          currentStatus:        data.currentStatus        || '',
-          nextHearing:          data.nextHearing          || '',
-          whatThisMeans:        data.whatThisMeans        || '',
-          recommendedNextSteps: data.recommendedNextSteps || '',
-          requiredDocuments:    data.requiredDocuments    || [],
+          storyOfTheCase:           data.storyOfTheCase           || '',
+          whatEvidenceMeans:        data.whatEvidenceMeans        || '',
+          currentStatus:            data.currentStatus            || '',
+          nextHearingBreakdown:     data.nextHearingBreakdown     || '',
+          whatCourtIsAskingFromYou: data.whatCourtIsAskingFromYou || '',
+          requiredDocuments:        data.requiredDocuments        || [],
+          urgencyAlert:             data.urgencyAlert             || '',
         });
         setSummaryLoading(false);
         return false;
@@ -214,12 +216,13 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
       // Cache hit — result came back inline, no polling needed
       if (enqueueData.status === 'done') {
         setSummaryData({
-          caseOverview:         enqueueData.caseOverview         || '',
-          currentStatus:        enqueueData.currentStatus        || '',
-          nextHearing:          enqueueData.nextHearing          || '',
-          whatThisMeans:        enqueueData.whatThisMeans        || '',
-          recommendedNextSteps: enqueueData.recommendedNextSteps || '',
-          requiredDocuments:    enqueueData.requiredDocuments    || [],
+          storyOfTheCase:           enqueueData.storyOfTheCase           || '',
+          whatEvidenceMeans:        enqueueData.whatEvidenceMeans        || '',
+          currentStatus:            enqueueData.currentStatus            || '',
+          nextHearingBreakdown:     enqueueData.nextHearingBreakdown     || '',
+          whatCourtIsAskingFromYou: enqueueData.whatCourtIsAskingFromYou || '',
+          requiredDocuments:        enqueueData.requiredDocuments        || [],
+          urgencyAlert:             enqueueData.urgencyAlert             || '',
         });
         setSummaryLoading(false);
         return;
@@ -253,12 +256,13 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
     if (!summaryData) return;
     
     const textToCopy = [
-      `📄 Case Overview\n${summaryData.caseOverview}`,
+      `📖 Story of the Case\n${summaryData.storyOfTheCase}`,
+      `🔍 What Evidence Means\n${summaryData.whatEvidenceMeans}`,
       `⚖️ Current Status\n${summaryData.currentStatus}`,
-      `📅 Next Hearing\n${summaryData.nextHearing}`,
-      `💡 What This Means\n${summaryData.whatThisMeans}`,
-      `✅ Recommended Next Steps\n${summaryData.recommendedNextSteps}`,
-      `📎 Required Documents\n${summaryData.requiredDocuments.join(', ') || 'None identified'}`
+      `📅 Next Hearing Breakdown\n${summaryData.nextHearingBreakdown}`,
+      `❗ What Court Is Asking\n${summaryData.whatCourtIsAskingFromYou}`,
+      `📎 Required Documents\n${summaryData.requiredDocuments.join(', ') || 'None identified'}`,
+      `🚨 Urgency Alert\n${summaryData.urgencyAlert}`
     ].join('\n\n');
       
     navigator.clipboard.writeText(textToCopy).then(() => {
@@ -880,11 +884,12 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
             ) : summaryData ? (
               <div className="space-y-6">
                 {[
-                  { title: 'Case Overview', emoji: '📄', content: summaryData.caseOverview },
+                  { title: 'Story of the Case', emoji: '📖', content: summaryData.storyOfTheCase },
+                  { title: 'What Evidence Means', emoji: '🔍', content: summaryData.whatEvidenceMeans },
                   { title: 'Current Status', emoji: '⚖️', content: summaryData.currentStatus },
-                  { title: 'Next Hearing', emoji: '📅', content: summaryData.nextHearing },
-                  { title: 'What This Means', emoji: '💡', content: summaryData.whatThisMeans },
-                  { title: 'Recommended Next Steps', emoji: '✅', content: summaryData.recommendedNextSteps },
+                  { title: 'Next Hearing Breakdown', emoji: '📅', content: summaryData.nextHearingBreakdown },
+                  { title: 'What Court Is Asking', emoji: '❗', content: summaryData.whatCourtIsAskingFromYou },
+                  { title: 'Urgency Alert', emoji: '🚨', content: summaryData.urgencyAlert },
                 ].map((section, idx) => (
                   <div key={idx} className="flex gap-4">
                     <div className="flex-shrink-0 text-xl w-6 h-6 flex items-center justify-center bg-neutral-50 rounded-lg">

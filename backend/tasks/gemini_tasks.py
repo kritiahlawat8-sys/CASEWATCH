@@ -6,16 +6,17 @@ from google.genai import types
 from pydantic import BaseModel, Field
 
 class AISummarySchema(BaseModel):
-    caseOverview: str = Field(description="A brief explanation of what the case is about, who is fighting whom, and the basic situation in 2-4 short sentences.")
-    currentStatus: str = Field(description="Explain the present stage of the case, what it means practically, and how long it has been going on in 2-4 short sentences.")
-    nextHearing: str = Field(description="Explain the upcoming hearing date, why it matters, and what to realistically expect in 2-4 short sentences.")
-    whatThisMeans: str = Field(description="Explain the current situation and implications in plain language in 2-4 short sentences.")
-    recommendedNextSteps: str = Field(description="Give practical, actionable guidance for the party involved in 2-4 short sentences.")
-    requiredDocuments: list[str] = Field(description="A list of standard Indian court document names the party may need to prepare or submit, based on the case stage, acts, and proceeding type. Choose only from commonly known documents such as: Affidavit, Vakalatnama, Written Statement, Rejoinder, Caveat Petition, Stay Application, Execution Petition, Interlocutory Application, Surety Bond, Character Certificate. Return empty list [] if unclear.")
+    storyOfTheCase: str = Field(description="Tell the complete story of what has happened in this case from day one until today. Cover when the case was filed, who filed it and against whom, what the charges are about, what happened at each hearing, what stage it reached and why, and what the court has done so far.")
+    whatEvidenceMeans: str = Field(description="Explain what the Prosecution Evidence stage means in plain English, what the prosecution will actually DO in court, what cross-examination means, and what could happen if this stage goes well or badly.")
+    currentStatus: str = Field(description="State exactly where the case stands today. What was decided or observed at the last hearing. What is pending.")
+    nextHearingBreakdown: str = Field(description="Explain what will happen step by step in the courtroom on the upcoming date, what the judge will be looking at, what the lawyer must be prepared to do, and possible outcomes.")
+    whatCourtIsAskingFromYou: str = Field(description="In very direct, simple language: what the court or the legal process currently REQUIRES from the accused or their family.")
+    requiredDocuments: list[str] = Field(description="List only documents relevant to the current stage and case type. Choose only from: [Affidavit, Vakalatnama, Written Statement, Rejoinder, Caveat Petition, Stay Application, Execution Petition, Interlocutory Application, Surety Bond, Character Certificate].")
+    urgencyAlert: str = Field(description="If the next hearing is close, if the accused is missing representation, or if any critical deadline is approaching, flag it clearly. Otherwise write 'No immediate alerts.'")
 
 async def generate_case_summary(ctx: dict, cnr: str, case_data: dict) -> dict:
     cnr = cnr.strip().upper()
-    cache_key = f"casewatch:summary:{cnr}"
+    cache_key = f"casewatch:summary:v2:{cnr}"
     CACHE_TTL = 604800
     
     redis_client = ctx.get('redis')
@@ -27,12 +28,13 @@ async def generate_case_summary(ctx: dict, cnr: str, case_data: dict) -> dict:
                     cached_val = cached_val.decode('utf-8')
                 parsed_data = json.loads(cached_val)
                 summary = {
-                    "caseOverview": parsed_data.get("caseOverview", ""),
+                    "storyOfTheCase": parsed_data.get("storyOfTheCase", ""),
+                    "whatEvidenceMeans": parsed_data.get("whatEvidenceMeans", ""),
                     "currentStatus": parsed_data.get("currentStatus", ""),
-                    "nextHearing": parsed_data.get("nextHearing", ""),
-                    "whatThisMeans": parsed_data.get("whatThisMeans", ""),
-                    "recommendedNextSteps": parsed_data.get("recommendedNextSteps", ""),
+                    "nextHearingBreakdown": parsed_data.get("nextHearingBreakdown", ""),
+                    "whatCourtIsAskingFromYou": parsed_data.get("whatCourtIsAskingFromYou", ""),
                     "requiredDocuments": parsed_data.get("requiredDocuments", []),
+                    "urgencyAlert": parsed_data.get("urgencyAlert", "")
                 }
                 return {
                     "cnr": cnr,
@@ -50,38 +52,70 @@ async def generate_case_summary(ctx: dict, cnr: str, case_data: dict) -> dict:
         }
 
     prompt = f"""
-You are a legal assistant that explains Indian court cases in simple English for non-lawyers.
+You are a senior Indian legal advisor explaining a court case to the accused or their family member who has no legal background whatsoever.
+
+Your job is NOT to produce a dry summary. You must tell the FULL STORY of what has happened in this case from start to finish, as if narrating it to someone sitting in front of you.
 
 STRICT RULES:
-- Use ONLY the data provided below. Do not invent, infer, or assume ANY fact not explicitly present.
-- If a field is null, empty, or missing, write "Not available in records" for that point.
-- Do not guess names, charges, FIR numbers, or case background from context.
-- For requiredDocuments: consider the case_type AND stage together. 
-  Never suggest a document that matches the case_type itself (e.g. if case_type is "BA", do not suggest "Bail Application").
-  Only suggest documents needed for upcoming procedural steps at the current stage.
-- If status field contains "Decided", "Disposed", "Decree", or "Closed", OR if a decision_date is present in the data, clearly state in caseOverview and currentStatus that this case has been DECIDED and is no longer active. Do not suggest a next hearing date for decided cases. For requiredDocuments return [] for decided/disposed cases.
+- Do not invent any fact not present in the data or order documents.
+- If something is not in the records, say "Not mentioned in available records."
+- Never use legal jargon without immediately explaining it in brackets.
+- Write in a warm, clear, direct tone — like a knowledgeable friend, not a lawyer filing a report.
+- CRITICAL OVERRIDE: The system has verified the live court database. The absolute current stage is '{case_data.get('stage') or case_data.get('status', 'Unknown')}' and the absolute next hearing date is '{case_data.get('next_hearing', 'Unknown')}'. You MUST use EXACTLY these values for your Current Status and Next Hearing sections.
+- Do NOT use the dates from the older PDFs for the current status.
+- Base the background story on the PDFs, but the timeline must culminate in the exact stage and next hearing date provided above.
+- Never start any section with "Based on the provided data..."
+- Never use phrases like "it is noted that" or "as per records."
+- Every legal term used MUST have a plain English explanation in the same sentence.
+- Make the person feel informed and prepared, not confused or scared.
 
 --- CASE DATA ---
 {case_data}
 
---- OUTPUT FORMAT ---
-Return a JSON object with exactly these 6 keys:
-1. "caseOverview" - What this case is about, based only on provided fields
-2. "currentStatus" - Current stage and recent hearing activity
-3. "nextHearing" - Next hearing date and what to expect
-4. "whatThisMeans" - Plain English explanation for a non-lawyer
-5. "recommendedNextSteps" - Practical steps for the party involved
-6. "requiredDocuments" - List of documents needed for current/upcoming stage.
-   Choose only from: ["Affidavit", "Vakalatnama", "Written Statement", 
-   "Rejoinder", "Caveat Petition", "Stay Application", "Execution Petition", 
+STRUCTURE YOUR RESPONSE AS EXACTLY THESE 7 SECTIONS:
+
+1. "storyOfTheCase"
+   Tell the complete story of what has happened in this case from day one until today.
+   Cover: when the case was filed, who filed it and against whom, what the charges are about (explain what each charge actually means in real-world terms), what happened at each hearing, what stage it reached and why, and what the court has done so far.
+   This should feel like reading a case diary — the user should know EVERYTHING that has happened.
+
+2. "whatEvidenceMeans"
+   The case is in evidence stage. Explain clearly:
+   - What "Prosecution Evidence" stage means in plain English
+   - What the prosecution will actually DO in court on the next date (call witnesses, show documents, etc.)
+   - What "cross-examination" means and why it matters for the accused
+   - What could happen if this stage goes well or badly for the accused
+   Avoid vague phrases. Be specific and human.
+
+3. "currentStatus"
+   State exactly where the case stands today. What was decided or observed at the last hearing. What is pending.
+
+4. "nextHearingBreakdown"
+   For the upcoming date, explain:
+   - What will happen step by step in the courtroom
+   - What the judge will be looking at
+   - What the accused's lawyer must be prepared to do
+   - What outcome is possible after this hearing
+
+5. "whatCourtIsAskingFromYou"
+   In very direct, simple language: what the court or the legal process currently REQUIRES from the accused or their family. What they must do, bring, prepare, or avoid doing. Treat this like a personal instruction list.
+
+6. "requiredDocuments"
+   List only documents relevant to the current stage and case type.
+   For each document, explain in one line WHY it is needed right now.
+   Choose only from: ["Affidavit", "Vakalatnama", "Written Statement", "Rejoinder",
+   "Caveat Petition", "Stay Application", "Execution Petition",
    "Interlocutory Application", "Surety Bond", "Character Certificate"]
-   Return [] if stage is unclear or no documents are needed.
+   Return [] if truly none are needed.
+
+7. "urgencyAlert"
+   If the next hearing is close, if the accused is missing representation, or if any critical deadline is approaching — flag it clearly here with a sense of urgency. Otherwise write "No immediate alerts."
 """
 
     try:
         client = genai.Client(api_key=api_key)
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-3.6-flash",
             contents=prompt,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
@@ -93,12 +127,13 @@ Return a JSON object with exactly these 6 keys:
         parsed_data = json.loads(raw_text)
         
         summary = {
-            "caseOverview": parsed_data.get("caseOverview", ""),
+            "storyOfTheCase": parsed_data.get("storyOfTheCase", ""),
+            "whatEvidenceMeans": parsed_data.get("whatEvidenceMeans", ""),
             "currentStatus": parsed_data.get("currentStatus", ""),
-            "nextHearing": parsed_data.get("nextHearing", ""),
-            "whatThisMeans": parsed_data.get("whatThisMeans", ""),
-            "recommendedNextSteps": parsed_data.get("recommendedNextSteps", ""),
-            "requiredDocuments": parsed_data.get("requiredDocuments", [])
+            "nextHearingBreakdown": parsed_data.get("nextHearingBreakdown", ""),
+            "whatCourtIsAskingFromYou": parsed_data.get("whatCourtIsAskingFromYou", ""),
+            "requiredDocuments": parsed_data.get("requiredDocuments", []),
+            "urgencyAlert": parsed_data.get("urgencyAlert", "")
         }
         
         if redis_client:

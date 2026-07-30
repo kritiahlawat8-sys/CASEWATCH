@@ -10,6 +10,7 @@ import os
 import json
 import time
 import logging
+import httpx
 from redis import Redis
 from dotenv import load_dotenv
 from google import genai
@@ -26,6 +27,42 @@ SUMMARY_TTL  = 7 * 24 * 3600  # 7 d — how long the final summary is cached
 # Gemini rate-limit: free tier = 15 RPM → 1 call every ~4 s is safe.
 # Paid tier can be higher; adjust GEMINI_MIN_INTERVAL_SECONDS env var.
 MIN_SECONDS_BETWEEN_CALLS = int(os.getenv("GEMINI_MIN_INTERVAL_SECONDS", "4"))
+
+ECOURTS_API_BASE = "https://webapi.ecourtsindia.com/api/partner"
+ECOURTS_API_TOKEN = os.getenv("ECOURTS_API_TOKEN")
+
+def _fetch_order_pdfs(cnr: str, case_data: dict) -> list[bytes]:
+    """Fetch all interim order PDFs for a case. Returns list of PDF bytes."""
+    pdf_bytes_list = []
+    
+    try:
+        orders = case_data.get("interimOrders", []) or []
+        
+        for order in orders:
+            filename = order.get("orderUrl") or order.get("filename")
+            if not filename:
+                continue
+            
+            url = f"{ECOURTS_API_BASE}/case/{cnr}/order/{filename}"
+            resp = httpx.get(
+                url,
+                headers={"Authorization": f"Bearer {ECOURTS_API_TOKEN}"},
+                timeout=15
+            )
+            
+            if resp.status_code == 200:
+                data = resp.json().get("data", {})
+                download_url = data.get("downloadUrl") or data.get("url")
+                
+                if download_url:
+                    pdf_resp = httpx.get(download_url, timeout=30)
+                    if pdf_resp.status_code == 200:
+                        pdf_bytes_list.append(pdf_resp.content)
+                        
+    except Exception as e:
+        logger.warning("Failed to fetch order PDFs for %s: %s", cnr, e)
+    
+    return pdf_bytes_list
 
 
 def _redis() -> Redis:
@@ -45,7 +82,7 @@ def generate_summary(cnr: str, case_data: dict) -> dict:
     r = _redis()
 
     # 1. Check the long-lived summary cache first
-    summary_key = f"casewatch:summary:{cnr}"
+    summary_key = f"casewatch:summary:v2:{cnr}"
     result_key  = f"casewatch:job_result:{cnr}"
 
     cached = r.get(summary_key)
@@ -73,44 +110,91 @@ def generate_summary(cnr: str, case_data: dict) -> dict:
 
     client = genai.Client(api_key=api_key)
 
+    # Fetch PDFs
+    order_pdfs = _fetch_order_pdfs(cnr, case_data)
+    logger.info("Fetched %d order PDFs for %s", len(order_pdfs), cnr)
+
+    # Build contents list: PDFs first, then text prompt
+    contents = []
+    
+    for i, pdf_bytes in enumerate(order_pdfs):
+        contents.append(
+            types.Part.from_bytes(
+                data=pdf_bytes,
+                mime_type="application/pdf"
+            )
+        )
+
     prompt = f"""
-You are a legal assistant that explains Indian court cases in simple English for non-lawyers.
+You are a senior Indian legal advisor explaining a court case to the accused or their family member who has no legal background whatsoever.
+
+Your job is NOT to produce a dry summary. You must tell the FULL STORY of what has happened in this case from start to finish, as if narrating it to someone sitting in front of you.
 
 STRICT RULES:
-- Use ONLY the data provided below. Do not invent, infer, or assume ANY fact not explicitly present.
-- If a field is null, empty, or missing, write "Not available in records" for that point.
-- Do not guess names, charges, FIR numbers, or case background from context.
-- For requiredDocuments: consider the case_type AND stage together.
-  Never suggest a document that matches the case_type itself (e.g. if case_type is "BA", do not suggest "Bail Application").
-  Only suggest documents needed for upcoming procedural steps at the current stage.
-- If status field contains "Decided", "Disposed", "Decree", or "Closed", OR if a decision_date is present in the data,
-  clearly state in caseOverview and currentStatus that this case has been DECIDED and is no longer active.
-  Do not suggest a next hearing date for decided cases. For requiredDocuments return [] for decided/disposed cases.
+- Do not invent any fact not present in the data or order documents.
+- If something is not in the records, say "Not mentioned in available records."
+- Never use legal jargon without immediately explaining it in brackets.
+- Write in a warm, clear, direct tone — like a knowledgeable friend, not a lawyer filing a report.
+- CRITICAL OVERRIDE: The system has verified the live court database. The absolute current stage is '{case_data.get('stage') or case_data.get('status', 'Unknown')}' and the absolute next hearing date is '{case_data.get('next_hearing', 'Unknown')}'. You MUST use EXACTLY these values for your Current Status and Next Hearing sections.
+- Do NOT use the dates from the older PDFs for the current status.
+- Base the background story on the PDFs, but the timeline must culminate in the exact stage and next hearing date provided above.
+- Never start any section with "Based on the provided data..."
+- Never use phrases like "it is noted that" or "as per records."
+- Every legal term used MUST have a plain English explanation in the same sentence.
+- Make the person feel informed and prepared, not confused or scared.
 
 --- CASE DATA ---
 {json.dumps(case_data, ensure_ascii=False)}
 
---- OUTPUT FORMAT ---
-Return a JSON object with exactly these 6 keys:
-1. "caseOverview" - What this case is about, based only on provided fields
-2. "currentStatus" - Current stage and recent hearing activity
-3. "nextHearing" - Next hearing date and what to expect
-4. "whatThisMeans" - Plain English explanation for a non-lawyer
-5. "recommendedNextSteps" - Practical steps for the party involved
-6. "requiredDocuments" - List of documents needed for current/upcoming stage.
-   Choose only from: ["Affidavit", "Vakalatnama", "Written Statement",
-   "Rejoinder", "Caveat Petition", "Stay Application", "Execution Petition",
+STRUCTURE YOUR RESPONSE AS EXACTLY THESE 7 SECTIONS (RETURN AS JSON ONLY):
+
+1. "storyOfTheCase"
+   Tell the complete story of what has happened in this case from day one until today.
+   Cover: when the case was filed, who filed it and against whom, what the charges are about (explain what each charge actually means in real-world terms), what happened at each hearing, what stage it reached and why, and what the court has done so far.
+   This should feel like reading a case diary — the user should know EVERYTHING that has happened.
+
+2. "whatEvidenceMeans"
+   The case is in evidence stage. Explain clearly:
+   - What "Prosecution Evidence" stage means in plain English
+   - What the prosecution will actually DO in court on the next date (call witnesses, show documents, etc.)
+   - What "cross-examination" means and why it matters for the accused
+   - What could happen if this stage goes well or badly for the accused
+   Avoid vague phrases. Be specific and human.
+
+3. "currentStatus"
+   State exactly where the case stands today. What was decided or observed at the last hearing. What is pending.
+
+4. "nextHearingBreakdown"
+   For the upcoming date, explain:
+   - What will happen step by step in the courtroom
+   - What the judge will be looking at
+   - What the accused's lawyer must be prepared to do
+   - What outcome is possible after this hearing
+
+5. "whatCourtIsAskingFromYou"
+   In very direct, simple language: what the court or the legal process currently REQUIRES from the accused or their family. What they must do, bring, prepare, or avoid doing. Treat this like a personal instruction list.
+
+6. "requiredDocuments"
+   List only documents relevant to the current stage and case type.
+   For each document, explain in one line WHY it is needed right now.
+   Choose only from: ["Affidavit", "Vakalatnama", "Written Statement", "Rejoinder",
+   "Caveat Petition", "Stay Application", "Execution Petition",
    "Interlocutory Application", "Surety Bond", "Character Certificate"]
-   Return [] if stage is unclear or no documents are needed.
+   Return [] if truly none are needed.
+
+7. "urgencyAlert"
+   If the next hearing is close, if the accused is missing representation, or if any critical deadline is approaching — flag it clearly here with a sense of urgency. Otherwise write "No immediate alerts."
 """
+    
+    contents.append(prompt)
 
     # Record timestamp BEFORE the call so other workers know to wait
     r.set(last_call_key, str(time.time()), ex=60)
 
     try:
         response = client.models.generate_content(
-            model="gemini-3.1-flash-lite",
-            contents=prompt,
+            model="gemini-3.6-flash",
+            contents=contents,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
             ),
@@ -126,12 +210,14 @@ Return a JSON object with exactly these 6 keys:
     parsed   = json.loads(raw_text)
 
     result = {
-        "caseOverview":         parsed.get("caseOverview", ""),
-        "currentStatus":        parsed.get("currentStatus", ""),
-        "nextHearing":          parsed.get("nextHearing", ""),
-        "whatThisMeans":        parsed.get("whatThisMeans", ""),
-        "recommendedNextSteps": parsed.get("recommendedNextSteps", ""),
-        "requiredDocuments":    parsed.get("requiredDocuments", []),
+        "storyOfTheCase":           parsed.get("storyOfTheCase", ""),
+        "whatEvidenceMeans":        parsed.get("whatEvidenceMeans", ""),
+        "currentStatus":            parsed.get("currentStatus", ""),
+        "nextHearingBreakdown":     parsed.get("nextHearingBreakdown", ""),
+        "whatCourtIsAskingFromYou": parsed.get("whatCourtIsAskingFromYou", ""),
+        "requiredDocuments":        parsed.get("requiredDocuments", []),
+        "urgencyAlert":             parsed.get("urgencyAlert", ""),
+        "ordersAnalyzed":           len(order_pdfs),
     }
 
     # Cache long-lived summary
