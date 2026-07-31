@@ -62,13 +62,13 @@ const Hero = () => {
           <input
             type="text"
             className="cnr-search-input"
-            placeholder="Enter CNR Number (e.g. ABCD010012342026)"
+            placeholder="Describe what you need — e.g. rent agreement template"
             value={cnr}
             onChange={(e) => setCnr(e.target.value)}
             required
           />
           <button type="submit" className="btn-dark cnr-search-submit">
-            Track Case &rarr;
+            Search &rarr;
           </button>
         </form>
         

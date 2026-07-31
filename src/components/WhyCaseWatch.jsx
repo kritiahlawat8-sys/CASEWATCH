@@ -277,8 +277,8 @@ const WhyCaseWatch = () => {
                   <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
               </div>
-              <h3 className="feature-title">Frictionless Access</h3>
-              <p className="feature-desc">An entirely open-source platform designed for public utility. Track cases and access legal intelligence without any mandatory logins or paywalls.</p>
+              <h3 className="feature-title">Procedure, Simplified</h3>
+              <p className="feature-desc">Chat in your own words and get the right document, scheme, or step-by-step procedure — along with verified government links, instantly.</p>
             </li>
           </ul>
 
