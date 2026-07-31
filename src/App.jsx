@@ -14,6 +14,7 @@ import About from './pages/About'
 import FeaturesPage from './pages/FeaturesPage'
 import Documents from './pages/Documents'
 import Contact from './pages/Contact'
+import Chat from './pages/Chat'
 
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -36,6 +37,7 @@ function App() {
         <Route path="/track-case.html" element={<TrackCasePage />} />
         <Route path="/how-it-works" element={<HowItWorksPage />} />
         <Route path="/how-it-works.html" element={<HowItWorksPage />} />
+        <Route path="/chat" element={<Chat />} />
       </Routes>
     </Router>
   )

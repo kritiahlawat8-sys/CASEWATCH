@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+
 :root {
   --bg-navbar: #ffffff; /* OpenDesign clean white background */
   --text-primary: #1c1c1c; /* Very dark grey, almost black */
@@ -112,6 +114,7 @@ body {
 }
 
 .navbar-wordmark {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
   font-weight: 700;
   font-size: 19px;
   letter-spacing: -0.02em;

@@ -51,7 +51,10 @@ const Navbar = () => {
   };
 
   const handleGetStartedClick = () => {
-    if (location.pathname === '/track-case' || location.pathname === '/track-case.html') {
+    if (location.pathname === '/chat') {
+      const event = new CustomEvent('reset-chat');
+      window.dispatchEvent(event);
+    } else if (location.pathname === '/track-case' || location.pathname === '/track-case.html') {
       const event = new CustomEvent('reset-track-case');
       window.dispatchEvent(event);
     }
@@ -80,6 +83,9 @@ const Navbar = () => {
           <li ref={(el) => (navRefs.current['/documents'] = el)}>
             <Link to="/documents" className={`nav-item ${activePath === '/documents' ? 'active' : ''}`}>Documents <span className="chevron"></span></Link>
           </li>
+          <li ref={(el) => (navRefs.current['/chat'] = el)}>
+            <Link to="/chat" className={`nav-item ${activePath === '/chat' ? 'active' : ''}`}>AI Chat <span className="chevron"></span></Link>
+          </li>
           <li className="nav-dropdown-container" ref={(el) => { dropdownRef.current = el; navRefs.current['/government'] = el; }}>
             <button 
               className={`nav-item nav-dropdown-btn ${activePath === '/government' ? 'active' : ''}`} 
@@ -100,13 +106,21 @@ const Navbar = () => {
             <Link to="/about" className={`nav-item ${activePath === '/about' ? 'active' : ''}`}>About <span className="chevron"></span></Link>
           </li>
           <li className="mobile-only-btn">
-            <Link to="/track-case.html" className="btn-get-started mobile-btn" onClick={handleGetStartedClick}>Get Started</Link>
+            {location.pathname === '/chat' ? (
+              <button className="btn-get-started mobile-btn" onClick={handleGetStartedClick} style={{ width: '100%', fontFamily: 'var(--nav-font)' }}>New Chat</button>
+            ) : (
+              <Link to="/track-case.html" className="btn-get-started mobile-btn" onClick={handleGetStartedClick}>Get Started</Link>
+            )}
           </li>
         </ul>
       </div>
 
       <div className="navbar-right">
-        <Link to="/track-case.html" className="btn-get-started" onClick={handleGetStartedClick}>Get Started</Link>
+        {location.pathname === '/chat' ? (
+          <button className="btn-get-started" onClick={handleGetStartedClick} style={{ fontFamily: 'var(--nav-font)' }}>New Chat</button>
+        ) : (
+          <Link to="/track-case.html" className="btn-get-started" onClick={handleGetStartedClick}>Get Started</Link>
+        )}
         <button 
           className="hamburger" 
           aria-label="Toggle navigation menu" 
