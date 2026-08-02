@@ -92,7 +92,7 @@ const Navbar = () => {
               onClick={(e) => { e.preventDefault(); setIsGovDropdownOpen(!isGovDropdownOpen); }}
               aria-expanded={isGovDropdownOpen}
             >
-              Government Links <span className={`chevron ${isGovDropdownOpen ? 'open' : ''}`}></span>
+              Gov Links <span className={`chevron ${isGovDropdownOpen ? 'open' : ''}`}></span>
             </button>
             <ul className={`nav-dropdown-menu ${isGovDropdownOpen ? 'open' : ''}`}>
               <li><a href="https://ecourts.gov.in" target="_blank" rel="noopener noreferrer" className="nav-dropdown-item">e-Courts</a></li>

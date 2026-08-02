@@ -52,7 +52,7 @@ body {
 
 .navbar.scrolled {
   width: calc(100% - 48px);
-  max-width: 1200px;
+  max-width: 1280px;
   top: 24px;
   border-radius: 999px;
   background-color: rgba(255, 255, 255, 0.85);
@@ -129,7 +129,7 @@ body {
 
 .navbar-links {
   display: flex;
-  gap: 32px;
+  gap: 20px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -142,8 +142,9 @@ body {
   text-decoration: none;
   color: var(--text-nav-default);
   font-weight: 500;
-  font-size: 14.5px;
+  font-size: 14px;
   transition: color 0.2s;
+  white-space: nowrap;
 }
 
 .navbar-links .nav-item:hover {
@@ -303,6 +304,23 @@ body {
   .hamburger {
     display: block;
     margin-left: 12px;
+  }
+}
+
+/* Tighten layout on smaller desktop viewports to prevent overlap */
+@media (min-width: 901px) and (max-width: 1150px) {
+  .navbar {
+    padding: 0 20px;
+  }
+  .navbar-links {
+    gap: 16px;
+  }
+  .navbar-links .nav-item {
+    font-size: 13.5px;
+  }
+  .btn-get-started {
+    padding: 8px 18px;
+    font-size: 13.5px;
   }
 }
 

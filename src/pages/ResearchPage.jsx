@@ -100,6 +100,7 @@ const ResearchPage = () => {
       
       <main className="research-main">
         <div className="research-header">
+          <span className="research-badge" id="research-badge-label">LEGAL RESEARCH</span>
           <h1>Legal Research Portal</h1>
           <p>Search court judgments and orders by keyword</p>
         </div>
