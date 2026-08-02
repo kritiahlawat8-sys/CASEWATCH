@@ -31,3 +31,14 @@ dist-ssr
 
 # Zip files
 backend.zip
+*.zip
+.venv.zip
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Checkpoints
+*_checkpoint.json

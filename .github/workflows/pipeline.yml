@@ -1,0 +1,46 @@
+name: CaseWatch Government Service Intelligence Pipeline
+
+on:
+  schedule:
+    - cron: "0 20 * * *" # 8 PM UTC (2 AM IST)
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./pipeline
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip" # Caches pip dependencies for faster subsequent runs
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run pipeline
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          CSV_PATH: ${{ secrets.CSV_PATH || 'SCHEME(s) SERVICE(s) LIST.csv' }}
+        run: python pipeline.py
+
+      - name: Upload artifacts
+        if: always() # Ensure logs/checkpoints are uploaded even if pipeline fails
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-run-artifacts
+          path: |
+            pipeline/pipeline.log
+            pipeline/pipeline_checkpoint.json
