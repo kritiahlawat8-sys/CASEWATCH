@@ -15,6 +15,7 @@ import FeaturesPage from './pages/FeaturesPage'
 import Documents from './pages/Documents'
 import Contact from './pages/Contact'
 import Chat from './pages/Chat'
+import ResearchPage from './pages/ResearchPage'
 
 import ScrollToTop from "./components/ScrollToTop";
 
@@ -26,6 +27,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/features" element={<FeaturesPage />} />
         <Route path="/about" element={<About />} />
+        <Route path="/research" element={<ResearchPage />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/documents" element={<Documents />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />

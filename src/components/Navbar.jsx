@@ -44,7 +44,7 @@ const Navbar = () => {
     } else {
       setIndicatorStyle({ opacity: 0 });
     }
-  }, [location.pathname, isGovDropdownOpen]);
+  }, [location.pathname, isGovDropdownOpen, isScrolled]);
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -104,6 +104,9 @@ const Navbar = () => {
           </li>
           <li ref={(el) => (navRefs.current['/about'] = el)}>
             <Link to="/about" className={`nav-item ${activePath === '/about' ? 'active' : ''}`}>About <span className="chevron"></span></Link>
+          </li>
+          <li ref={(el) => (navRefs.current['/research'] = el)}>
+            <Link to="/research" className={`nav-item ${activePath === '/research' ? 'active' : ''}`}>Research <span className="chevron"></span></Link>
           </li>
           <li className="mobile-only-btn">
             {location.pathname === '/chat' ? (
