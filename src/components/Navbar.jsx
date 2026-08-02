@@ -84,7 +84,7 @@ const Navbar = () => {
             <Link to="/documents" className={`nav-item ${activePath === '/documents' ? 'active' : ''}`}>Documents <span className="chevron"></span></Link>
           </li>
           <li ref={(el) => (navRefs.current['/chat'] = el)}>
-            <Link to="/chat" className={`nav-item ${activePath === '/chat' ? 'active' : ''}`}>AI Chat <span className="chevron"></span></Link>
+            <Link to="/chat" className={`nav-item ${activePath === '/chat' ? 'active' : ''}`}>Get Guidance <span className="chevron"></span></Link>
           </li>
           <li className="nav-dropdown-container" ref={(el) => { dropdownRef.current = el; navRefs.current['/government'] = el; }}>
             <button 

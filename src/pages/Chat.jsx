@@ -6,7 +6,7 @@ import './Chat.css';
 // Pre-defined mock responses for realistic legal-tech queries
 const PRESETS = {
   pan: {
-    query: "How to get a PAN card",
+    query: "Affidavit format for Haryana",
     response: `To apply for a Permanent Account Number (PAN) card in India, follow this step-by-step procedure:
 
 1. **Choose NSDL or UTIITSL Portal**: Applications can be made online via the Protean (formerly NSDL) portal or the UTIITSL website.
@@ -20,7 +20,7 @@ const PRESETS = {
 6. **Track Application**: A 15-digit acknowledgement number will be generated. You can track the status on the respective portal. The physical card is typically delivered within 15 days, and the e-PAN is emailed in 2-3 days.`
   },
   rent: {
-    query: "Rent agreement format",
+    query: "Steps to register a property",
     response: `A standard rent agreement in India must include specific clauses to be legally binding. Here is the recommended structure:
 
 ### Key Sections of a Rent Agreement:
@@ -242,7 +242,7 @@ export default function Chat() {
           <div className="chat-welcome-section">
             <h1 className="chat-welcome-heading">How can I help you find a document today?</h1>
             <p className="chat-welcome-subtext">
-              Ask about Indian legal processes, documentation formats, or tracking cases in simple terms.
+              Ask about court processes, document formats, filing procedures, or how to track your case in Haryana.
             </p>
           </div>
         )}
@@ -326,21 +326,21 @@ export default function Chat() {
                 className="chat-suggestion-chip"
                 onClick={() => handleChipClick(PRESETS.pan.query)}
               >
-                How to get a PAN card
+                Rent agreement format
               </button>
               <button 
                 type="button" 
                 className="chat-suggestion-chip"
                 onClick={() => handleChipClick(PRESETS.rent.query)}
               >
-                Rent agreement format
+                Documents needed for property registration
               </button>
               <button 
                 type="button" 
                 className="chat-suggestion-chip"
                 onClick={() => handleChipClick(PRESETS.consumer.query)}
               >
-                Consumer complaint procedure
+                How to file an FIR in Haryana
               </button>
             </div>
           )}
