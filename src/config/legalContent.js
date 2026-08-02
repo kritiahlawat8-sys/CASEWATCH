@@ -10,17 +10,14 @@ export const privacyPolicyContent = [
     id: 'information-we-collect',
     title: '2. Information We Collect',
     content: `<ul>
-      <li><strong>Identity data:</strong> name, phone number, email</li>
       <li><strong>Case data:</strong> CNR numbers, case status, hearing dates (sourced from public eCourts/NJDG records)</li>
-      <li><strong>Documents:</strong> files uploaded to the Document Vault</li>
-      <li><strong>Communication data:</strong> SMS/WhatsApp opt-in number, notification preferences</li>
       <li><strong>Usage data:</strong> device/browser info, app interaction logs</li>
     </ul>`
   },
   {
     id: 'how-we-use-your-information',
     title: '3. How We Use Your Information',
-    content: `We use your information to track cases and send hearing reminders, to power the AI Legal Translator, to connect users with pro-bono aid (only with explicit consent), to maintain and secure the Document Vault, and to improve the platform.`
+    content: `We use CNR/case data to display case tracking information and generate AI-powered case summaries, and use usage data to improve the platform.`
   },
   {
     id: 'third-party-sharing',
@@ -28,16 +25,14 @@ export const privacyPolicyContent = [
     content: `We share data with specific categories of third parties:
     <ul>
       <li><strong>eCourts/NJDG:</strong> public case data lookup</li>
-      <li><strong>SMS/WhatsApp Business API providers:</strong> for reminders</li>
-      <li><strong>Cloud storage providers:</strong> for document hosting</li>
-      <li><strong>Pro-bono legal aid partners:</strong> only if user opts in to be connected</li>
+      <li><strong>Analytics providers:</strong> to understand platform usage</li>
     </ul>
     CaseWatch does NOT sell user data to advertisers or unrelated third parties.`
   },
   {
     id: 'data-storage-security',
     title: '5. Data Storage & Security',
-    content: `We ensure encryption at rest and in transit for the Document Vault, implement strict access controls, and retain data for a period of ${CONSTANTS.RETENTION_PERIOD_PLACEHOLDER}.`
+    content: `We implement reasonable security practices, including encryption in transit, to protect data processed by the platform.`
   },
   {
     id: 'your-rights',
@@ -62,7 +57,7 @@ export const privacyPolicyContent = [
   {
     id: 'contact',
     title: '10. Contact Us',
-    content: `Questions about this policy? Reach us via the <a href="https://github.com/" target="_blank" rel="noopener noreferrer">CaseWatch GitHub repository</a>.`
+    content: `Questions about this policy? Reach us via the <a href="https://github.com/kritiahlawat8-sys/CASEWATCH.git" target="_blank" rel="noopener noreferrer">CaseWatch GitHub repository</a>.`
   }
 ];
 
@@ -75,7 +70,7 @@ export const termsOfUseContent = [
   {
     id: 'description-of-service',
     title: '2. Description of Service',
-    content: `CaseWatch is an informational and organizational tool: case tracking via public CNR data, AI-assisted jargon simplification, document storage, court locator, and a directory connecting users to independent pro-bono legal aid providers.`
+    content: `CaseWatch is an informational and organizational tool: case tracking via public CNR data, AI-generated case summaries, and a Gov Links section providing links to official government and legal aid websites.`
   },
   {
     id: 'not-a-law-firm',
@@ -85,17 +80,17 @@ export const termsOfUseContent = [
   {
     id: 'user-responsibilities',
     title: '4. User Responsibilities',
-    content: `Users must provide accurate CNR/case information, use the Document Vault only for lawful documents, do not use the platform to harass, defraud, or impersonate others, and maintain confidentiality of login credentials.`
+    content: `Users must provide accurate CNR/case information and must not use the platform to harass, defraud, or impersonate others.`
   },
   {
-    id: 'ai-translator-limitations',
-    title: '5. AI Legal Translator — Limitations',
-    content: `AI-generated simplifications are for general understanding only, may contain errors, and must not be relied upon as a substitute for professional legal advice.`
+    id: 'ai-summary-limitations',
+    title: '5. AI Case Summary — Limitations',
+    content: `AI-generated summaries are for general understanding only, may contain errors, and must not be relied upon as a substitute for professional legal advice.`
   },
   {
     id: 'pro-bono-disclaimer',
-    title: '6. Pro-Bono Aid Finder — Third-Party Disclaimer',
-    content: `Listed lawyers/NGOs are independent third parties; CaseWatch facilitates introduction only and is not liable for the advice, conduct, fees, or outcomes of any third-party legal aid provider.`
+    title: '6. Government & Legal Aid Links — Third-Party Disclaimer',
+    content: `The Gov Links section provides links to official third-party government and legal aid websites for user convenience. CaseWatch does not vet, endorse, or take responsibility for the services, advice, conduct, fees, or outcomes of these third parties, and using them does not create any relationship — attorney-client or otherwise — with CaseWatch.`
   },
   {
     id: 'case-data-accuracy',
@@ -108,28 +103,23 @@ export const termsOfUseContent = [
     content: `CaseWatch branding, design, and software are owned by ${CONSTANTS.COMPANY_NAME}; user-uploaded documents remain the property of the user.`
   },
   {
-    id: 'account-suspension',
-    title: '9. Account Suspension/Termination',
-    content: `We reserve the right to suspend accounts for fraud, abuse, or fake CNR submissions.`
-  },
-  {
     id: 'limitation-of-liability',
-    title: '10. Limitation of Liability',
+    title: '9. Limitation of Liability',
     content: `To the maximum extent permitted by law, CaseWatch shall not be liable for any indirect, incidental, special, consequential, or punitive damages.`
   },
   {
     id: 'governing-law',
-    title: '11. Governing Law & Dispute Resolution',
+    title: '10. Governing Law & Dispute Resolution',
     content: `These terms are governed by the laws of ${CONSTANTS.GOVERNING_LAW_JURISDICTION_PLACEHOLDER}. Any disputes shall be subject to the exclusive jurisdiction of the courts in ${CONSTANTS.JURISDICTION_PLACEHOLDER}.`
   },
   {
     id: 'changes-to-terms',
-    title: '12. Changes to Terms',
+    title: '11. Changes to Terms',
     content: `We may modify these terms at any time. Continued use of the platform constitutes acceptance of modified terms.`
   },
   {
     id: 'Platform Status & Government Affiliation',
-    title: '13. Platform Status & Government Affiliation',
+    title: '12. Platform Status & Government Affiliation',
     content: `CaseWatch is a personal prototype built by working developers as part of an academic and internship project.It is not approved, authorized, or endorsed by the Government of India, the Indian Judiciary, or any government body.Any emblems, logos, or visual elements resembling official government or judicial insignia used on this platform are local design implementations created for representational purposes only, and have not been officially provided or sanctioned by any government authority.`
   }
 ];
@@ -143,12 +133,12 @@ export const disclaimerContent = [
   {
     id: 'no-legal-advice',
     title: '2. No Legal Advice',
-    content: `Nothing on this platform — including AI-translated content, FAQ answers, or document templates — constitutes legal advice. Users should consult a qualified, licensed advocate for advice specific to their situation.`
+    content: `Nothing on this platform — including AI generated summary, FAQ answers, or document templates — constitutes legal advice. Users should consult a qualified, licensed advocate for advice specific to their situation.`
   },
   {
     id: 'no-attorney-client',
     title: '3. No Attorney-Client Relationship',
-    content: `Using CaseWatch, including the Pro-Bono Aid Finder, does not create an attorney-client relationship between the user and CaseWatch. Any such relationship, if formed, exists solely between the user and the independent lawyer/NGO they choose to engage.`
+    content: `Using CaseWatch, including the Gov Links section, does not create an attorney-client relationship between the user and CaseWatch. Any such relationship, if formed, exists solely between the user and the independent lawyer/NGO they choose to engage.`
   },
   {
     id: 'accuracy-of-case-data',
@@ -156,9 +146,9 @@ export const disclaimerContent = [
     content: `Case tracking data is pulled from publicly available court records. Court systems may have delays, errors, or downtime. CaseWatch is not responsible for missed hearings or deadlines resulting from inaccurate or delayed source data — always cross-verify with official court notices.`
   },
   {
-    id: 'ai-translation-limitations',
-    title: '5. AI Translation Limitations',
-    content: `AI-generated simplifications of legal jargon are for general comprehension only and may not capture full legal nuance. Do not rely solely on AI output for decisions with legal consequences.`
+    id: 'ai-summary-limitations',
+    title: '5. AI Summary Limitations',
+    content: `AI-generated case summaries are for general comprehension only and may not capture full legal nuance. Do not rely solely on AI output for decisions with legal consequences.`
   },
   {
     id: 'document-templates',
@@ -169,11 +159,6 @@ export const disclaimerContent = [
     id: 'third-party-links',
     title: '7. Third-Party Links',
     content: `Links to external sites (court websites, government portals) are provided for convenience; CaseWatch does not control or endorse their content.`
-  },
-  {
-    id: 'fraud-prevention',
-    title: '8. Fraud Prevention Notice',
-    content: `CaseWatch helps flag signs of potential fraud but cannot guarantee detection of all fraudulent actors; users should remain vigilant and report suspicious activity via the Grievance page.`
   }
 ];
 
@@ -190,7 +175,6 @@ export const grievanceContent = [
       <li><strong>Name:</strong> ${CONSTANTS.GRIEVANCE_OFFICER_NAME_PLACEHOLDER}</li>
       <li><strong>Designation:</strong> ${CONSTANTS.DESIGNATION_PLACEHOLDER}</li>
       <li><strong>Email:</strong> ${CONSTANTS.GRIEVANCE_EMAIL_PLACEHOLDER}</li>
-      <li><strong>Address:</strong> ${CONSTANTS.REGISTERED_ADDRESS_PLACEHOLDER}</li>
       <li><strong>Phone:</strong> ${CONSTANTS.PHONE_PLACEHOLDER}</li>
     </ul>`
   },

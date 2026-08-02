@@ -84,14 +84,6 @@ export default function LegalInfoPage() {
               </a>
             </div>
           </section>
-
-          <section className="legal-section translator-crosslink">
-            <h2>Still confused about jargon?</h2>
-            <div className="legal-section-content">
-              <p>Legal documents can be hard to understand. Try our <a href="#translator">AI Legal Translator</a> to simplify complex legal terms into plain English.</p>
-            </div>
-          </section>
-
           <div className="legal-disclaimer-note">
             This page is for general understanding only and is not legal advice. Laws and procedures vary by state and case. Always consult a qualified advocate for guidance specific to your situation.
           </div>

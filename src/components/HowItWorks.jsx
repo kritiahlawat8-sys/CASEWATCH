@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './HowItWorks.css';
 
 const HowItWorks = () => {
+  const navigate = useNavigate();
   const containerRef = useRef(null);
   const lineRef = useRef(null);
 
@@ -96,12 +98,19 @@ one clear, real-time view of your case — from start to finish.
               >
                 {/* Text Card Column */}
                 <div className="step-card-col">
-                  <div className="glass-card">
+                  <div className="glass-card" onClick={() => navigate(`/track-case?step=${step.id}`)}>
                     <div className="step-card-icon-wrapper">
                       <span className="material-symbols-outlined icon-main">{step.icon}</span>
                     </div>
                     <h3 className="step-card-title">{step.title}</h3>
                     <p className="step-card-desc">{step.description}</p>
+                    
+                    {/* Interactive Hover Overlay */}
+                    <div className="card-hover-overlay">
+                      <button className="hover-pill-button" type="button">
+                        Try it &rarr;
+                      </button>
+                    </div>
                   </div>
                 </div>
 

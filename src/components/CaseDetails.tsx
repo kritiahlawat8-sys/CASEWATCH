@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 
 export interface ActSection {
   act: string;
@@ -74,12 +74,13 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
 
   // AI Case Summary states
   interface SummaryData {
-    caseOverview: string;
+    storyOfTheCase: string;
+    whatEvidenceMeans: string;
     currentStatus: string;
-    nextHearing: string;
-    whatThisMeans: string;
-    recommendedNextSteps: string;
+    nextHearingBreakdown: string;
+    whatCourtIsAskingFromYou: string;
     requiredDocuments: string[];
+    urgencyAlert: string;
   }
 
   const [isExpanded, setIsExpanded] = useState(false);
@@ -131,55 +132,122 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
     return 'https://casewatch.onrender.com';
   };
 
+  // ── Job polling ref (cleared on unmount / completion) ──────────────
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const stopPolling = useCallback(() => {
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+  }, []);
+
+  // Clean up on unmount
+  useEffect(() => () => stopPolling(), [stopPolling]);
+
+  const pollForResult = useCallback(async (cnr: string): Promise<boolean> => {
+    try {
+      const apiUrl = getApiUrl();
+      const res = await fetch(`${apiUrl}/api/cases/summarize/status/${encodeURIComponent(cnr)}`);
+      if (!res.ok) return true;
+
+      const payload = await res.json();
+      const jobStatus: string = payload.status;
+
+      if (jobStatus === 'done') {
+        const data = payload.data ?? payload;
+        setSummaryData({
+          storyOfTheCase:           data.storyOfTheCase           || '',
+          whatEvidenceMeans:        data.whatEvidenceMeans        || '',
+          currentStatus:            data.currentStatus            || '',
+          nextHearingBreakdown:     data.nextHearingBreakdown     || '',
+          whatCourtIsAskingFromYou: data.whatCourtIsAskingFromYou || '',
+          requiredDocuments:        data.requiredDocuments        || [],
+          urgencyAlert:             data.urgencyAlert             || '',
+        });
+        setSummaryLoading(false);
+        return false;
+      }
+
+      if (jobStatus === 'error') {
+        setSummaryError(payload.detail || 'Failed to generate summary.');
+        setSummaryLoading(false);
+        return false;
+      }
+
+      return true;
+    } catch {
+      return true;
+    }
+  }, []);
+
   const handleGenerateSummary = async (forceRegenerate = false) => {
     if (summaryData && !forceRegenerate) {
       setIsExpanded(true);
       return;
     }
-    
+
     setSummaryLoading(true);
     setSummaryError(null);
     setIsExpanded(true);
-    
-    const payload = { case_data: caseData };
-    console.log("Sending AI summary request to backend. Endpoint:", `${getApiUrl()}/api/cases/summarize`, "Payload:", payload);
-    
+    stopPolling();
+
+    const cnr = caseData.cnr?.trim().toUpperCase() ?? '';
+    const apiUrl = getApiUrl();
+
     try {
-      const apiUrl = getApiUrl();
-      const response = await fetch(`${apiUrl}/api/cases/summarize`, {
+      const enqueueRes = await fetch(`${apiUrl}/api/cases/summarize/enqueue`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ case_data: caseData }),
       });
-      
-      if (!response.ok) {
-        let errorMsg = `Server error (${response.status}): Failed to generate summary from server.`;
+
+      if (!enqueueRes.ok) {
+        let errorMsg = `Server error (${enqueueRes.status}): Failed to queue summary request.`;
         try {
-          const errData = await response.json();
-          if (errData && errData.detail) {
-            errorMsg = typeof errData.detail === 'string' ? errData.detail : JSON.stringify(errData.detail);
-          }
+          const errData = await enqueueRes.json();
+          if (errData?.detail) errorMsg = typeof errData.detail === 'string' ? errData.detail : JSON.stringify(errData.detail);
         } catch (_) {}
         throw new Error(errorMsg);
       }
-      
-      const data = await response.json();
-      console.log("API response data received in frontend:", data);
-      
-      setSummaryData({
-        caseOverview: data.caseOverview || '',
-        currentStatus: data.currentStatus || '',
-        nextHearing: data.nextHearing || '',
-        whatThisMeans: data.whatThisMeans || '',
-        recommendedNextSteps: data.recommendedNextSteps || '',
-        requiredDocuments: data.requiredDocuments || [],
-      });
+
+      const enqueueData = await enqueueRes.json();
+
+      // Cache hit — result came back inline, no polling needed
+      if (enqueueData.status === 'done') {
+        setSummaryData({
+          storyOfTheCase:           enqueueData.storyOfTheCase           || '',
+          whatEvidenceMeans:        enqueueData.whatEvidenceMeans        || '',
+          currentStatus:            enqueueData.currentStatus            || '',
+          nextHearingBreakdown:     enqueueData.nextHearingBreakdown     || '',
+          whatCourtIsAskingFromYou: enqueueData.whatCourtIsAskingFromYou || '',
+          requiredDocuments:        enqueueData.requiredDocuments        || [],
+          urgencyAlert:             enqueueData.urgencyAlert             || '',
+        });
+        setSummaryLoading(false);
+        return;
+      }
+
+      // Job queued — start polling every 2 seconds, give up after 2 minutes
+      const POLL_INTERVAL_MS = 2000;
+      const MAX_POLL_ATTEMPTS = 60;
+      let attempts = 0;
+
+      pollIntervalRef.current = setInterval(async () => {
+        attempts++;
+        const keepPolling = await pollForResult(cnr);
+        if (!keepPolling || attempts >= MAX_POLL_ATTEMPTS) {
+          stopPolling();
+          if (attempts >= MAX_POLL_ATTEMPTS) {
+            setSummaryError('Summary is taking too long. Please try again in a moment.');
+            setSummaryLoading(false);
+          }
+        }
+      }, POLL_INTERVAL_MS);
+
     } catch (err: any) {
-      console.error("AI summary generation error:", err);
+      console.error('AI summary generation error:', err);
       setSummaryError(err.message || 'An error occurred while generating the summary.');
-    } finally {
       setSummaryLoading(false);
     }
   };
@@ -188,12 +256,13 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
     if (!summaryData) return;
     
     const textToCopy = [
-      `📄 Case Overview\n${summaryData.caseOverview}`,
+      `📖 Story of the Case\n${summaryData.storyOfTheCase}`,
+      `🔍 What Evidence Means\n${summaryData.whatEvidenceMeans}`,
       `⚖️ Current Status\n${summaryData.currentStatus}`,
-      `📅 Next Hearing\n${summaryData.nextHearing}`,
-      `💡 What This Means\n${summaryData.whatThisMeans}`,
-      `✅ Recommended Next Steps\n${summaryData.recommendedNextSteps}`,
-      `📎 Required Documents\n${summaryData.requiredDocuments.join(', ') || 'None identified'}`
+      `📅 Next Hearing Breakdown\n${summaryData.nextHearingBreakdown}`,
+      `❗ What Court Is Asking\n${summaryData.whatCourtIsAskingFromYou}`,
+      `📎 Required Documents\n${summaryData.requiredDocuments.join(', ') || 'None identified'}`,
+      `🚨 Urgency Alert\n${summaryData.urgencyAlert}`
     ].join('\n\n');
       
     navigator.clipboard.writeText(textToCopy).then(() => {
@@ -815,11 +884,12 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
             ) : summaryData ? (
               <div className="space-y-6">
                 {[
-                  { title: 'Case Overview', emoji: '📄', content: summaryData.caseOverview },
+                  { title: 'Story of the Case', emoji: '📖', content: summaryData.storyOfTheCase },
+                  { title: 'What Evidence Means', emoji: '🔍', content: summaryData.whatEvidenceMeans },
                   { title: 'Current Status', emoji: '⚖️', content: summaryData.currentStatus },
-                  { title: 'Next Hearing', emoji: '📅', content: summaryData.nextHearing },
-                  { title: 'What This Means', emoji: '💡', content: summaryData.whatThisMeans },
-                  { title: 'Recommended Next Steps', emoji: '✅', content: summaryData.recommendedNextSteps },
+                  { title: 'Next Hearing Breakdown', emoji: '📅', content: summaryData.nextHearingBreakdown },
+                  { title: 'What Court Is Asking', emoji: '❗', content: summaryData.whatCourtIsAskingFromYou },
+                  { title: 'Urgency Alert', emoji: '🚨', content: summaryData.urgencyAlert },
                 ].map((section, idx) => (
                   <div key={idx} className="flex gap-4">
                     <div className="flex-shrink-0 text-xl w-6 h-6 flex items-center justify-center bg-neutral-50 rounded-lg">

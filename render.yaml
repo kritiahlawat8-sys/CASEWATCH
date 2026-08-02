@@ -1,0 +1,48 @@
+# Render Deployment Configuration for CaseWatch
+# NOTE: The worker service needs uptime monitoring or a paid tier to prevent cold starts
+# from killing the 45s polling window during long-running Gemini summary generation tasks.
+
+services:
+  # Main FastAPI API Service
+  - type: web
+    name: casewatch-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: ECOURTS_API_KEY
+        sync: false
+      - key: RECAPTCHA_SECRET_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: UPSTASH_REDIS_URL
+        sync: false
+
+  # Background Gemini Summary Worker
+  - type: worker
+    name: casewatch-gemini-worker
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: arq worker.WorkerSettings
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_KEY
+        sync: false
+      - key: ECOURTS_API_KEY
+        sync: false
+      - key: RECAPTCHA_SECRET_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: UPSTASH_REDIS_URL
+        sync: false

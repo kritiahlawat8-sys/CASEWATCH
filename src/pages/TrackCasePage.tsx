@@ -85,7 +85,40 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
     };
   }, [courtSearch, activeCategory]);
 
-  // Handle auto-lookup from homepage CNR search
+  const fetchCaseDetails = async (cnr: string, party: string = '') => {
+    setCaseLoading(true);
+    setCaseError(null);
+    try {
+      const siteKey = import.meta.env.VITE_RECAPTCHA_V3_SITEKEY;
+      let token = '';
+      if (siteKey && (window as any).grecaptcha) {
+        token = await new Promise((resolve) => {
+          (window as any).grecaptcha.ready(() => {
+            (window as any).grecaptcha.execute(siteKey, { action: 'submit' }).then((t: string) => resolve(t));
+          });
+        });
+      }
+
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://casewatch.onrender.com';
+      console.log('Fetching case from:', apiUrl);
+      const res = await fetch(`${apiUrl}/api/cases/lookup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cnr, party_name: party, captcha_token: token })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.detail || 'Failed to fetch case details');
+      }
+      setCaseData(data);
+    } catch (err: any) {
+      setCaseError(err.message || 'An error occurred while fetching case data.');
+    } finally {
+      setCaseLoading(false);
+    }
+  };
+
+  // Handle auto-lookup from homepage CNR search and step query parameters
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     let cnrVal = params.get('cnr');
@@ -96,19 +129,63 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
       }
     }
 
-    if (cnrVal) {
-      const sanitizedCnr = cnrVal.trim().toUpperCase();
-      setCrnNumber(sanitizedCnr);
+    const stepVal = params.get('step');
+    const stepNum = stepVal ? parseInt(stepVal, 10) : 1;
+
+    // Use default CNR if step >= 3 and no CNR is specified
+    const defaultCnr = 'MHCB010000012024';
+    const activeCnr = cnrVal ? cnrVal.trim().toUpperCase() : ((stepNum >= 3) ? defaultCnr : '');
+
+    if (activeCnr) {
+      setCrnNumber(activeCnr);
+    }
+
+    if (stepNum >= 1 && stepNum <= 4) {
+      setCurrentStep(stepNum as Step);
+      
+      // Auto-select a default court if step > 1 and none is currently selected
+      if (stepNum > 1 && !selectedCourt) {
+        const defaultCourt = {
+          id: "supreme-court",
+          label: "Supreme Court of India",
+          category: "Supreme Court",
+          icon: "🏛️",
+          state: "New Delhi"
+        };
+        setSelectedCourt(defaultCourt.id);
+        setSelectedCourtData(defaultCourt);
+      }
+
+      // If step is 3 or 4, trigger case details lookup automatically!
+      if (stepNum >= 3 && activeCnr) {
+        setIsVerified(true);
+        fetchCaseDetails(activeCnr);
+      }
     }
   }, []);
 
+  useEffect(() => {
+    const handleReset = () => {
+      setCurrentStep(1);
+      setSelectedCourt('');
+      setSelectedCourtData(null);
+      setIsVerified(false);
+      setCrnNumber('');
+      setPartyName('');
+      setCaseData(null);
+      setCaseError(null);
+    };
+
+    window.addEventListener('reset-track-case', handleReset);
+    return () => {
+      window.removeEventListener('reset-track-case', handleReset);
+    };
+  }, []);
 
   // Scroll to the interactive card section
   const scrollToCard = () => {
     cardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
-
-
 
   const handleCrnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.toUpperCase();
@@ -139,37 +216,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
     if (crnNumber.trim()) {
       setIsVerified(true);
       setCurrentStep(3);
-
-      setCaseLoading(true);
-      setCaseError(null);
-      try {
-        const siteKey = import.meta.env.VITE_RECAPTCHA_V3_SITEKEY;
-        let token = '';
-        if (siteKey && (window as any).grecaptcha) {
-          token = await new Promise((resolve) => {
-            (window as any).grecaptcha.ready(() => {
-              (window as any).grecaptcha.execute(siteKey, { action: 'submit' }).then((t: string) => resolve(t));
-            });
-          });
-        }
-
-        const apiUrl = import.meta.env.VITE_API_URL || 'https://casewatch.onrender.com';
-        console.log('Fetching case from:', apiUrl);
-        const res = await fetch(`${apiUrl}/api/cases/lookup`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ cnr: crnNumber, party_name: partyName, captcha_token: token })
-        });
-        const data = await res.json();
-        if (!res.ok) {
-          throw new Error(data.detail || 'Failed to fetch case details');
-        }
-        setCaseData(data);
-      } catch (err: any) {
-        setCaseError(err.message || 'An error occurred while fetching case data.');
-      } finally {
-        setCaseLoading(false);
-      }
+      await fetchCaseDetails(crnNumber, partyName);
     }
   };
 

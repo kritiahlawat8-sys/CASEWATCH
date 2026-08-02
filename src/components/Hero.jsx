@@ -62,20 +62,18 @@ const Hero = () => {
           <input
             type="text"
             className="cnr-search-input"
-            placeholder="Enter CNR Number (e.g. ABCD010012342026)"
+            placeholder="Describe what you need — e.g. rent agreement template"
             value={cnr}
             onChange={(e) => setCnr(e.target.value)}
             required
           />
           <button type="submit" className="btn-dark cnr-search-submit">
-            Track Case &rarr;
+            Search &rarr;
           </button>
         </form>
         
         <p className="hero-description">
-          With over 50 million pending cases across India, navigate the legal system effortlessly. <br />
-          CaseWatch is your unified platform to decode complex court documents, <br />
-          and track yours.
+          With over 50 million pending cases across India, navigate the legal system effortlessly. CaseWatch is your unified platform to track court cases and get instant AI-powered case summaries.
         </p>
       </div>
     </section>

@@ -9,10 +9,10 @@ const WhyCaseWatch = () => {
 
   // Split content segments for cleaner React-native word wrapping
   const segments = [
-    { text: "With over 50 million pending cases across India, navigating the legal system can feel overwhelming. ", bold: false },
-    { text: "CaseWatch changes this. ", bold: true },
-    { text: "It is an open-source, AI-powered platform that tracks court cases, decodes complex legal documents, and automates affidavit generation using just a CNR number. No complicated logins, no expensive legal fees—just transparent, automated legal intelligence.", bold: false }
-  ];
+  { text: "With over 50 million pending cases clogging India's courts, navigating the legal system shouldn't feel like a second full-time job. ", bold: false },
+  { text: "CaseWatch changes that. ", bold: true },
+  { text: "It's an open-source, AI-powered platform that tracks your court cases, generates instant AI case summaries, and offers ready-to-use legal templates — all with just a CNR number. No complicated logins. No expensive legal fees. Just fast, transparent, automated legal intelligence.", bold: false }
+];
 
   // Build the list of tokens to render
   const tokens = [];
@@ -174,7 +174,7 @@ const WhyCaseWatch = () => {
             ref={paragraphRef}
             className="why-body"
             id="why-reveal-text"
-            aria-label="With over 50 million pending cases across India, navigating the legal system can feel overwhelming. CaseWatch changes this. It is an open-source, AI-powered platform that tracks court cases, decodes complex legal documents, and automates affidavit generation using just a CNR number. No complicated logins, no expensive legal fees—just transparent, automated legal intelligence."
+            aria-label="With over 50 million pending cases clogging India's courts, navigating the legal system shouldn't feel like a second full-time job. CaseWatch changes that. It's an open-source, AI-powered platform that tracks your court cases, generates instant AI case summaries, and offers ready-to-use legal templates — all with just a CNR number. No complicated logins. No expensive legal fees. Just fast, transparent, automated legal intelligence."
           >
             {tokens.map((token, i) => {
               if (token.type === 'space') {
@@ -211,7 +211,7 @@ const WhyCaseWatch = () => {
                 <p className="overview-eyebrow">Overview</p>
                 <h2 className="overview-heading">Why Choose<br/>CaseWatch?</h2>
                 <p className="overview-lede">
-                  Tracking Indian court cases across multiple platforms is slow, complex, and prone to missed updates. CaseWatch centralizes this process. By leveraging AI and official CNR data, it provides real-time hearing updates, decodes dense legal documents, and automates administrative tasks like affidavit generation—all without requiring a user login.
+                  Tracking Indian court cases across multiple platforms is slow, complex, and prone to missed updates. CaseWatch centralizes this process. By leveraging AI and official CNR data, it provides real-time hearing updates, explains your case status in plain language, and lets you add upcoming hearings to your calendar with a single tap — all without requiring a user login.
                 </p>
               </div>
               <div className="flex w-2/5 lg:w-1/3 justify-center items-center opacity-80" aria-hidden="true">
@@ -232,8 +232,8 @@ const WhyCaseWatch = () => {
                   <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
               </div>
-              <h3 className="feature-title">Automated Case Tracking</h3>
-              <p className="feature-desc">Enter a CNR number to receive instant, automated updates on case statuses, upcoming hearings, and historical court orders.</p>
+              <h3 className="feature-title">Instant Case Lookup</h3>
+              <p className="feature-desc">Enter a CNR number to instantly view case status, upcoming hearings, and historical court orders — pulled directly from official records.</p>
             </li>
 
             <li
@@ -247,8 +247,8 @@ const WhyCaseWatch = () => {
                   <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <h3 className="feature-title">AI Document Decoding</h3>
-              <p className="feature-desc">Our AI engine analyzes and simplifies complex legal jargon, making dense court documents easy to understand for both citizens and professionals.</p>
+              <h3 className="feature-title">Multiple Courts, One Platform</h3>
+              <p className="feature-desc">Track cases across a growing network of Indian courts — district and High Courts alike — all from a single CNR search.</p>
             </li>
 
             <li
@@ -262,8 +262,8 @@ const WhyCaseWatch = () => {
                   <path d="M7 8h10M7 12h6M7 16h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
               </div>
-              <h3 className="feature-title">Multiple Courts, One Platform</h3>
-              <p className="feature-desc">Track cases across a growing network of Indian courts — district and High Courts alike — all from a single CNR search.</p>
+              <h3 className="feature-title">Instant AI Summaries</h3>
+              <p className="feature-desc">Skip the jargon. Get a clear, AI generated summary of your case status and hearings — instantly, from just a CNR number.</p>
             </li>
 
             <li
@@ -277,8 +277,8 @@ const WhyCaseWatch = () => {
                   <path d="M13.73 21a2 2 0 0 1-3.46 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
               </div>
-              <h3 className="feature-title">Frictionless Access</h3>
-              <p className="feature-desc">An entirely open-source platform designed for public utility. Track cases and access legal intelligence without any mandatory logins or paywalls.</p>
+              <h3 className="feature-title">Procedure, Simplified</h3>
+              <p className="feature-desc">Chat in your own words and get the right document, scheme, or step-by-step procedure — along with verified government links, instantly.</p>
             </li>
           </ul>
 

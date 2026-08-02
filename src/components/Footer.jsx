@@ -61,8 +61,7 @@ export default function Footer() {
               <ul className="footer-links">
                 <li><Link to="/about">About</Link></li>
                 <li><Link to="/how-it-works">How it works</Link></li>
-                <li><a href="#case-types">Case Types</a></li>
-                <li><a href="#contact">Contact</a></li>
+                <li><Link to="/contact">Contact</Link></li>
               </ul>
             </div>
 
@@ -187,7 +186,7 @@ export default function Footer() {
                   <li><Link to="/about">About</Link></li>
                   <li><Link to="/how-it-works">How it works</Link></li>
                   <li><a href="#case-types">Case Types</a></li>
-                  <li><a href="#contact">Contact</a></li>
+                  <li><Link to="/contact">Contact</Link></li>
                 </ul>
               </div>
             </div>

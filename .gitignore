@@ -28,3 +28,6 @@ dist-ssr
 
 # Env files
 .env
+
+# Zip files
+backend.zip

@@ -42,6 +42,12 @@ export default function FeaturesPage() {
       title: "Bilingual FAQ Support",
       description: "Have a question about your case, your privacy, or how to spot a fake court notice? Our FAQ section covers everything from understanding court tracking and case status, to keeping your data safe and identifying fraud — all explained in simple words, in both English and Hindi.",
       icon: "g_translate"
+    },
+    {
+      id: 7,
+      title: "Chat with our guide",
+      description: "Chat with our guide to find any Haryana government document or scheme, along with its complete step-by-step procedure — from documents and licenses to welfare schemes like insurance or education assistance. Ask in your own words and get the right steps, requirements, and official Haryana links, all in one place.",
+      icon: "support_agent"
     }
   ];
 
