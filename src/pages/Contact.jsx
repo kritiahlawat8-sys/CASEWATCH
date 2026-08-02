@@ -12,7 +12,7 @@ export default function Contact() {
   const teamMembers = [
     "Nihal Kumar",
     "Kriti Ahlawat",
-    "Sourav Singh",
+    "Sourav Yadav",
     "Nancy Sihag"
   ];
 
