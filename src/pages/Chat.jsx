@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import './Chat.css';
 
@@ -67,6 +67,8 @@ Let me know if you would like me to draft an outline for a specific document or 
 export default function Chat() {
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
+  const location = useLocation();
+  const hasProcessedQuery = useRef(false);
   const [isTyping, setIsTyping] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const conversationEndRef = useRef(null);
@@ -162,6 +164,16 @@ export default function Chat() {
     setIsTyping(false);
     setIsSubmitted(false);
   };
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const query = params.get('q');
+    if (query && !hasProcessedQuery.current) {
+      hasProcessedQuery.current = true;
+      setInputText(query);
+      handleSendMessage(query);
+    }
+  }, [location.search]);
 
   useEffect(() => {
     const handleResetEvent = () => {

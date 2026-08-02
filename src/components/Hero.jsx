@@ -9,8 +9,7 @@ const Hero = () => {
   const handleCnrSearch = (e) => {
     e.preventDefault();
     if (cnr.trim()) {
-      localStorage.setItem('cnr_search', cnr.trim());
-      navigate(`/track-case.html?cnr=${encodeURIComponent(cnr.trim())}`);
+      navigate(`/chat?q=${encodeURIComponent(cnr.trim())}`);
     }
   };
 
@@ -67,7 +66,7 @@ const Hero = () => {
             onChange={(e) => setCnr(e.target.value)}
             required
           />
-          <button type="submit" className="btn-dark cnr-search-submit">
+          <button type="submit" className="btn-dark cnr-search-submit" disabled={!cnr.trim()}>
             Search &rarr;
           </button>
         </form>
