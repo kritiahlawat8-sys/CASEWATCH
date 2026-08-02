@@ -21,15 +21,15 @@ export default function FeaturesPage() {
     },
     {
       id: 3,
-      title: "Simplified Legal Hub",
-      description: "A centralized information hub that breaks down complex legal topics, fundamental rights, and procedures into simple terms based on dynamic slugs.",
-      icon: "menu_book"
+      title: "Chat with our guide",
+      description: "Chat with our guide to find any Haryana government document or scheme, along with its complete step-by-step procedure — from documents and licenses to welfare schemes like insurance or education assistance. Ask in your own words and get the right steps, requirements, and official Haryana links, all in one place.",
+      icon: "support_agent"
     },
     {
       id: 4,
-      title: "Grievance Redressal",
-      description: "A dedicated page containing information and layouts for citizens to understand the grievance redressal process and file complaints.",
-      icon: "report"
+      title: "Research Keywords",
+      description: "Search court judgments and orders by keyword across High Courts and instantly get all cases related to that keyword — complete with judge names, case status, and relevant excerpts. Filter by phrase, court, or disposal year to narrow results, all in one place.",
+      icon: "gavel"
     },
     {
       id: 5,
@@ -45,9 +45,15 @@ export default function FeaturesPage() {
     },
     {
       id: 7,
-      title: "Chat with our guide",
-      description: "Chat with our guide to find any Haryana government document or scheme, along with its complete step-by-step procedure — from documents and licenses to welfare schemes like insurance or education assistance. Ask in your own words and get the right steps, requirements, and official Haryana links, all in one place.",
-      icon: "support_agent"
+      title: "Simplified Legal Hub",
+      description: "A centralized information hub that breaks down complex legal topics, fundamental rights, and procedures into simple terms based on dynamic slugs.",
+      icon: "description"
+    },
+    {
+      id: 8,
+      title: "Grievance Redressal",
+      description: "A dedicated page containing information and layouts for citizens to understand the grievance redressal process and file complaints.",
+      icon: "report"
     }
   ];
 
