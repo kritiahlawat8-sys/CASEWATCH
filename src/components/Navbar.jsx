@@ -97,7 +97,7 @@ const Navbar = () => {
             <ul className={`nav-dropdown-menu ${isGovDropdownOpen ? 'open' : ''}`}>
               <li><a href="https://ecourts.gov.in" target="_blank" rel="noopener noreferrer" className="nav-dropdown-item">e-Courts</a></li>
               <li><a href="https://nalsa.gov.in" target="_blank" rel="noopener noreferrer" className="nav-dropdown-item">NALSA</a></li>
-              <li><a href="https://main.sci.gov.in" target="_blank" rel="noopener noreferrer" className="nav-dropdown-item">Supreme Court</a></li>
+              <li><a href="https://www.sci.gov.in" target="_blank" rel="noopener noreferrer" className="nav-dropdown-item">Supreme Court</a></li>
               <li><a href="https://nalsa.gov.in/lok-adalats/" target="_blank" rel="noopener noreferrer" className="nav-dropdown-item">Lok Adalat</a></li>
               <li><a href="https://ncdrc.nic.in" target="_blank" rel="noopener noreferrer" className="nav-dropdown-item">Consumer Disputes (NCDRC)</a></li>
             </ul>
