@@ -4,4 +4,3 @@ pymupdf
 google-genai
 supabase
 python-dotenv
-openai
