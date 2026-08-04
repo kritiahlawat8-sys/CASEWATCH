@@ -409,3 +409,19 @@
     font-size: 14px;
   }
 }
+
+/* Fake Typewriter Animation */
+.chat-typewriter-effect {
+  animation: typewriterReveal var(--typewriter-duration, 2s) ease-out forwards;
+}
+
+@keyframes typewriterReveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

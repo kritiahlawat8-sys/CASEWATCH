@@ -8,3 +8,4 @@ redis==5.0.1
 google-genai
 arq
 rq==1.16.2
+groq

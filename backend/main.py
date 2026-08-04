@@ -8,13 +8,13 @@ load_dotenv(dotenv_path=dotenv_path, override=True)
 
 import httpx
 from fastapi import FastAPI, Query, HTTPException, status, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from supabase import create_client, Client
 from typing import Optional, Dict, Any
 from datetime import datetime
 import base64
-from google import genai
-from google.genai import types
+from groq import Groq
 from pydantic import BaseModel, Field
 import json
 from redis import Redis
@@ -54,15 +54,139 @@ app = FastAPI(title="CaseWatch API", version="0.4.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://casewatch.vercel.app",
-        "http://localhost:5173",
-        "http://localhost:3000"
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ── Gemini Chat & Hybrid Search Setup ─────────────────────────────────────────
+
+class ChatRequest(BaseModel):
+    message: str
+    history: list = []
+
+# Load SARAL Haryana services from local JSON
+SARAL_SERVICES = []
+services_path = os.path.join(backend_dir, "saral_services.json")
+try:
+    if os.path.exists(services_path):
+        with open(services_path, "r", encoding="utf-8") as f:
+            SARAL_SERVICES = json.load(f)
+        print(f"INFO: Loaded {len(SARAL_SERVICES)} services from saral_services.json")
+    else:
+        print(f"WARNING: saral_services.json not found at {services_path}")
+except Exception as e:
+    print(f"ERROR: Failed to load saral_services.json: {e}")
+
+def search_local_services(query: str, services: list) -> list:
+    import re
+    if not query:
+        return []
+    # Tokenize query to search keywords
+    query_words = [w.lower() for w in re.split(r'[^a-zA-Z0-9]+', query) if w]
+    if not query_words:
+        return []
+    
+    scored_services = []
+    for s in services:
+        name = s.get("service_name") or ""
+        dept = s.get("department") or ""
+        notes = s.get("llm_notes") or ""
+        
+        name_l = name.lower()
+        dept_l = dept.lower()
+        notes_l = notes.lower()
+        
+        score = 0
+        for word in query_words:
+            if word in name_l:
+                score += 10
+                if name_l.startswith(word):
+                    score += 5
+            if word in dept_l:
+                score += 5
+            if word in notes_l:
+                score += 2
+                
+        if score > 0:
+            scored_services.append((score, s))
+            
+    scored_services.sort(key=lambda x: x[0], reverse=True)
+    return [s for _, s in scored_services[:3]]
+
+@app.post("/api/chat")
+async def chat_backend(request: ChatRequest):
+    message = request.message.strip()
+    history = request.history
+    
+    if not message:
+        raise HTTPException(status_code=400, detail="Message string is required")
+        
+    # Search top 3 local services matching query keywords
+    matching_services = search_local_services(message, SARAL_SERVICES)
+    
+    # Format local context for the model
+    context_str = json.dumps(matching_services, indent=2, ensure_ascii=False)
+    
+    # Professional CaseWatch AI system instructions
+    system_instruction = (
+        "You are 'CaseWatch AI', an official assistant for templates, online/offline application steps, "
+        "and troubleshooting for government services in Haryana.\n\n"
+        f"Here is the local service context matching the user's query:\n{context_str}\n\n"
+        "Guidelines:\n"
+        "1. Use the provided local service context to answer questions about Haryana SARAL services. "
+        "If a matching service is found in the context, extract and explain the steps, RTS timeline, "
+        "department, and requirements clearly. Make sure to structure it professionally with headers and bullet points.\n"
+        "2. If the user query is outside the provided local services, you MUST use the Google Search grounding "
+        "tool to search the web and provide the most accurate and up-to-date information. Do not mention that "
+        "you used the search tool, just present the grounded information.\n"
+        "3. Keep your response in clear, professional markdown format."
+    )
+    
+    # Initialize Groq client
+    api_key = os.environ.get("GROQ_API_KEY")
+    if not api_key:
+        raise HTTPException(status_code=500, detail="Groq API Key is not configured")
+        
+    try:
+        client = Groq(api_key=api_key)
+        
+        formatted_history = []
+        for m in history:
+            role = m.get("role", "user")
+            if role == "model":
+                role = "assistant"
+            parts = m.get("parts", [])
+            text = parts[0].get("text", "") if len(parts) > 0 else m.get("text", "")
+            if text:
+                formatted_history.append({"role": role, "content": text})
+
+        chat_completion = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": system_instruction},
+                *formatted_history,
+                {"role": "user", "content": message}
+            ],
+            temperature=0.3,
+        )
+        
+        return {"response": chat_completion.choices[0].message.content}
+    except Exception as e:
+        import traceback
+        print(f"[CASEWATCH ERROR] {type(e).__name__}: {str(e)}")
+        traceback.print_exc()
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "response": "CaseWatch AI is temporarily busy. Please try again in a moment.",
+                "reply": "CaseWatch AI is temporarily busy. Please try again in a moment.",
+                "sources": []
+            }
+        )
+
 
 # ── Redis Queue setup ─────────────────────────────────────────────────────────
 def _get_queue() -> Queue | None:

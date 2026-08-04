@@ -80,7 +80,7 @@ export default function Chat() {
     }
   }, [messages, isTyping]);
 
-  const handleSendMessage = (textToSend) => {
+  const handleSendMessage = async (textToSend) => {
     if (!textToSend.trim()) return;
 
     // Transition input to bottom
@@ -92,61 +92,62 @@ export default function Chat() {
       text: textToSend
     };
 
+    // Calculate history BEFORE appending the new message to local state
+    const history = messages.map(msg => ({
+      role: msg.sender === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.text }]
+    }));
+
     setMessages((prev) => [...prev, userMessage]);
     setInputText('');
     setIsTyping(true);
 
-    // Simulate network delay then respond
-    setTimeout(() => {
-      setIsTyping(false);
-      
-      // Determine response text
-      const cleanText = textToSend.toLowerCase();
-      let matchedResponse = PRESETS.default.response;
-      
-      if (cleanText.includes('pan') || cleanText.includes('permanent account number')) {
-        matchedResponse = PRESETS.pan.response;
-      } else if (cleanText.includes('rent') || cleanText.includes('lease') || cleanText.includes('agreement')) {
-        matchedResponse = PRESETS.rent.response;
-      } else if (cleanText.includes('consumer') || cleanText.includes('complaint') || cleanText.includes('defective')) {
-        matchedResponse = PRESETS.consumer.response;
+    try {
+      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiBase}/api/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: textToSend,
+          history: history
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      // Start streaming simulation
+      const data = await response.json();
+      const aiResponseText = data.response || data.reply || "No response received";
+
+      const duration = Math.max(1, aiResponseText.length * 0.012);
+
       const aiMessageId = Date.now() + 1;
       const newAiMessage = {
         id: aiMessageId,
         sender: 'ai',
-        text: '',
-        isStreaming: true
+        text: aiResponseText,
+        isNew: true, // Used for typewriter CSS animation
+        duration: duration
       };
 
       setMessages((prev) => [...prev, newAiMessage]);
-
-      const words = matchedResponse.split(' ');
-      let currentWordIndex = 0;
-      let streamedText = '';
-
-      const interval = setInterval(() => {
-        if (currentWordIndex < words.length) {
-          streamedText += (currentWordIndex === 0 ? '' : ' ') + words[currentWordIndex];
-          setMessages((prev) =>
-            prev.map((msg) =>
-              msg.id === aiMessageId ? { ...msg, text: streamedText } : msg
-            )
-          );
-          currentWordIndex++;
-        } else {
-          clearInterval(interval);
-          setMessages((prev) =>
-            prev.map((msg) =>
-              msg.id === aiMessageId ? { ...msg, isStreaming: false } : msg
-            )
-          );
+    } catch (error) {
+      console.error('Error fetching chat response:', error);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 2,
+          sender: 'ai',
+          text: `Sorry, I encountered an error while processing your request. Please make sure the backend is running at http://localhost:8000 and try again. (Details: ${error.message})`,
+          isNew: false
         }
-      }, 40); // 40ms per word for readable stream speed
-
-    }, 1200); // 1.2s skeleton loader delay
+      ]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const handleFormSubmit = (e) => {
@@ -276,7 +277,10 @@ export default function Chat() {
                   </div>
                 ) : (
                   <div className="chat-ai-response-container">
-                    <div className="chat-ai-response-text">
+                    <div 
+                      className={`chat-ai-response-text ${msg.isNew ? 'chat-typewriter-effect' : ''}`}
+                      style={msg.isNew ? { "--typewriter-duration": `${msg.duration}s` } : undefined}
+                    >
                       {renderFormattedText(msg.text)}
                     </div>
                   </div>
@@ -336,21 +340,21 @@ export default function Chat() {
               <button 
                 type="button" 
                 className="chat-suggestion-chip"
-                onClick={() => handleChipClick(PRESETS.pan.query)}
+                onClick={() => handleChipClick("Rent agreement format")}
               >
                 Rent agreement format
               </button>
               <button 
                 type="button" 
                 className="chat-suggestion-chip"
-                onClick={() => handleChipClick(PRESETS.rent.query)}
+                onClick={() => handleChipClick("Documents needed for property registration")}
               >
                 Documents needed for property registration
               </button>
               <button 
                 type="button" 
                 className="chat-suggestion-chip"
-                onClick={() => handleChipClick(PRESETS.consumer.query)}
+                onClick={() => handleChipClick("How to file an FIR in Haryana")}
               >
                 How to file an FIR in Haryana
               </button>
