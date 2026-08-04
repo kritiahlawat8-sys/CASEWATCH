@@ -691,6 +691,61 @@ async def lookup_case(payload: dict):
 
     data["from_cache"] = False
     return data
+# ── Keyword / Full-text Research Search ──────────────────────────────────────
+
+COURT_LEVEL_MAP = {
+    "High Court": "HC",
+    "Supreme Court": "SC",
+    "District Court": "DC",
+    "Tribunal": "TRIBUNAL",
+}
+
+@app.get("/api/research/search")
+async def research_keyword_search(
+    query: str = Query(..., min_length=1),
+    court: str = Query(default="High Court"),
+    searchType: str = Query(default="phrase"),
+    page: int = Query(default=1, ge=1),
+    pageSize: int = Query(default=20, le=100),
+    captcha_token: Optional[str] = Query(default=None),
+):
+    # reCAPTCHA v3 verification (same pattern as /api/cases/lookup)
+    if RECAPTCHA_SECRET_KEY:
+        if not captcha_token:
+            raise HTTPException(status_code=400, detail="Security verification required.")
+        async with httpx.AsyncClient(timeout=10) as client:
+            captcha_resp = await client.post(
+                "https://www.google.com/recaptcha/api/siteverify",
+                data={"secret": RECAPTCHA_SECRET_KEY, "response": captcha_token},
+            )
+            captcha_data = captcha_resp.json()
+            if not captcha_data.get("success") or captcha_data.get("score", 0.0) < 0.5:
+                raise HTTPException(status_code=400, detail="Captcha verification failed.")
+
+    court_level = COURT_LEVEL_MAP.get(court, "HC")
+    name_match_mode = searchType if searchType in ("phrase", "any", "all", "fuzzy") else "phrase"
+
+    params = {
+        "query": query,
+        "courtLevels": court_level,
+        "nameMatchMode": name_match_mode,
+        "page": page,
+        "pageSize": pageSize,
+        "facets": ["caseType", "caseStatus"],
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = await client.get(
+                f"{ECOURTS_BASE}/api/partner/search",
+                headers={"Authorization": f"Bearer {ECOURTS_API_KEY}"},
+                params=params,
+            )
+        if resp.status_code == 200:
+            return resp.json()
+        raise HTTPException(status_code=resp.status_code, detail=f"eCourts API error: {resp.status_code}")
+    except (httpx.TimeoutException, httpx.RequestError) as e:
+        raise HTTPException(status_code=504, detail=f"eCourts API unreachable: {str(e)}")
 
 
 from app.summary_job import generate_summary

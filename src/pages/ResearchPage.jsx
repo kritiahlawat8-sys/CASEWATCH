@@ -1,95 +1,123 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import './ResearchPage.css';
 
-const MOCK_RESULTS = [
-  {
-    id: 1,
-    title: 'B.A./7134/2026 of John Doe Vs Jane Smith',
-    judge: 'Hon\'ble Mr. Justice A.B. Carter',
-    snippet: '...the court finds that the plaintiff has established a prima facie case. The requested keyword was thoroughly examined during the proceedings and it was determined that the defendant...',
-    metadata: {
-      cnr: 'MHCB010000012026',
-      registeredDate: '15-01-2026',
-      decisionDate: '20-03-2026',
-      disposalNature: 'Allowed',
-      court: 'High Court of Delhi'
-    }
-  },
-  {
-    id: 2,
-    title: 'W.P.(C)/1205/2026 of Tech Corp Vs Union of India',
-    judge: 'Hon\'ble Ms. Justice P.K. Sharma',
-    snippet: '...upon reviewing the documents, it is evident that the keyword in question does not apply to the current context. The petition is therefore dismissed on grounds of...',
-    metadata: {
-      cnr: 'MHCB010012052026',
-      registeredDate: '10-02-2026',
-      decisionDate: '05-04-2026',
-      disposalNature: 'Dismissed',
-      court: 'High Court of Bombay'
-    }
-  }
-];
+const API_BASE = import.meta.env.VITE_API_URL || 'https://casewatch.onrender.com';
+const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_V3_SITEKEY;
+
+const loadRecaptcha = () =>
+  new Promise((resolve) => {
+    if (window.grecaptcha) return resolve();
+    const script = document.createElement('script');
+    script.src = `https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`;
+    script.onload = resolve;
+    document.head.appendChild(script);
+  });
+
+const getRecaptchaToken = async (action = 'research_search') => {
+  await loadRecaptcha();
+  return new Promise((resolve) =>
+    window.grecaptcha.ready(() =>
+      window.grecaptcha.execute(RECAPTCHA_SITE_KEY, { action }).then(resolve)
+    )
+  );
+};
+
+const buildTitle = (result) => {
+  const pet = result.petitioners?.[0] || 'Unknown';
+  const res = result.respondents?.[0] || 'Unknown';
+  const type = result.caseType || '';
+  const year = result.filingYear || '';
+  return `${type}${year ? '/' + year : ''} — ${pet} vs ${res}`;
+};
 
 const ResearchPage = () => {
   const [court, setCourt] = useState('High Court');
   const [keyword, setKeyword] = useState('');
   const [searchType, setSearchType] = useState('phrase');
-  
+  const [page, setPage] = useState(1);
+
   const [hasSearched, setHasSearched] = useState(false);
   const [activeKeyword, setActiveKeyword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [results, setResults] = useState([]);
-  
-  const [captchaValue, setCaptchaValue] = useState('');
+  const [totalHits, setTotalHits] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [error, setError] = useState('');
-  
+
+  const doSearch = async (searchKeyword, searchCourt, searchType, searchPage) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      let captcha_token = '';
+      if (RECAPTCHA_SITE_KEY) {
+        captcha_token = await getRecaptchaToken('research_search');
+      }
+
+      const params = new URLSearchParams({
+        query: searchKeyword,
+        court: searchCourt,
+        searchType,
+        page: searchPage,
+        pageSize: 20,
+        ...(captcha_token && { captcha_token }),
+      });
+
+      const resp = await fetch(`${API_BASE}/api/research/search?${params}`);
+      const json = await resp.json();
+
+      if (!resp.ok) {
+        setError(json.detail || 'Search failed. Please try again.');
+        return;
+      }
+
+      const data = json.data;
+      setResults(data.results || []);
+      setTotalHits(data.totalHits || 0);
+      setTotalPages(data.totalPages || 1);
+      setActiveKeyword(searchKeyword);
+      setHasSearched(true);
+    } catch (err) {
+      setError('Network error. Please check your connection.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleSearch = async (e) => {
     e.preventDefault();
-    
-    if (!captchaValue.trim()) {
-      setError('Please enter the captcha text to proceed.');
-      return;
-    }
-    
     if (!keyword.trim()) return;
-    
-    setError('');
-    setIsLoading(true);
-    
-    // Mocking API call
-    setTimeout(() => {
-      setResults(MOCK_RESULTS);
-      setActiveKeyword(keyword);
-      setHasSearched(true);
-      setIsLoading(false);
-    }, 1000);
+    setPage(1);
+    await doSearch(keyword.trim(), court, searchType, 1);
+  };
+
+  const handlePageChange = async (newPage) => {
+    setPage(newPage);
+    await doSearch(activeKeyword, court, searchType, newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleReset = () => {
     setCourt('High Court');
     setKeyword('');
     setSearchType('phrase');
-    setCaptchaValue('');
     setError('');
     setHasSearched(false);
     setResults([]);
     setActiveKeyword('');
+    setTotalHits(0);
+    setPage(1);
   };
 
-  const removeKeyword = () => {
-    setHasSearched(false);
-    setResults([]);
-    setActiveKeyword('');
-    setKeyword('');
-  };
+  const removeKeyword = () => handleReset();
 
   const highlightKeyword = (text, word) => {
-    if (!word) return text;
-    const regex = new RegExp(`(${word})`, 'gi');
+    if (!word || !text) return text;
+    const regex = new RegExp(`(${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
     const parts = text.split(regex);
-    return parts.map((part, i) => 
+    return parts.map((part, i) =>
       regex.test(part) ? <mark key={i} className="highlighted-keyword">{part}</mark> : part
     );
   };
@@ -97,7 +125,6 @@ const ResearchPage = () => {
   return (
     <div className="research-page">
       <Navbar />
-      
       <main className="research-main">
         <div className="research-header">
           <span className="research-badge" id="research-badge-label">LEGAL RESEARCH</span>
@@ -107,24 +134,23 @@ const ResearchPage = () => {
 
         <div className="research-content-container">
           <div className="research-main-column">
-            
-            {/* Search Form */}
             <div className="search-form-card">
               <form onSubmit={handleSearch}>
                 <div className="form-row">
                   <div className="form-group">
                     <label>Court</label>
                     <select value={court} onChange={(e) => setCourt(e.target.value)} className="form-select">
-                      <option value="High Court">High Court</option>
-                      <option value="Supreme Court">Supreme Court</option>
-                      <option value="District Court">District Court</option>
+                      <option>High Court</option>
+                      <option>Supreme Court</option>
+                      <option>District Court</option>
+                      <option>Tribunal</option>
                     </select>
                   </div>
                   <div className="form-group flex-grow">
                     <label>Keyword</label>
-                    <input 
-                      type="text" 
-                      placeholder="Enter Keyword..." 
+                    <input
+                      type="text"
+                      placeholder="e.g. contract breach, bail application, Section 138..."
                       value={keyword}
                       onChange={(e) => setKeyword(e.target.value)}
                       className="form-input"
@@ -134,47 +160,23 @@ const ResearchPage = () => {
 
                 <div className="form-options">
                   <span className="options-label">Search Type:</span>
-                  <label className="radio-label">
-                    <input type="radio" value="phrase" checked={searchType === 'phrase'} onChange={(e) => setSearchType(e.target.value)} />
-                    Phrase(s)
-                  </label>
-                  <label className="radio-label">
-                    <input type="radio" value="any" checked={searchType === 'any'} onChange={(e) => setSearchType(e.target.value)} />
-                    Any Words
-                  </label>
-                  <label className="radio-label">
-                    <input type="radio" value="all" checked={searchType === 'all'} onChange={(e) => setSearchType(e.target.value)} />
-                    All Words
-                  </label>
+                  {['phrase', 'any', 'all'].map((type) => (
+                    <label key={type} className="radio-label">
+                      <input
+                        type="radio"
+                        value={type}
+                        checked={searchType === type}
+                        onChange={(e) => setSearchType(e.target.value)}
+                      />
+                      {type === 'phrase' ? 'Phrase(s)' : type === 'any' ? 'Any Words' : 'All Words'}
+                    </label>
+                  ))}
                 </div>
 
-                <div className="captcha-search-row">
-                  <div className="captcha-container">
-                    <div className="captcha-image">
-                      <span>5Z1bP6</span>
-                    </div>
-                    <button type="button" className="captcha-icon-btn" title="Listen">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                      </svg>
-                    </button>
-                    <button type="button" className="captcha-icon-btn" title="Refresh">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="23 4 23 10 17 10"></polyline>
-                        <polyline points="1 20 1 14 7 14"></polyline>
-                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-                      </svg>
-                    </button>
-                    <input 
-                      type="text" 
-                      className="captcha-input" 
-                      placeholder="Enter captcha" 
-                      value={captchaValue}
-                      onChange={(e) => setCaptchaValue(e.target.value)}
-                    />
+                <div className="captcha-search-row" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div className="captcha-disclaimer" style={{ fontSize: '0.75rem', color: '#666', maxWidth: '300px' }}>
+                    This site is protected by reCAPTCHA and the Google <a href="https://policies.google.com/privacy" target="_blank" rel="noreferrer">Privacy Policy</a> and <a href="https://policies.google.com/terms" target="_blank" rel="noreferrer">Terms of Service</a> apply.
                   </div>
-                  
                   <div className="form-buttons">
                     <button type="button" className="btn-reset" onClick={handleReset}>Reset</button>
                     <button type="submit" className="btn-search" disabled={isLoading}>
@@ -185,17 +187,16 @@ const ResearchPage = () => {
                 {error && <div className="captcha-error">{error}</div>}
               </form>
             </div>
-            
+
             <div className="search-footer-note">
-              Enter keywords, acts or any free text and find specific judgments and orders
+              Enter keywords, acts, section numbers or any free text to find judgments and orders
             </div>
 
-            {/* Results Display */}
             {hasSearched && (
               <div className="results-container">
                 <div className="results-header">
                   <div className="results-count">
-                    <h2>About {results.length} results</h2>
+                    <h2>About {totalHits.toLocaleString()} results</h2>
                     {activeKeyword && (
                       <div className="filter-chip">
                         Keyword: {activeKeyword}
@@ -203,57 +204,78 @@ const ResearchPage = () => {
                       </div>
                     )}
                   </div>
-                  <div className="results-pagination-controls">
-                    <label>Show entries:</label>
-                    <select className="entries-select">
-                      <option value="10">10</option>
-                      <option value="25">25</option>
-                      <option value="50">50</option>
-                    </select>
-                  </div>
                 </div>
 
-                <div className="results-list">
-                  {results.map((result) => (
-                    <div key={result.id} className="result-card">
-                      <a href="#" className="result-title">{result.title}</a>
-                      <p className="result-judge"><strong>Judge:</strong> {result.judge}</p>
-                      
-                      <div className="result-snippet">
-                        {highlightKeyword(result.snippet, activeKeyword)}
-                      </div>
-
-                      <div className="result-metadata">
-                        <div className="metadata-item">
-                          <span className="meta-label">CNR Number</span>
-                          <span className="meta-value">{result.metadata.cnr}</span>
+                {results.length === 0 ? (
+                  <div className="no-results">No judgments found for "{activeKeyword}". Try different keywords or broaden your search type.</div>
+                ) : (
+                  <>
+                    <div className="results-list">
+                      {results.map((result) => (
+                        <div key={result.cnr} className="result-card">
+                          <Link to={`/case/${result.cnr}`} className="result-title">
+                            {buildTitle(result)}
+                          </Link>
+                          <p className="result-judge">
+                            <strong>Judge:</strong> {result.judges?.[0] || 'Not specified'}
+                          </p>
+                          {result.aiKeywords?.length > 0 && (
+                            <div className="result-snippet">
+                              {highlightKeyword(result.aiKeywords.join(' · '), activeKeyword)}
+                            </div>
+                          )}
+                          <div className="result-metadata">
+                            <div className="metadata-item">
+                              <span className="meta-label">CNR Number</span>
+                              <span className="meta-value">{result.cnr}</span>
+                            </div>
+                            <div className="metadata-item">
+                              <span className="meta-label">Filing Date</span>
+                              <span className="meta-value">{result.filingDate || '—'}</span>
+                            </div>
+                            <div className="metadata-item">
+                              <span className="meta-label">Decision Date</span>
+                              <span className="meta-value">{result.decisionDate || 'Pending'}</span>
+                            </div>
+                            <div className="metadata-item">
+                              <span className="meta-label">Status</span>
+                              <span className="meta-value">{result.caseStatus || '—'}</span>
+                            </div>
+                            <div className="metadata-item">
+                              <span className="meta-label">Court</span>
+                              <span className="meta-value">{result.courtName || result.courtCode || '—'}</span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="metadata-item">
-                          <span className="meta-label">Date of Registration</span>
-                          <span className="meta-value">{result.metadata.registeredDate}</span>
-                        </div>
-                        <div className="metadata-item">
-                          <span className="meta-label">Decision Date</span>
-                          <span className="meta-value">{result.metadata.decisionDate}</span>
-                        </div>
-                        <div className="metadata-item">
-                          <span className="meta-label">Disposal Nature</span>
-                          <span className="meta-value">{result.metadata.disposalNature}</span>
-                        </div>
-                        <div className="metadata-item">
-                          <span className="meta-label">Court</span>
-                          <span className="meta-value">{result.metadata.court}</span>
-                        </div>
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+
+                    {totalPages > 1 && (
+                      <div className="pagination-row">
+                        <button
+                          className="btn-reset"
+                          onClick={() => handlePageChange(page - 1)}
+                          disabled={page === 1 || isLoading}
+                        >
+                          ← Prev
+                        </button>
+                        <span className="page-indicator">Page {page} of {totalPages}</span>
+                        <button
+                          className="btn-reset"
+                          onClick={() => handlePageChange(page + 1)}
+                          disabled={page === totalPages || isLoading}
+                        >
+                          Next →
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             )}
           </div>
         </div>
       </main>
-
       <Footer />
     </div>
   );
