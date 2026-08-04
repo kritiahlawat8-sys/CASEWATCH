@@ -105,7 +105,7 @@ export default function Chat() {
     setIsTyping(true);
 
     try {
-      const apiBase = import.meta.env.VITE_API_URL || 'https://casewatch.onrender.com';
+      const apiBase = import.meta.env.VITE_API_URL || 'https://casewatch-ywbe.onrender.com';
       const response = await fetch(`${apiBase}/api/chat`, {
         method: 'POST',
         headers: {
@@ -143,7 +143,7 @@ export default function Chat() {
         {
           id: Date.now() + 2,
           sender: 'ai',
-          text: `Sorry, I encountered an error while processing your request. Please make sure the backend is running at https://casewatch.onrender.com and try again. (Details: ${error.message})`,
+          text: `Sorry, I encountered an error while processing your request. Please make sure the backend is running at https://casewatch-ywbe.onrender.com and try again. (Details: ${error.message})`,
           isNew: false
         }
       ]);
