@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import './Chat.css';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 // Pre-defined mock responses for realistic legal-tech queries
 const PRESETS = {
@@ -103,7 +105,7 @@ export default function Chat() {
     setIsTyping(true);
 
     try {
-      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const apiBase = import.meta.env.VITE_API_URL || 'https://casewatch.onrender.com';
       const response = await fetch(`${apiBase}/api/chat`, {
         method: 'POST',
         headers: {
@@ -141,7 +143,7 @@ export default function Chat() {
         {
           id: Date.now() + 2,
           sender: 'ai',
-          text: `Sorry, I encountered an error while processing your request. Please make sure the backend is running at http://localhost:8000 and try again. (Details: ${error.message})`,
+          text: `Sorry, I encountered an error while processing your request. Please make sure the backend is running at https://casewatch.onrender.com and try again. (Details: ${error.message})`,
           isNew: false
         }
       ]);
@@ -186,62 +188,7 @@ export default function Chat() {
     };
   }, []);
 
-  // Convert markdown-style text from mock replies to clean HTML paragraphs
-  const renderFormattedText = (rawText) => {
-    return rawText.split('\n\n').map((paragraph, pIndex) => {
-      // Headers
-      if (paragraph.startsWith('### ')) {
-        return <h4 key={pIndex} style={{ margin: '16px 0 8px', color: '#0F2C59', fontSize: '18px', fontWeight: '600' }}>{paragraph.replace('### ', '')}</h4>;
-      }
-      if (paragraph.startsWith('## ')) {
-        return <h3 key={pIndex} style={{ margin: '20px 0 10px', color: '#0F2C59', fontSize: '20px', fontWeight: '700' }}>{paragraph.replace('## ', '')}</h3>;
-      }
 
-      // Bullet points
-      if (paragraph.includes('\n* ') || paragraph.startsWith('* ') || paragraph.includes('\n- ') || paragraph.startsWith('- ')) {
-        const lines = paragraph.split('\n');
-        return (
-          <ul key={pIndex} style={{ paddingLeft: '20px', margin: '0 0 16px 0' }}>
-            {lines.map((line, lIndex) => {
-              const cleanLine = line.replace(/^[\s*-]+/, '').trim();
-              return <li key={lIndex} dangerouslySetInnerHTML={{ __html: formatInlineStyles(cleanLine) }} />;
-            })}
-          </ul>
-        );
-      }
-
-      // Numbered lists
-      if (/^\d+\./.test(paragraph) || paragraph.includes('\n1.')) {
-        const lines = paragraph.split('\n');
-        return (
-          <ol key={pIndex} style={{ paddingLeft: '20px', margin: '0 0 16px 0' }}>
-            {lines.map((line, lIndex) => {
-              const cleanLine = line.replace(/^\d+\.\s*/, '').trim();
-              return <li key={lIndex} dangerouslySetInnerHTML={{ __html: formatInlineStyles(cleanLine) }} />;
-            })}
-          </ol>
-        );
-      }
-
-      // Regular Paragraph
-      return (
-        <p
-          key={pIndex}
-          dangerouslySetInnerHTML={{ __html: formatInlineStyles(paragraph) }}
-          style={{ margin: '0 0 16px 0', lineHeight: '1.7' }}
-        />
-      );
-    });
-  };
-
-  // Helper for strong text parsing: **text** -> <strong>text</strong>
-  const formatInlineStyles = (text) => {
-    let formatted = text
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/`(.*?)`/g, '<code style="background: rgba(27, 54, 93, 0.05); padding: 2px 6px; border-radius: 4px; font-family: monospace;">$1</code>');
-    return formatted;
-  };
 
   return (
     <div className="chat-page-wrapper">
@@ -281,7 +228,23 @@ export default function Chat() {
                       className={`chat-ai-response-text ${msg.isNew ? 'chat-typewriter-effect' : ''}`}
                       style={msg.isNew ? { "--typewriter-duration": `${msg.duration}s` } : undefined}
                     >
-                      {renderFormattedText(msg.text)}
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          h1: ({node, ...props}) => <h1 style={{fontSize:'1.4rem', fontWeight:'700', margin:'12px 0 6px'}} {...props}/>,
+                          h2: ({node, ...props}) => <h2 style={{fontSize:'1.2rem', fontWeight:'700', margin:'10px 0 6px'}} {...props}/>,
+                          h3: ({node, ...props}) => <h3 style={{fontSize:'1.1rem', fontWeight:'600', margin:'8px 0 4px'}} {...props}/>,
+                          h4: ({node, ...props}) => <h4 style={{fontSize:'1rem', fontWeight:'600', margin:'6px 0 4px'}} {...props}/>,
+                          ul: ({node, ...props}) => <ul style={{paddingLeft:'20px', margin:'6px 0'}} {...props}/>,
+                          ol: ({node, ...props}) => <ol style={{paddingLeft:'20px', margin:'6px 0'}} {...props}/>,
+                          li: ({node, ...props}) => <li style={{margin:'3px 0'}} {...props}/>,
+                          p: ({node, ...props}) => <p style={{margin:'6px 0', lineHeight:'1.6'}} {...props}/>,
+                          strong: ({node, ...props}) => <strong style={{fontWeight:'700'}} {...props}/>,
+                          a: ({node, ...props}) => <a style={{color:'#1a56db', textDecoration:'underline'}} target="_blank" rel="noreferrer" {...props}/>
+                        }}
+                      >
+                        {msg.text}
+                      </ReactMarkdown>
                     </div>
                   </div>
                 )}
