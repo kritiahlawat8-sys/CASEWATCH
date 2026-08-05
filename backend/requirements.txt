@@ -9,3 +9,4 @@ google-genai
 arq
 rq==1.16.2
 groq
+groq>=1.6.0
