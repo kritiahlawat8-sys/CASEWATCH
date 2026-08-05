@@ -250,14 +250,35 @@ export default function Chat() {
                         remarkPlugins={[remarkGfm]}
                         components={{
                           h1: ({node, ...props}) => <h1 style={{fontSize:'1.4rem', fontWeight:'700', margin:'12px 0 6px'}} {...props}/>,
-                          h2: ({node, ...props}) => <h2 style={{fontSize:'1.2rem', fontWeight:'700', margin:'10px 0 6px'}} {...props}/>,
-                          h3: ({node, ...props}) => <h3 style={{fontSize:'1.1rem', fontWeight:'600', margin:'8px 0 4px'}} {...props}/>,
+                          h2: ({node, ...props}) => (
+                            <h2 style={{
+                              fontFamily: 'var(--nav-font, "Inter", sans-serif)',
+                              fontSize: '1.25rem',
+                              fontWeight: '700',
+                              color: '#1c1c1c',
+                              margin: '22px 0 10px'
+                            }} {...props}/>
+                          ),
+                          h3: ({node, ...props}) => (
+                            <h3 style={{
+                              fontFamily: 'var(--nav-font, "Inter", sans-serif)',
+                              fontSize: '1.05rem',
+                              fontWeight: '600',
+                              color: '#1c1c1c',
+                              margin: '18px 0 8px'
+                            }} {...props}/>
+                          ),
                           h4: ({node, ...props}) => <h4 style={{fontSize:'1rem', fontWeight:'600', margin:'6px 0 4px'}} {...props}/>,
-                          ul: ({node, ...props}) => <ul style={{paddingLeft:'20px', margin:'4px 0'}} {...props}/>,
-                          ol: ({node, ...props}) => <ol style={{paddingLeft:'20px', margin:'4px 0'}} {...props}/>,
+                          ul: ({node, ...props}) => <ul style={{paddingLeft:'24px', margin:'4px 0', listStyleType:'disc'}} {...props}/>,
+                          ol: ({node, ...props}) => <ol style={{paddingLeft:'24px', margin:'4px 0', listStyleType:'decimal'}} {...props}/>,
                           li: ({node, ...props}) => <li style={{margin:'2px 0'}} {...props}/>,
                           p: ({node, ...props}) => <p style={{margin:'4px 0', lineHeight:'1.6'}} {...props}/>,
-                          strong: ({node, ...props}) => <strong style={{fontWeight:'700'}} {...props}/>,
+                          strong: ({node, ...props}) => (
+                            <strong style={{
+                              fontWeight: '600',
+                              color: '#1a1a1a'
+                            }} {...props}/>
+                          ),
                           a: ({node, ...props}) => <a style={{color:'#1a56db', textDecoration:'underline'}} target="_blank" rel="noreferrer" {...props}/>
                         }}
                       >

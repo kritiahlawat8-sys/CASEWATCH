@@ -300,10 +300,16 @@
   margin-top: 0;
 }
 
-.chat-ai-response-text ul,
+.chat-ai-response-text ul {
+  margin: 4px 0 8px 0 !important;
+  padding-left: 24px !important;
+  list-style-type: disc !important;
+}
+
 .chat-ai-response-text ol {
   margin: 4px 0 8px 0 !important;
-  padding-left: 20px;
+  padding-left: 24px !important;
+  list-style-type: decimal !important;
 }
 
 .chat-ai-response-text li {
