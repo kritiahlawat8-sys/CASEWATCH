@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import './ResearchPage.css';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'https://casewatch.onrender.com';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://casewatch-ywbe.onrender.com';
 const RECAPTCHA_SITE_KEY = import.meta.env.VITE_RECAPTCHA_V3_SITEKEY;
 
 const loadRecaptcha = () =>

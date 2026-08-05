@@ -4,7 +4,7 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CaseDetails from '../components/CaseDetails';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'https://casewatch.onrender.com';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://casewatch-ywbe.onrender.com';
 
 const CasePage: React.FC = () => {
   const { cnr } = useParams<{ cnr: string }>();

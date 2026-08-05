@@ -99,7 +99,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
         });
       }
 
-      const apiUrl = import.meta.env.VITE_API_URL || 'https://casewatch.onrender.com';
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://casewatch-ywbe.onrender.com';
       console.log('Fetching case from:', apiUrl);
       const res = await fetch(`${apiUrl}/api/cases/lookup`, {
         method: 'POST',

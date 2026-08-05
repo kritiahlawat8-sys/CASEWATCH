@@ -129,7 +129,7 @@ const CaseDetails: React.FC<CaseDetailsProps> = ({ caseData: rawCaseData, onBack
     if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
       return 'http://localhost:8000';
     }
-    return 'https://casewatch.onrender.com';
+    return 'https://casewatch-ywbe.onrender.com';
   };
 
   // ── Job polling ref (cleared on unmount / completion) ──────────────
