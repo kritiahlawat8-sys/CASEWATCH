@@ -74,13 +74,30 @@ export default function Chat() {
   const [isTyping, setIsTyping] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const conversationEndRef = useRef(null);
+  const latestAiMessageRef = useRef(null);
+  const scrollContainerRef = useRef(null);
 
-  // Auto-scroll to bottom of the message container
+  // Auto-scroll logic
   useEffect(() => {
-    if (conversationEndRef.current) {
-      conversationEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (messages.length === 0) return;
+    const lastMessage = messages[messages.length - 1];
+    
+    if (lastMessage.sender === 'user') {
+      if (conversationEndRef.current) {
+        conversationEndRef.current.scrollIntoView({ block: 'end' });
+      }
+    } else if (lastMessage.sender === 'ai') {
+      const timer = setTimeout(() => {
+        if (latestAiMessageRef.current && scrollContainerRef.current) {
+          const container = scrollContainerRef.current;
+          const target = latestAiMessageRef.current;
+          const offsetTop = target.offsetTop - container.offsetTop;
+          container.scrollTo({ top: offsetTop, behavior: 'smooth' });
+        }
+      }, 100);
+      return () => clearTimeout(timer);
     }
-  }, [messages, isTyping]);
+  }, [messages]);
 
   const handleSendMessage = async (textToSend) => {
     if (!textToSend.trim()) return;
@@ -209,9 +226,13 @@ export default function Chat() {
 
         {/* Active conversation messages */}
         {isSubmitted && (
-          <div className="chat-conversation-area">
-            {messages.map((msg) => (
-              <div key={msg.id} className={`chat-message-row ${msg.sender === 'user' ? 'user-msg' : 'ai-msg'}`}>
+          <div className="chat-conversation-area" ref={scrollContainerRef}>
+            {messages.map((msg, index) => (
+              <div 
+                key={msg.id} 
+                className={`chat-message-row ${msg.sender === 'user' ? 'user-msg' : 'ai-msg'}`}
+                ref={index === messages.length - 1 && msg.sender === 'ai' ? latestAiMessageRef : undefined}
+              >
                 {msg.sender === 'ai' && (
                   <div className="chat-ai-avatar">
                     <img src="/logo.png" alt="CaseWatch AI" />
@@ -224,10 +245,7 @@ export default function Chat() {
                   </div>
                 ) : (
                   <div className="chat-ai-response-container">
-                    <div 
-                      className={`chat-ai-response-text ${msg.isNew ? 'chat-typewriter-effect' : ''}`}
-                      style={msg.isNew ? { "--typewriter-duration": `${msg.duration}s` } : undefined}
-                    >
+                    <div className="chat-ai-response-text">
                       <ReactMarkdown
                         remarkPlugins={[remarkGfm]}
                         components={{
@@ -235,10 +253,10 @@ export default function Chat() {
                           h2: ({node, ...props}) => <h2 style={{fontSize:'1.2rem', fontWeight:'700', margin:'10px 0 6px'}} {...props}/>,
                           h3: ({node, ...props}) => <h3 style={{fontSize:'1.1rem', fontWeight:'600', margin:'8px 0 4px'}} {...props}/>,
                           h4: ({node, ...props}) => <h4 style={{fontSize:'1rem', fontWeight:'600', margin:'6px 0 4px'}} {...props}/>,
-                          ul: ({node, ...props}) => <ul style={{paddingLeft:'20px', margin:'6px 0'}} {...props}/>,
-                          ol: ({node, ...props}) => <ol style={{paddingLeft:'20px', margin:'6px 0'}} {...props}/>,
-                          li: ({node, ...props}) => <li style={{margin:'3px 0'}} {...props}/>,
-                          p: ({node, ...props}) => <p style={{margin:'6px 0', lineHeight:'1.6'}} {...props}/>,
+                          ul: ({node, ...props}) => <ul style={{paddingLeft:'20px', margin:'4px 0'}} {...props}/>,
+                          ol: ({node, ...props}) => <ol style={{paddingLeft:'20px', margin:'4px 0'}} {...props}/>,
+                          li: ({node, ...props}) => <li style={{margin:'2px 0'}} {...props}/>,
+                          p: ({node, ...props}) => <p style={{margin:'4px 0', lineHeight:'1.6'}} {...props}/>,
                           strong: ({node, ...props}) => <strong style={{fontWeight:'700'}} {...props}/>,
                           a: ({node, ...props}) => <a style={{color:'#1a56db', textDecoration:'underline'}} target="_blank" rel="noreferrer" {...props}/>
                         }}

@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700&display=swap');
-
 .chat-page-wrapper {
   background-color: #f5f4f0; /* Matches --why-bg-light and --faq-bg */
   color: #1c1c1c; /* Matches --text-primary */
@@ -209,6 +208,9 @@
   display: flex;
   width: 100%;
   margin-bottom: 8px;
+  animation: none !important;
+  opacity: 1 !important;
+  transition: none !important;
 }
 
 .chat-message-row.user-msg {
@@ -231,7 +233,6 @@
   line-height: 1.5;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   word-break: break-word;
-  animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* AI Plain text style (Gemini style) */
@@ -257,6 +258,9 @@
   display: flex;
   flex-direction: column;
   max-width: calc(100% - 48px);
+  animation: none !important;
+  opacity: 1 !important;
+  transition: none !important;
 }
 
 .chat-ai-response-text {
@@ -275,17 +279,18 @@
   margin-bottom: 0;
 }
 
-.chat-ai-response-text ul, .chat-ai-response-text ol {
-  margin: 0 0 16px 0;
+.chat-ai-response-text ul,
+.chat-ai-response-text ol {
+  margin: 4px 0 !important;
   padding-left: 20px;
 }
 
 .chat-ai-response-text li {
-  margin-bottom: 8px;
+  margin: 2px 0 !important;
 }
 
-.chat-ai-response-text li:last-child {
-  margin-bottom: 0;
+.chat-ai-response-text li p {
+  margin: 0 !important;
 }
 
 .chat-ai-response-text strong {
@@ -336,16 +341,6 @@
   }
 }
 
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
 
 @keyframes shimmer {
   0% {
@@ -407,21 +402,5 @@
   
   .chat-ai-response-text {
     font-size: 14px;
-  }
-}
-
-/* Fake Typewriter Animation */
-.chat-typewriter-effect {
-  animation: typewriterReveal var(--typewriter-duration, 2s) ease-out forwards;
-}
-
-@keyframes typewriterReveal {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
