@@ -39,7 +39,7 @@ export default function Contact() {
             <div className="contact-row">
               <span className="contact-label">Email</span>
               <div className="contact-value">
-                <a href="mailto:casewatch.contact@gmail.com">casewatch.contact@gmail.com</a>
+                <a href="mailto:contact@casewatch.site">contact@casewatch.site</a>
               </div>
             </div>
             
