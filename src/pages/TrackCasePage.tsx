@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CaseDetails from '../components/CaseDetails';
@@ -13,6 +14,9 @@ type Step = 1 | 2 | 3 | 4;
 
 
 const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [selectedCourt, setSelectedCourt] = useState('');
   const [isVerified, setIsVerified] = useState(false);
@@ -32,6 +36,15 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
   const [caseError, setCaseError] = useState<string | null>(null);
 
   const cardRef = useRef<HTMLElement>(null);
+
+  const goToStep = (step: Step, cnr: string = crnNumber) => {
+    const params = new URLSearchParams();
+    params.set('step', String(step));
+    if (cnr) {
+      params.set('cnr', cnr);
+    }
+    navigate(`${location.pathname}?${params.toString()}`);
+  };
 
   // Fetch categories on mount
   useEffect(() => {
@@ -120,7 +133,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
 
   // Handle auto-lookup from homepage CNR search and step query parameters
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(location.search);
     let cnrVal = params.get('cnr');
     if (!cnrVal) {
       cnrVal = localStorage.getItem('cnr_search');
@@ -159,14 +172,22 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
       // If step is 3 or 4, trigger case details lookup automatically!
       if (stepNum >= 3 && activeCnr) {
         setIsVerified(true);
-        fetchCaseDetails(activeCnr);
+        fetchCaseDetails(activeCnr, partyName);
+      } else {
+        setIsVerified(false);
+        setCaseData(null);
       }
+    } else {
+      setCurrentStep(1);
+      setIsVerified(false);
+      setCaseData(null);
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search]);
 
   useEffect(() => {
     const handleReset = () => {
-      setCurrentStep(1);
+      navigate(location.pathname);
       setSelectedCourt('');
       setSelectedCourtData(null);
       setIsVerified(false);
@@ -180,7 +201,8 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
     return () => {
       window.removeEventListener('reset-track-case', handleReset);
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
 
   // Scroll to the interactive card section
   const scrollToCard = () => {
@@ -206,7 +228,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
 
   const handleCourtProceed = () => {
     if (selectedCourt) {
-      setCurrentStep(2);
+      goToStep(2);
       setTimeout(() => scrollToCard(), 50);
     }
   };
@@ -214,20 +236,18 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (crnNumber.trim()) {
-      setIsVerified(true);
-      setCurrentStep(3);
-      await fetchCaseDetails(crnNumber, partyName);
+      goToStep(3, crnNumber.trim());
     }
   };
 
   const handleProceedClick = () => {
-    setCurrentStep(4);
+    goToStep(4);
     if (onProceed) onProceed(crnNumber);
   };
 
   const handleCnrRetry = () => {
     setCaseError(null);
-    setCurrentStep(2);
+    goToStep(2);
   };
 
   // Dynamic progress step class helper
@@ -393,7 +413,7 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
               {currentStep === 2 && (
                 <div id="formState" className="form-panel">
                   <div className="step-back-bar">
-                    <button type="button" className="step-back-btn" onClick={() => { setCurrentStep(1); setTimeout(() => scrollToCard(), 50); }}>
+                    <button type="button" className="step-back-btn" onClick={() => { goToStep(1); setTimeout(() => scrollToCard(), 50); }}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                         <line x1="19" y1="12" x2="5" y2="12" />
                         <polyline points="12 19 5 12 12 5" />
@@ -569,12 +589,12 @@ const TrackCasePage: React.FC<TrackCasePageProps> = ({ onProceed }) => {
                 </svg>
                 <h3>Verification Failed</h3>
                 <p>{caseError}</p>
-                <button className="pg-submit-btn" style={{ marginTop: '20px' }} onClick={() => setCurrentStep(2)}>
+                <button className="pg-submit-btn" style={{ marginTop: '20px' }} onClick={() => goToStep(2)}>
                   Try Again
                 </button>
               </div>
             ) : caseData ? (
-              <CaseDetails caseData={caseData} onBack={() => { setCurrentStep(2); setCaseData(null); }} />
+              <CaseDetails caseData={caseData} onBack={() => goToStep(2)} />
             ) : null}
           </div>
         )}

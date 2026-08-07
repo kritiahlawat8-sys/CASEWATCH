@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import './ResearchPage.css';
@@ -34,6 +34,9 @@ const buildTitle = (result) => {
 };
 
 const ResearchPage = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [court, setCourt] = useState('High Court');
   const [keyword, setKeyword] = useState('');
   const [searchType, setSearchType] = useState('phrase');
@@ -86,16 +89,35 @@ const ResearchPage = () => {
     }
   };
 
-  const handleSearch = async (e) => {
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const q = params.get('q');
+    const courtParam = params.get('court') || 'High Court';
+    const typeParam = params.get('type') || 'phrase';
+    const pageParam = params.get('page') ? parseInt(params.get('page'), 10) : 1;
+
+    if (q && q.trim()) {
+      setKeyword(q.trim());
+      setCourt(courtParam);
+      setSearchType(typeParam);
+      setPage(pageParam);
+      doSearch(q.trim(), courtParam, typeParam, pageParam);
+    } else {
+      setHasSearched(false);
+      setResults([]);
+      setActiveKeyword('');
+      setPage(1);
+    }
+  }, [location.search]);
+
+  const handleSearch = (e) => {
     e.preventDefault();
     if (!keyword.trim()) return;
-    setPage(1);
-    await doSearch(keyword.trim(), court, searchType, 1);
+    navigate(`/research?q=${encodeURIComponent(keyword.trim())}&court=${court}&type=${searchType}&page=1`);
   };
 
-  const handlePageChange = async (newPage) => {
-    setPage(newPage);
-    await doSearch(activeKeyword, court, searchType, newPage);
+  const handlePageChange = (newPage) => {
+    navigate(`/research?q=${encodeURIComponent(activeKeyword)}&court=${court}&type=${searchType}&page=${newPage}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -104,11 +126,7 @@ const ResearchPage = () => {
     setKeyword('');
     setSearchType('phrase');
     setError('');
-    setHasSearched(false);
-    setResults([]);
-    setActiveKeyword('');
-    setTotalHits(0);
-    setPage(1);
+    navigate('/research');
   };
 
   const removeKeyword = () => handleReset();
