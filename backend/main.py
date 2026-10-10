@@ -24,6 +24,10 @@ from app.cache import r
 from contextlib import asynccontextmanager
 from arq import create_pool
 from arq.connections import RedisSettings
+try:
+    from seed_courts import COURTS
+except ImportError:
+    COURTS = []
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 ECOURTS_API_KEY = os.getenv("ECOURTS_API_KEY")
@@ -254,8 +258,9 @@ async def chat_backend(request: ChatRequest):
             if text:
                 formatted_history.append({"role": role, "content": text})
 
+        model_name = os.environ.get("GROQ_MODEL", "openai/gpt-oss-120b")
         chat_completion = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
+            model=model_name,
             messages=[
                 {"role": "system", "content": system_instruction},
                 *formatted_history,
@@ -308,8 +313,11 @@ def health():
 
 @app.get("/api/courts/ping-db")
 def ping_db():
-    result = supabase.table("courts").select("id").limit(1).execute()
-    return {"db": "connected", "sample": result.data}
+    try:
+        result = supabase.table("courts").select("id").limit(1).execute()
+        return {"db": "connected", "sample": result.data}
+    except Exception as e:
+        return {"db": "disconnected", "error": str(e), "fallback": "local_data_available"}
 
 
 # Courts Search
@@ -340,7 +348,20 @@ def search_courts(
         return {"count": len(result.data), "courts": result.data}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
+        print(f"Supabase search failed ({e}), using local courts data fallback...")
+        filtered = list(COURTS)
+        if category and category.strip():
+            filtered = [c for c in filtered if c.get("category", "").lower() == category.strip().lower()]
+        if state and state.strip():
+            filtered = [c for c in filtered if state.strip().lower() in c.get("state", "").lower()]
+        if q and q.strip():
+            term = q.strip().lower()
+            filtered = [
+                c for c in filtered
+                if term in c.get("label", "").lower() or term in c.get("state", "").lower()
+            ]
+        filtered = filtered[:limit]
+        return {"count": len(filtered), "courts": filtered}
 
 
 @app.get("/api/courts/categories")
@@ -354,9 +375,13 @@ def get_categories():
                 if isinstance(cat, str) and cat:
                     raw_categories.append(cat)
         categories = sorted(list(set(raw_categories)))
+        if not categories:
+            raise ValueError("No categories returned from database")
         return {"categories": categories}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed: {str(e)}")
+        print(f"Supabase categories failed ({e}), using local categories fallback...")
+        categories = sorted(list({c["category"] for c in COURTS if c.get("category")}))
+        return {"categories": categories}
 
 
 @app.get("/api/courts/{court_id}")
@@ -369,7 +394,11 @@ def get_court_by_id(court_id: str):
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed: {str(e)}")
+        print(f"Supabase get_court failed ({e}), checking local courts fallback...")
+        for c in COURTS:
+            if c.get("id") == court_id:
+                return c
+        raise HTTPException(status_code=404, detail=f"Court '{court_id}' not found")
 
 
 # Case Lookup  ← REAL eCourts API
